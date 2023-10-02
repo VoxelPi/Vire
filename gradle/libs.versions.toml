@@ -2,6 +2,7 @@
 coroutine = "1.7.2"
 event = "4.0.0-SNAPSHOT"
 junit = "5.9.2"
+log4j = "2.20.0"
 kotlin = "1.9.10"
 slf4j = "1.7.36"
 
@@ -15,6 +16,7 @@ event-api = { module = "net.kyori:event-api", version.ref = "event" }
 event-method = { module = "net.kyori:event-method", version.ref = "event" }
 
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
