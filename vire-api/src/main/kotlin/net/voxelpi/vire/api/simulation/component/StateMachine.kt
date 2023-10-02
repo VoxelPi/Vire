@@ -9,7 +9,7 @@ import net.voxelpi.vire.api.simulation.network.NetworkState
  * It is responsible for reading the components inputs and updating its outputs.
  */
 abstract class StateMachine(
-    val key: Identifier
+    val identifier: Identifier
 ) {
 
     constructor(library: Library, id: String) : this(Identifier.create(library.id, id))
