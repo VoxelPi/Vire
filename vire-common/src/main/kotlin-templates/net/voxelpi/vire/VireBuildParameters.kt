@@ -1,4 +1,4 @@
-package net.voxelpi.viremc
+package net.voxelpi.vire
 
 object VireBuildParameters {
 
