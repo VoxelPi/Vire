@@ -11,6 +11,7 @@ dependencies {
     // Libraries
     compileOnlyApi(libs.bundles.event)
     compileOnlyApi(libs.slf4j.api)
+    compileOnlyApi(libs.kotlin.logging.jvm)
 
     // Tests
     testImplementation(kotlin("test"))

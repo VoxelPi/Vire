@@ -1,5 +1,6 @@
 package net.voxelpi.vire.simulation
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.voxelpi.vire.VireImplementation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -10,9 +11,12 @@ class VireSimulationTest {
 
     private lateinit var simulation: VireSimulation
 
+    private val logger = KotlinLogging.logger {}
+
     @BeforeEach
     fun setUp() {
         simulation = VireSimulation(emptyList())
+        logger.info { "Setup test simulation" }
     }
 
     @Test
