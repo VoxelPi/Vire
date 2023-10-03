@@ -1,23 +1,13 @@
 package net.voxelpi.vire.api.simulation.network
 
-import net.voxelpi.vire.api.simulation.Simulation
+import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import java.util.UUID
 
 /**
  * A network of the logic simulation.
  */
-interface Network {
-
-    /**
-     * The simulation the network belongs to.
-     */
-    val simulation: Simulation
-
-    /**
-     * The unique id of the network.
-     */
-    val uniqueId: UUID
+interface Network : SimulationObject {
 
     /**
      * The state of the network.

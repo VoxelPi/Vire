@@ -1,22 +1,11 @@
 package net.voxelpi.vire.api.simulation.network
 
-import net.voxelpi.vire.api.simulation.Simulation
-import java.util.UUID
+import net.voxelpi.vire.api.simulation.SimulationObject
 
 /**
  * A node in a network.
  */
-interface NetworkNode {
-
-    /**
-     * The simulation the network node belongs to.
-     */
-    val simulation: Simulation
-
-    /**
-     * The unique id of the node.
-     */
-    val uniqueId: UUID
+interface NetworkNode : SimulationObject {
 
     /**
      * The network the node belongs to.
@@ -27,4 +16,19 @@ interface NetworkNode {
      * Returns all nodes that are currently connected to this node.
      */
     fun connectedNodes(): Collection<NetworkNode>
+
+    /**
+     * Checks if the node is directly connected to the given [node].
+     */
+    fun isDirectlyConnectedTo(node: NetworkNode): Boolean
+
+    /**
+     * Checks if the node is connected to the given [node] via any path.
+     */
+    fun isConnectedTo(node: NetworkNode): Boolean
+
+    /**
+     * Removes the node from the simulation.
+     */
+    fun remove()
 }

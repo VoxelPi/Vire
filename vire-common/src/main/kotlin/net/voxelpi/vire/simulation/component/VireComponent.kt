@@ -5,13 +5,14 @@ import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.simulation.VireSimulation
+import net.voxelpi.vire.simulation.VireSimulationObject
 import java.util.UUID
 
 class VireComponent(
     override val simulation: VireSimulation,
     override val stateMachine: StateMachine,
     override val uniqueId: UUID = UUID.randomUUID(),
-) : Component {
+) : VireSimulationObject(), Component {
 
     override val stateMachineContext: VireStateMachineContext = VireStateMachineContext(stateMachine)
 

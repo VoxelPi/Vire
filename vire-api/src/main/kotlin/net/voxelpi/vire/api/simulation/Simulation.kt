@@ -62,6 +62,11 @@ interface Simulation {
     fun createNetwork(uniqueId: UUID = UUID.randomUUID(), state: NetworkState = NetworkState.None): Network
 
     /**
+     * Returns a collection of all registered network nodes.
+     */
+    fun networkNodes(): Collection<NetworkNode>
+
+    /**
      * Returns the network node with the given [uniqueId].
      */
     fun networkNode(uniqueId: UUID): NetworkNode?
@@ -76,6 +81,30 @@ interface Simulation {
      * If the nodes in connected to are in different networks, these networks will be merged.
      */
     fun createNetworkNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID = UUID.randomUUID()): NetworkNode
+
+    fun removeNetworkNode(node: NetworkNode)
+
+    /**
+     * Checks if the two given nodes [nodeA] and [nodeB] are connected directly with each other.
+     */
+    fun areNodesConnectedDirectly(nodeA: NetworkNode, nodeB: NetworkNode): Boolean
+
+    /**
+     * Checks if the two given nodes [nodeA] and [nodeB] are connected via any path.
+     */
+    fun areNodesConnected(nodeA: NetworkNode, nodeB: NetworkNode): Boolean
+
+    /**
+     * Connects the given nodes [nodeA] and [nodeB] with each other.
+     * If the nodes are in different networks, the networks get merged.
+     */
+    fun createNetworkNodeConnection(nodeA: NetworkNode, nodeB: NetworkNode)
+
+    /**
+     * Removes the connection between the given nodes [nodeA] and [nodeB].
+     * If this is the only connection between the remaining nodes, the network gets split.
+     */
+    fun removeNetworkNodeConnection(nodeA: NetworkNode, nodeB: NetworkNode)
 
     /**
      * Simulates [numberOfSteps] steps.

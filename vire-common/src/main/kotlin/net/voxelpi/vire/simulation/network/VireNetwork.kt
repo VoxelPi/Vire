@@ -4,6 +4,7 @@ import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.simulation.VireSimulation
+import net.voxelpi.vire.simulation.VireSimulationObject
 import net.voxelpi.vire.simulation.component.VireComponentPort
 import java.util.UUID
 
@@ -11,12 +12,13 @@ class VireNetwork(
     override val simulation: VireSimulation,
     override val uniqueId: UUID = UUID.randomUUID(),
     override var state: NetworkState = NetworkState.None,
-) : Network {
+) : VireSimulationObject(), Network {
 
     private val nodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
 
     fun registerNode(node: VireNetworkNode) {
         nodes[node.uniqueId] = node
+        node.network = this
     }
 
     fun unregisterNode(node: VireNetworkNode) {
@@ -38,7 +40,7 @@ class VireNetwork(
         // Register a connection to every connected node in the created node.
         for (connectedNode in connectedTo) {
             require(connectedNode is VireNetworkNode)
-            if (connectedNode.network.uniqueId != uniqueId) {
+            if (connectedNode.network.uniqueId != this.uniqueId) {
                 simulation.unregisterNetworkNode(node)
                 throw IllegalStateException("Connected node is in different network")
             }
@@ -50,6 +52,8 @@ class VireNetwork(
             require(connectedNode is VireNetworkNode)
             connectedNode.registerConnection(node)
         }
+
+        nodes[uniqueId] = node
 
         // Return the created node.
         return node

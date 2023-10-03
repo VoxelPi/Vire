@@ -1,22 +1,11 @@
 package net.voxelpi.vire.api.simulation.component
 
-import net.voxelpi.vire.api.simulation.Simulation
-import java.util.UUID
+import net.voxelpi.vire.api.simulation.SimulationObject
 
 /**
  * A component in a logic circuit.
  */
-interface Component {
-
-    /**
-     * The simulation the component belongs to.
-     */
-    val simulation: Simulation
-
-    /**
-     * The unique id of the component.
-     */
-    val uniqueId: UUID
+interface Component : SimulationObject {
 
     /**
      * The state machine of the component.

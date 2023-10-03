@@ -44,7 +44,7 @@ subprojects {
         }
 
         dokkaHtml.configure {
-            outputDirectory.set(buildDir.resolve("docs"))
+            outputDirectory.set(layout.buildDirectory.dir("docs"))
         }
     }
 
@@ -61,5 +61,5 @@ subprojects {
 }
 
 tasks.dokkaHtmlMultiModule.configure {
-    outputDirectory.set(buildDir.resolve("docs"))
+    outputDirectory.set(layout.buildDirectory.dir("docs"))
 }

@@ -86,6 +86,10 @@ class VireSimulation(
         networks.remove(network.uniqueId)
     }
 
+    override fun networkNodes(): Collection<NetworkNode> {
+        return networkNodes.values
+    }
+
     override fun networkNode(uniqueId: UUID): VireNetworkNode? {
         return networkNodes[uniqueId]
     }
@@ -118,22 +122,26 @@ class VireSimulation(
         return network.createNode(connectedTo, uniqueId)
     }
 
-    fun removeNetworkNode(networkNode: VireNetworkNode) {
+    override fun removeNetworkNode(node: NetworkNode) {
+        require(node is VireNetworkNode)
+
         // Remove node from its network.
-        networkNode.network.unregisterNode(networkNode)
+        node.network.unregisterNode(node)
+        unregisterNetworkNode(node)
 
         // If the block was the last node of the network, remove the network.
-        if (networkNode.network.nodes().isEmpty()) {
-            unregisterNetwork(networkNode.network)
+        if (node.network.nodes().isEmpty()) {
+            unregisterNetwork(node.network)
             return
         }
 
         // Query all connected network nodes.
-        val connectedNodes = networkNode.connectedNodes()
+        val connectedNodes = node.connectedNodes()
 
         // Remove all connections to the node.
-        for (connectedNode in networkNode.connectedNodes()) {
-            connectedNode.unregisterConnection(networkNode)
+        for (connectedNode in node.connectedNodes()) {
+            connectedNode.unregisterConnection(node)
+            node.unregisterConnection(connectedNode)
         }
 
         // Generate new node groups.
@@ -156,16 +164,116 @@ class VireSimulation(
         }
 
         // Reassign networks.
-        val networks = groups.map { createNetwork(state = networkNode.network.state) }
-        for (node in networkNode.network.nodes().toList()) {
-            node.network = networks[groups.indexOfFirst { it.contains(node.uniqueId) }]
+        val networks = groups.map { createNetwork(state = node.network.state) }
+        for (networkNode in node.network.nodes().toList()) {
+            networkNode.network = networks[groups.indexOfFirst { it.contains(networkNode.uniqueId) }]
         }
-        unregisterNetwork(networkNode.network)
+        unregisterNetwork(node.network)
 
         // Update network states
         for (network in networks) {
             network.pushPortOutputs()
         }
+    }
+
+    override fun areNodesConnectedDirectly(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
+        return nodeA.isDirectlyConnectedTo(nodeB)
+    }
+
+    override fun areNodesConnected(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
+        require(nodeA is VireNetworkNode)
+        require(nodeB is VireNetworkNode)
+
+        // Check if the nodes are connected directly.
+        if (areNodesConnectedDirectly(nodeA, nodeB)) {
+            return true
+        }
+
+        val checkedNodes = mutableSetOf<UUID>() // Nodes that already have been checked.
+        val nodesToCheck = nodeA.connectedNodes().toMutableList() // Nodes that should be checked in the next iteration.
+        val nodesToCheckNext = mutableListOf<VireNetworkNode>()
+        while (nodesToCheck.isNotEmpty()) {
+            for (node in nodesToCheck) {
+                // Loop over all connected nodes that have not yet been checked.
+                for (connectedNode in node.connectedNodes().filter { it.uniqueId !in checkedNodes }) {
+                    // Check if the node is the searched node.
+                    if (connectedNode == nodeB) {
+                        return true
+                    }
+
+                    // Check the nodes connections in the next iteration.
+                    nodesToCheckNext.add(connectedNode)
+                }
+            }
+
+            // Move checked nodes to checkedNodes set and setup next iteration.
+            checkedNodes.addAll(nodesToCheck.map { it.uniqueId })
+            nodesToCheck.clear()
+            nodesToCheck.addAll(nodesToCheckNext)
+        }
+
+        // The node could not be reached, therefore return false.
+        return false
+    }
+
+    override fun createNetworkNodeConnection(nodeA: NetworkNode, nodeB: NetworkNode) {
+        // Check if the two nodes are already connected.
+        if (nodeA.isDirectlyConnectedTo(nodeB)) {
+            return
+        }
+
+        // Check if the two nodes are in the same network. If not, merge the two networks.
+        require(nodeA is VireNetworkNode)
+        require(nodeB is VireNetworkNode)
+        if (nodeA.network.uniqueId != nodeB.network.uniqueId) {
+            mergeNetworks(nodeA.network, nodeB.network)
+        }
+
+        // Connect the nodes with each other.
+        nodeA.registerConnection(nodeB)
+        nodeB.registerConnection(nodeA)
+    }
+
+    override fun removeNetworkNodeConnection(nodeA: NetworkNode, nodeB: NetworkNode) {
+        // Check if the two nodes are not connected.
+        if (!nodeA.isDirectlyConnectedTo(nodeB)) {
+            return
+        }
+
+        // Remove connection
+        require(nodeA is VireNetworkNode)
+        require(nodeB is VireNetworkNode)
+        nodeA.unregisterConnection(nodeB)
+        nodeB.unregisterConnection(nodeA)
+
+        // Return if the nodes are still connected, otherwise the network has to be split.
+        if (areNodesConnected(nodeA, nodeB)) {
+            return
+        }
+
+        val oldNetwork = nodeA.network
+
+        // Create a new group.
+        val networkANodes = mutableSetOf(nodeA.uniqueId)
+        val networkBNodes = mutableSetOf(nodeB.uniqueId)
+        collectConnectedNodes(nodeA, networkANodes)
+        collectConnectedNodes(nodeB, networkBNodes)
+
+        // Reassign networks.
+        val networkA = createNetwork(state = oldNetwork.state)
+        val networkB = createNetwork(state = oldNetwork.state)
+        for (networkNode in oldNetwork.nodes().toList()) {
+            when (networkNode.uniqueId) {
+                in networkANodes -> networkA
+                in networkBNodes -> networkB
+                else -> throw IllegalStateException("Connected node is in no node pool")
+            }.registerNode(networkNode)
+        }
+        unregisterNetwork(oldNetwork)
+
+        // Update network states
+        networkA.pushPortOutputs()
+        networkB.pushPortOutputs()
     }
 
     private fun collectConnectedNodes(networkNode: VireNetworkNode, collected: MutableSet<UUID>) {
@@ -198,19 +306,29 @@ class VireSimulation(
     }
 
     private fun mergeNetworks(network1: VireNetwork, network2: VireNetwork): VireNetwork {
-        if (network1.uniqueId == network2.uniqueId) {
+        // Check if the two networks are the same.
+        if (network1 == network2) {
             return network1
         }
 
+        // Create a new network.
         val network = createNetwork(state = NetworkState.merge(network1.state, network2.state))
-        val nodes = mutableListOf<VireNetworkNode>()
-        nodes.addAll(network1.nodes())
-        nodes.addAll(network2.nodes())
-        for (node in nodes) {
-            node.network = network
+
+        // Add all nodes of the previous two networks to the new network.
+        for (node in network1.nodes()) {
+            network.registerNode(node)
         }
+        for (node in network2.nodes()) {
+            network.registerNode(node)
+        }
+
+        // Unregister old networks.
         unregisterNetwork(network1)
         unregisterNetwork(network2)
+
+        // Update network states
+        network.pushPortOutputs()
+
         return network
     }
 
