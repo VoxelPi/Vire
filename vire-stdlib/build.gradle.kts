@@ -1,3 +1,7 @@
+plugins {
+    `maven-publish`
+}
+
 dependencies {
     compileOnly(kotlin("stdlib"))
 
@@ -8,6 +12,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.jupiter.platform.launcher)
 }
 
 tasks.test {

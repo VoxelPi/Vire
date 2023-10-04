@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.indra.git)
     alias(libs.plugins.blossom)
+    alias(libs.plugins.indra.git)
 }
 
 dependencies {
@@ -19,6 +19,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.jupiter.platform.launcher)
 
     testImplementation(libs.slf4j.api)
     testImplementation(libs.log4j.slf4j.impl)

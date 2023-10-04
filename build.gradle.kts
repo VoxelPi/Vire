@@ -1,9 +1,16 @@
+import net.kyori.indra.IndraPlugin
+import net.kyori.indra.IndraPublishingPlugin
+import org.jetbrains.dokka.gradle.DokkaPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+
 plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.dokka)
 //    alias(libs.plugins.ktlint) // TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
     alias(libs.plugins.shadow) apply false
+    alias(libs.plugins.indra)
     alias(libs.plugins.indra.git)
+    alias(libs.plugins.indra.publishing) apply false
     alias(libs.plugins.blossom) apply false
 }
 
@@ -19,8 +26,10 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jetbrains.dokka")
+    apply<KotlinPluginWrapper>()
+    apply<DokkaPlugin>()
+    apply<IndraPlugin>()
+    apply<IndraPublishingPlugin>()
 //    apply(plugin = "org.jlleitschuh.gradle.ktlint") // TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
 
     kotlin {
@@ -43,8 +52,39 @@ subprojects {
             }
         }
 
+        kotlin {
+            jvmToolchain {
+                languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
+            }
+        }
+
         dokkaHtml.configure {
             outputDirectory.set(layout.buildDirectory.dir("docs"))
+        }
+
+        indra {
+            mitLicense()
+
+            javaVersions {
+                target(javaVersion.toString().toInt())
+            }
+
+            github("VoxelPi", "Vire") {
+                ci(true)
+                issues(true)
+            }
+
+            configurePublications {
+                pom {
+                    developers {
+                        developer {
+                            id.set("voxelpi")
+                            name.set("VoxelPi")
+                            url.set("https://voxelpi.dev")
+                        }
+                    }
+                }
+            }
         }
     }
 
