@@ -13,8 +13,8 @@ import java.util.regex.Pattern
 data class Identifier(val namespace: String, val value: String) {
 
     init {
-        require(NAMESPACE_PATTERN.matcher(namespace).matches()) { "$namespace is not a valid namespace name" }
-        require(VALUE_PATTERN.matcher(value).matches()) { "$value is not a valid key name" }
+        require(NAMESPACE_PATTERN.matcher(namespace).matches()) { "$namespace is not a valid identifier namespace" }
+        require(VALUE_PATTERN.matcher(value).matches()) { "$value is not a valid identifier value" }
     }
 
     override fun toString(): String {
@@ -25,10 +25,10 @@ data class Identifier(val namespace: String, val value: String) {
         val NAMESPACE_PATTERN = Pattern.compile("[a-z0-9._-]+")
         val VALUE_PATTERN = Pattern.compile("[a-z0-9/._-]+")
 
-        fun parse(key: String): Identifier {
-            val index = key.indexOf(':')
-            require(index >= 0) { "$key is not a valid Key" }
-            return Identifier(key.substring(0, index), key.substring(index + 1))
+        fun parse(identifier: String): Identifier {
+            val index = identifier.indexOf(':')
+            require(index >= 0) { "$identifier is not a valid Identifier" }
+            return Identifier(identifier.substring(0, index), identifier.substring(index + 1))
         }
 
         fun create(namespace: String, value: String): Identifier {
