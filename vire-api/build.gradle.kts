@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     compileOnlyApi(kotlin("stdlib"))
     compileOnlyApi(libs.kotlin.reflect)
     compileOnlyApi(libs.bundles.kotlinx.coroutines)
@@ -17,6 +18,9 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+
+    testImplementation(libs.slf4j.api)
+    testImplementation(libs.log4j.slf4j.impl)
 }
 
 tasks.test {
