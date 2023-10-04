@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class VireSimulation(
-    modules: List<Library>,
+    libraries: List<Library>,
 ) : Simulation {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val modules: Map<String, Library>
+    private val libraries: Map<String, Library>
     private val stateMachines: Map<Identifier, StateMachine>
 
     private val components: MutableMap<UUID, VireComponent> = mutableMapOf()
@@ -31,15 +31,23 @@ class VireSimulation(
     override val eventService: VireSimulationEventService = VireSimulationEventService()
 
     init {
-        // Register modules
-        this.modules = modules.associateBy { it.id }
-        logger.info("Loaded ${modules.size} modules: ${modules.joinToString(", ", "[", "]") { it.name }}")
+        // Register libraries
+        this.libraries = libraries.associateBy { it.id }
+        logger.info("Loaded ${libraries.size} libraries: ${libraries.joinToString(", ", "[", "]") { it.name }}")
 
         // Register state machines
         val stateMachines = mutableMapOf<Identifier, StateMachine>()
-        this.modules.values.forEach { stateMachines.putAll(it.stateMachines().associateBy(StateMachine::identifier)) }
+        this.libraries.values.forEach { stateMachines.putAll(it.stateMachines().associateBy(StateMachine::identifier)) }
         this.stateMachines = stateMachines
         logger.info("Registered ${stateMachines.size} state machines")
+    }
+
+    override fun libraries(): Collection<Library> {
+        return libraries.values
+    }
+
+    override fun library(id: String): Library? {
+        return libraries[id]
     }
 
     override fun stateMachine(identifier: Identifier): StateMachine? {
@@ -354,7 +362,7 @@ class VireSimulation(
         }
     }
 
-    fun clear() {
+    override fun clear() {
         components.clear()
         networks.clear()
     }

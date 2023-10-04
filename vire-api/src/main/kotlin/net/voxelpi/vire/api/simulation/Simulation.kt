@@ -4,6 +4,7 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.event.SimulationEventService
+import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
 import net.voxelpi.vire.api.simulation.network.NetworkState
@@ -18,6 +19,16 @@ interface Simulation {
      * The event service of the simulation.
      */
     val eventService: SimulationEventService
+
+    /**
+     * Returns all registered libraries.
+     */
+    fun libraries(): Collection<Library>
+
+    /**
+     * Returns the [Library] with the given [id].
+     */
+    fun library(id: String): Library?
 
     /**
      * Returns a collection of all registered state machines.
@@ -110,4 +121,9 @@ interface Simulation {
      * Simulates [numberOfSteps] steps.
      */
     fun simulateSteps(numberOfSteps: Int)
+
+    /**
+     * Removes all registered components and networks.
+     */
+    fun clear()
 }

@@ -73,6 +73,7 @@ class VireSimulationTest {
 
         assertEquals(2, simulation.networks().size)
         assertEquals(2, simulation.networkNodes().size)
+        assert(nodeA.network != nodeB.network)
     }
 
     @Test
