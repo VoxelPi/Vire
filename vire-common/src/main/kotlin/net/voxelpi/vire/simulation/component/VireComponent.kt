@@ -1,6 +1,8 @@
 package net.voxelpi.vire.simulation.component
 
 import net.voxelpi.vire.api.simulation.component.Component
+import net.voxelpi.vire.api.simulation.component.ComponentPort
+import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
@@ -28,7 +30,6 @@ class VireComponent(
     }
 
     fun pullInputs() {
-        stateMachineContext.initializeInputs()
         for (port in ports.values) {
             val (variable, index) = port.variableView ?: continue
             if (variable is StateMachineInput) {
@@ -44,5 +45,30 @@ class VireComponent(
                 port.network.state = stateMachineContext.pushOutput(variable, index, port.network.state)
             }
         }
+    }
+
+    fun registerPort(port: VireComponentPort) {
+        ports[port.uniqueId] = port
+    }
+
+    fun unregisterPort(port: VireComponentPort) {
+        ports.remove(port.uniqueId)
+    }
+
+    override fun createPort(variableView: ComponentPortVariableView?): VireComponentPort {
+        val port = VireComponentPort(this, variableView)
+        registerPort(port)
+        return port
+    }
+
+    override fun removePort(port: ComponentPort) {
+        port.remove()
+    }
+
+    override fun remove() {
+        for (port in ports.values) {
+            port.node.remove()
+        }
+        simulation.unregisterComponent(this)
     }
 }

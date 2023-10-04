@@ -18,11 +18,15 @@ class VireNetwork(
 
     fun registerNode(node: VireNetworkNode) {
         nodes[node.uniqueId] = node
-        node.network = this
     }
 
     fun unregisterNode(node: VireNetworkNode) {
         nodes.remove(node.uniqueId)
+
+        // Remove the network if no nodes remain in the network, which means that the network is unused.
+        if (nodes.isEmpty()) {
+            remove()
+        }
     }
 
     override operator fun contains(node: NetworkNode): Boolean {
@@ -53,14 +57,12 @@ class VireNetwork(
             connectedNode.registerConnection(node)
         }
 
-        nodes[uniqueId] = node
-
         // Return the created node.
         return node
     }
 
     override fun ports(): Collection<VireComponentPort> {
-        return nodes.values.filterIsInstance<VireComponentPort>()
+        return nodes.values.mapNotNull { it.viewer }.filterIsInstance<VireComponentPort>()
     }
 
     override fun pushPortOutputs(): NetworkState {
@@ -72,5 +74,19 @@ class VireNetwork(
         }
 
         return state
+    }
+
+    override fun remove() {
+        val nodes = nodes.values.toList()
+        for (node in nodes) {
+            if (node.viewer != null) {
+                node.network = simulation.createNetwork(state = state)
+                node.network.pushPortOutputs()
+            } else {
+                simulation.unregisterNetworkNode(node)
+            }
+        }
+
+        simulation.unregisterNetwork(this)
     }
 }

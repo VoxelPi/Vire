@@ -7,9 +7,21 @@ import java.util.UUID
 
 class VireNetworkNode(
     override val simulation: VireSimulation,
-    override var network: VireNetwork = simulation.createNetwork(),
-    override val uniqueId: UUID = UUID.randomUUID()
+    network: VireNetwork = simulation.createNetwork(),
+    override val uniqueId: UUID = UUID.randomUUID(),
+    var viewer: VireNetworkNodeViewer? = null
 ) : VireSimulationObject(), NetworkNode {
+
+    init {
+        network.registerNode(this)
+    }
+
+    override var network: VireNetwork = network
+        set(value) {
+            field.unregisterNode(this)
+            field = value
+            field.registerNode(this)
+        }
 
     protected val connectedNodes: MutableSet<UUID> = mutableSetOf()
 

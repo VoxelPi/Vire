@@ -26,9 +26,4 @@ interface NetworkNode : SimulationObject {
      * Checks if the node is connected to the given [node] via any path.
      */
     fun isConnectedTo(node: NetworkNode): Boolean
-
-    /**
-     * Removes the node from the simulation.
-     */
-    fun remove()
 }

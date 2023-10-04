@@ -1,31 +1,20 @@
 package net.voxelpi.vire.api.simulation.component
 
-import net.voxelpi.vire.api.simulation.Simulation
+import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
 import net.voxelpi.vire.api.simulation.network.NetworkState
-import java.util.UUID
 
 /**
  * An interface of a component.
  * Interfaces the specified state machine input or output to connected network.
  */
-interface ComponentPort {
-
-    /**
-     * The simulation the network belongs to.
-     */
-    val simulation: Simulation
+interface ComponentPort : SimulationObject {
 
     /**
      * The component the port belongs to.
      */
     val component: Component
-
-    /**
-     * The unique id of the component port.
-     */
-    val uniqueId: UUID
 
     /**
      * The variable that should be bound to the interface.

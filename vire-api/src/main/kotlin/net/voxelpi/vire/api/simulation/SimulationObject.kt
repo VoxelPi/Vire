@@ -13,4 +13,9 @@ interface SimulationObject {
      * The unique id of the simulation object.
      */
     val uniqueId: UUID
+
+    /**
+     * Removes the object from the simulation.
+     */
+    fun remove()
 }

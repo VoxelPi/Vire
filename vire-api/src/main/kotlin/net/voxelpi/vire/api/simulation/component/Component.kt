@@ -21,4 +21,14 @@ interface Component : SimulationObject {
      * Returns a collection of all ports that belong to the component.
      */
     fun ports(): Collection<ComponentPort>
+
+    /**
+     * Creates a new component port.
+     */
+    fun createPort(variableView: ComponentPortVariableView? = null): ComponentPort
+
+    /**
+     * Removes the given [port].
+     */
+    fun removePort(port: ComponentPort)
 }

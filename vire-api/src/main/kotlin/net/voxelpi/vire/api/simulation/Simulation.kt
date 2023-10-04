@@ -58,6 +58,11 @@ interface Simulation {
     fun createComponent(stateMachine: StateMachine): Component
 
     /**
+     * Removes the given [component] from the simulation.
+     */
+    fun removeComponent(component: Component)
+
+    /**
      * Returns a collection of all registered networks.
      */
     fun networks(): Collection<Network>
@@ -71,6 +76,12 @@ interface Simulation {
      * Creates a new network with the given [uniqueId] and [state].
      */
     fun createNetwork(uniqueId: UUID = UUID.randomUUID(), state: NetworkState = NetworkState.None): Network
+
+    /**
+     * Removes the given [network] and all its nodes from the simulation.
+     * 
+     */
+    fun removeNetwork(network: Network) {}
 
     /**
      * Returns a collection of all registered network nodes.
@@ -93,6 +104,9 @@ interface Simulation {
      */
     fun createNetworkNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID = UUID.randomUUID()): NetworkNode
 
+    /**
+     * Removes the given [node] from the simulation.
+     */
     fun removeNetworkNode(node: NetworkNode)
 
     /**

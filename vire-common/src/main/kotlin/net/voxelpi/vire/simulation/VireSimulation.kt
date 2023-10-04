@@ -68,8 +68,20 @@ class VireSimulation(
 
     override fun createComponent(stateMachine: StateMachine): VireComponent {
         val component = VireComponent(this, stateMachine)
-        components[component.uniqueId] = component
+        registerComponent(component)
         return component
+    }
+
+    override fun removeComponent(component: Component) {
+        component.remove()
+    }
+
+    fun registerComponent(component: VireComponent) {
+        components[component.uniqueId] = component
+    }
+
+    fun unregisterComponent(component: VireComponent) {
+        components.remove(component.uniqueId)
     }
 
     override fun networks(): Collection<VireNetwork> {
@@ -84,6 +96,10 @@ class VireSimulation(
         val network = VireNetwork(this, uniqueId, state)
         registerNetwork(network)
         return network
+    }
+
+    override fun removeNetwork(network: Network) {
+        network.remove()
     }
 
     fun registerNetwork(network: VireNetwork) {
@@ -271,11 +287,11 @@ class VireSimulation(
         val networkA = createNetwork(state = oldNetwork.state)
         val networkB = createNetwork(state = oldNetwork.state)
         for (networkNode in oldNetwork.nodes().toList()) {
-            when (networkNode.uniqueId) {
+            networkNode.network = when (networkNode.uniqueId) {
                 in networkANodes -> networkA
                 in networkBNodes -> networkB
                 else -> throw IllegalStateException("Connected node is in no node pool")
-            }.registerNode(networkNode)
+            }
         }
         unregisterNetwork(oldNetwork)
 
@@ -324,10 +340,10 @@ class VireSimulation(
 
         // Add all nodes of the previous two networks to the new network.
         for (node in network1.nodes()) {
-            network.registerNode(node)
+            node.network = network
         }
         for (node in network2.nodes()) {
-            network.registerNode(node)
+            node.network = network
         }
 
         // Unregister old networks.
