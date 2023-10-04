@@ -62,11 +62,11 @@ class VireSimulation(
         return components.values
     }
 
-    override fun component(uniqueId: UUID): Component? {
+    override fun component(uniqueId: UUID): VireComponent? {
         return components[uniqueId]
     }
 
-    override fun createComponent(stateMachine: StateMachine): Component {
+    override fun createComponent(stateMachine: StateMachine): VireComponent {
         val component = VireComponent(this, stateMachine)
         components[component.uniqueId] = component
         return component
