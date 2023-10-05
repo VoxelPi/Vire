@@ -1,4 +1,4 @@
-package net.voxelpi.vire.simulation.component
+package net.voxelpi.vire.engine.simulation.component
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.voxelpi.vire.api.Identifier

@@ -1,7 +1,7 @@
 [versions]
 coroutine = "1.7.2"
 event = "4.0.0-SNAPSHOT"
-junit = "5.9.2"
+junit = "5.10.0"
 junitPlatform = "1.10.0"
 log4j = "2.20.0"
 kotlin = "1.9.10"
