@@ -9,7 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/vire-api" />
-            <option value="$PROJECT_DIR$/vire-common" />
+            <option value="$PROJECT_DIR$/vire-engine" />
             <option value="$PROJECT_DIR$/vire-stdlib" />
           </set>
         </option>

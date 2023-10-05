@@ -11,5 +11,5 @@ plugins {
 
 rootProject.name = "vire"
 include("vire-api")
-include("vire-common")
+include("vire-engine")
 include("vire-stdlib")
