@@ -22,17 +22,16 @@ data class Identifier(val namespace: String, val value: String) {
     }
 
     companion object {
-        val NAMESPACE_PATTERN = Pattern.compile("[a-z0-9._-]+")
-        val VALUE_PATTERN = Pattern.compile("[a-z0-9/._-]+")
+        val NAMESPACE_PATTERN: Pattern = Pattern.compile("[a-z0-9._-]+")
+        val VALUE_PATTERN: Pattern = Pattern.compile("[a-z0-9/._-]+")
 
+        /**
+         * Parse the identifier from the given string.
+         */
         fun parse(identifier: String): Identifier {
             val index = identifier.indexOf(':')
             require(index >= 0) { "$identifier is not a valid Identifier" }
             return Identifier(identifier.substring(0, index), identifier.substring(index + 1))
-        }
-
-        fun create(namespace: String, value: String): Identifier {
-            return Identifier(namespace, value)
         }
     }
 }

@@ -12,7 +12,7 @@ abstract class StateMachine(
     val identifier: Identifier
 ) {
 
-    constructor(library: Library, id: String) : this(Identifier.create(library.id, id))
+    constructor(library: Library, id: String) : this(Identifier(library.id, id))
 
     /**
      * All registered variables of the state machine.
