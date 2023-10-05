@@ -27,8 +27,9 @@ class VireSimulationTest {
     @Test
     fun connect2NodesInSameNetwork() {
         val network = simulation.createNetwork()
-        val node1 = network.createNode(emptyList())
-        val node2 = network.createNode(emptyList())
+        val node0 = network.createNode(emptyList())
+        val node1 = network.createNode(listOf(node0))
+        val node2 = network.createNode(listOf(node0))
 
         assert(!simulation.areNodesConnectedDirectly(node1, node2)) { "Nodes are connected before connecting them." }
         simulation.createNetworkNodeConnection(node1, node2)

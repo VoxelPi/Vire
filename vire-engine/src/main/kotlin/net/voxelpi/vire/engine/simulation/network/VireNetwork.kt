@@ -38,6 +38,11 @@ class VireNetwork(
     }
 
     override fun createNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID): NetworkNode {
+        // Check that the node is connected.
+        if (nodes.isNotEmpty()) {
+            require(connectedTo.isNotEmpty()) { "Created node must be connected to at least one existing node." }
+        }
+
         // Create the node.
         val node = simulation.createNetworkNode(this, uniqueId)
 
@@ -46,7 +51,7 @@ class VireNetwork(
             require(connectedNode is VireNetworkNode)
             if (connectedNode.network.uniqueId != this.uniqueId) {
                 simulation.unregisterNetworkNode(node)
-                throw IllegalStateException("Connected node is in different network")
+                throw IllegalArgumentException("Connected node is in different network")
             }
             node.registerConnection(connectedNode)
         }
