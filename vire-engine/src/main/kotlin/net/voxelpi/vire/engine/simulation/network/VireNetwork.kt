@@ -67,7 +67,7 @@ class VireNetwork(
     }
 
     override fun ports(): Collection<VireComponentPort> {
-        return nodes.values.mapNotNull { it.viewer }.filterIsInstance<VireComponentPort>()
+        return nodes.values.mapNotNull { it.holder }.filterIsInstance<VireComponentPort>()
     }
 
     override fun pushPortOutputs(): NetworkState {
@@ -84,7 +84,7 @@ class VireNetwork(
     override fun remove() {
         val nodes = nodes.values.toList()
         for (node in nodes) {
-            if (node.viewer != null) {
+            if (node.holder != null) {
                 node.network = simulation.createNetwork(state = state)
                 node.network.pushPortOutputs()
             } else {

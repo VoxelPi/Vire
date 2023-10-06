@@ -9,7 +9,7 @@ class VireNetworkNode(
     override val simulation: VireSimulation,
     network: VireNetwork = simulation.createNetwork(),
     override val uniqueId: UUID = UUID.randomUUID(),
-    var viewer: VireNetworkNodeViewer? = null
+    var holder: VireNetworkNodeHolder? = null
 ) : VireSimulationObject(), NetworkNode {
 
     init {

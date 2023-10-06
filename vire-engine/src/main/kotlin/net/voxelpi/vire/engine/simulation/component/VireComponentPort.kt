@@ -8,14 +8,14 @@ import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
-import net.voxelpi.vire.engine.simulation.network.VireNetworkNodeViewer
+import net.voxelpi.vire.engine.simulation.network.VireNetworkNodeHolder
 import java.util.UUID
 
 class VireComponentPort(
     override val component: VireComponent,
     override var variableView: ComponentPortVariableView?,
     override val uniqueId: UUID = UUID.randomUUID(),
-) : VireSimulationObject(), ComponentPort, VireNetworkNodeViewer {
+) : VireSimulationObject(), ComponentPort, VireNetworkNodeHolder {
 
     override val simulation: VireSimulation
         get() = component.simulation
@@ -31,7 +31,7 @@ class VireComponentPort(
     init {
         val network = simulation.createNetwork()
         node = simulation.createNetworkNode(network, uniqueId)
-        node.viewer = this
+        node.holder = this
     }
 
     override fun pushOutput(): NetworkState? {
