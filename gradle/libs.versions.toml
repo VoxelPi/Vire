@@ -33,7 +33,7 @@ kotlinx-coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kot
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version = "1.9.0" }
 shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.6.0" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version = "11.6.1" }
 blossom = { id = "net.kyori.blossom", version = "2.1.0" }
 indra = { id = "net.kyori.indra", version = "3.1.3"}
 indra-git = { id = "net.kyori.indra.git", version = "3.1.3" }

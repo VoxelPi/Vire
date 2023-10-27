@@ -25,6 +25,10 @@ dependencies {
     testImplementation(libs.log4j.slf4j.impl)
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 tasks.test {
     useJUnitPlatform()
 }

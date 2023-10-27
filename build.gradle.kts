@@ -2,11 +2,13 @@ import net.kyori.indra.IndraPlugin
 import net.kyori.indra.IndraPublishingPlugin
 import org.jetbrains.dokka.gradle.DokkaPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
+import org.jlleitschuh.gradle.ktlint.KtlintPlugin
 
 plugins {
-    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.dokka)
-//    alias(libs.plugins.ktlint) // TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
+    alias(libs.plugins.ktlint) // TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
+//    alias(libs.plugins.kotlinter)
     alias(libs.plugins.shadow) apply false
     alias(libs.plugins.indra)
     alias(libs.plugins.indra.git)
@@ -30,33 +32,10 @@ subprojects {
     apply<DokkaPlugin>()
     apply<IndraPlugin>()
     apply<IndraPublishingPlugin>()
-//    apply(plugin = "org.jlleitschuh.gradle.ktlint") // TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
-
-    kotlin {
-        jvmToolchain(17)
-    }
+    apply<KtlintPlugin>()
 
     tasks {
         val javaVersion = JavaVersion.VERSION_17
-
-        compileKotlin {
-            kotlinOptions {
-                jvmTarget = javaVersion.toString()
-                compilerOptions {}
-            }
-        }
-
-        java {
-            toolchain {
-                languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
-            }
-        }
-
-        kotlin {
-            jvmToolchain {
-                languageVersion.set(JavaLanguageVersion.of(javaVersion.toString()))
-            }
-        }
 
         dokkaHtml.configure {
             outputDirectory.set(layout.buildDirectory.dir("docs"))
@@ -88,16 +67,15 @@ subprojects {
         }
     }
 
-// TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
-//    ktlint {
-//        verbose.set(true)
-//        outputToConsole.set(true)
-//        coloredOutput.set(true)
-//        disabledRules.set(setOf("trailing-comma-on-declaration-site", "trailing-comma-on-call-site", "spacing-between-declarations-with-comments"))
-//        reporters {
-//            reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
-//        }
-//    }
+    ktlint {
+        version.set("1.0.0")
+        verbose.set(true)
+        outputToConsole.set(true)
+        coloredOutput.set(true)
+        reporters {
+            reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+        }
+    }
 }
 
 tasks.dokkaHtmlMultiModule.configure {

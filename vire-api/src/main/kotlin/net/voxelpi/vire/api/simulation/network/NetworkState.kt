@@ -92,7 +92,7 @@ sealed interface NetworkState {
     operator fun not(): NetworkState {
         return when {
             this == None -> value(true, 1)
-            this is Value -> Value(BooleanArray(this.channels) { index -> !this.value[index]})
+            this is Value -> Value(BooleanArray(this.channels) { index -> !this.value[index] })
             else -> Invalid
         }
     }
@@ -200,13 +200,13 @@ sealed interface NetworkState {
             }
 
             val channels = valueStates.first().channels
-            if (valueStates.any { it.channels != channels}) {
+            if (valueStates.any { it.channels != channels }) {
                 return Invalid
             }
 
             return Value(
                 BooleanArray(channels) { channel ->
-                    function(Array(states.size) { index -> states[index].let { if (it is Value) it.value[channel] else null}})
+                    function(Array(states.size) { index -> states[index].let { if (it is Value) it.value[channel] else null } })
                 }
             )
         }

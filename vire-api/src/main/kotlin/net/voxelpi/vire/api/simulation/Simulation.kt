@@ -79,7 +79,6 @@ interface Simulation {
 
     /**
      * Removes the given [network] and all its nodes from the simulation.
-     * 
      */
     fun removeNetwork(network: Network) {}
 

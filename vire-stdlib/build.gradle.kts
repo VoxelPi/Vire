@@ -15,6 +15,10 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.platform.launcher)
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 tasks.test {
     useJUnitPlatform()
 }

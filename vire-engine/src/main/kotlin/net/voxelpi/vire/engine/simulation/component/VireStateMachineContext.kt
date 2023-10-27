@@ -9,7 +9,7 @@ import net.voxelpi.vire.api.simulation.network.NetworkState
 import java.util.Arrays
 
 class VireStateMachineContext(
-    override val stateMachine: StateMachine
+    override val stateMachine: StateMachine,
 ) : StateMachineContext {
 
     private val variableStates: MutableMap<String, Any?> = mutableMapOf()

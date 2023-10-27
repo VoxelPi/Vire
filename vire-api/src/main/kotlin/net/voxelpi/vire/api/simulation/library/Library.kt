@@ -23,7 +23,9 @@ abstract class Library(
      * Registers a new state machine in the library.
      */
     protected fun register(stateMachine: StateMachine) {
-        require(!stateMachines.containsKey(stateMachine.identifier)) { "The module already has a state machine with the id ${stateMachine.identifier}." }
+        require(!stateMachines.containsKey(stateMachine.identifier)) {
+            "The module already has a state machine with the id ${stateMachine.identifier}."
+        }
 
         stateMachines[stateMachine.identifier] = stateMachine
     }

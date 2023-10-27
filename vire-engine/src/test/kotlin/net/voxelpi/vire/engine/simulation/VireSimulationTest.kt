@@ -7,10 +7,9 @@ import net.voxelpi.vire.api.simulation.component.StateMachineContext
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.api.simulation.network.NetworkState
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 class VireSimulationTest {
 
