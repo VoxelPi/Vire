@@ -8,11 +8,13 @@ import net.voxelpi.vire.api.simulation.component.StateMachine
  * @property id the id of the library.
  * @property name the name of the library.
  * @property description a description of the library.
+ * @property dependencies a list of all the dependencies of the library.
  */
 abstract class Library(
     val id: String,
     val name: String,
     val description: String,
+    val dependencies: List<String>,
 ) {
     /**
      * A map of all state machines.

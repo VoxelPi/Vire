@@ -14,7 +14,7 @@ import net.voxelpi.vire.stdlib.component.logic.OrGate
 import net.voxelpi.vire.stdlib.component.logic.XnorGate
 import net.voxelpi.vire.stdlib.component.logic.XorGate
 
-object VireStandardLibrary : Library("vire", "Vire", "The vire standard library") {
+object VireStandardLibrary : Library("vire", "Vire", "The vire standard library", emptyList()) {
 
     init {
         // Logic gates
