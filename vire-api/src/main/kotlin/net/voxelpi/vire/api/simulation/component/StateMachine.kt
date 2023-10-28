@@ -42,22 +42,22 @@ abstract class StateMachine(
     /**
      * Returns all registered variables of the state machine.
      */
-    fun variables(): Collection<StateMachineVariable<*>> {
-        return variables.values
+    fun variables(): List<StateMachineVariable<*>> {
+        return variables.values.toList()
     }
 
     /**
      * Returns all registered inputs of the state machine.
      */
-    fun inputs(): Collection<StateMachineInput> {
-        return inputs.values
+    fun inputs(): List<StateMachineInput> {
+        return inputs.values.toList()
     }
 
     /**
      * Returns all registered outputs of the state machine.
      */
-    fun outputs(): Collection<StateMachineOutput> {
-        return outputs.values
+    fun outputs(): List<StateMachineOutput> {
+        return outputs.values.toList()
     }
 
     /**

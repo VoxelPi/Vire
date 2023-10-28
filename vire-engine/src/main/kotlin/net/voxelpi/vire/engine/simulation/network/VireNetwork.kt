@@ -33,8 +33,8 @@ class VireNetwork(
         return nodes.contains(node.uniqueId)
     }
 
-    override fun nodes(): Collection<VireNetworkNode> {
-        return nodes.values
+    override fun nodes(): List<VireNetworkNode> {
+        return nodes.values.toList()
     }
 
     override fun createNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID): VireNetworkNode {

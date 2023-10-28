@@ -35,8 +35,8 @@ abstract class Library(
     /**
      * Returns all state machines provided by the library.
      */
-    fun stateMachines(): Collection<StateMachine> {
-        return stateMachines.values
+    fun stateMachines(): List<StateMachine> {
+        return stateMachines.values.toList()
     }
 
     /**

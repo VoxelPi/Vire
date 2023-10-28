@@ -42,8 +42,8 @@ class VireSimulation(
         logger.info("Registered ${stateMachines.size} state machines")
     }
 
-    override fun libraries(): Collection<Library> {
-        return libraries.values
+    override fun libraries(): List<Library> {
+        return libraries.values.toList()
     }
 
     override fun library(id: String): Library? {
@@ -54,12 +54,12 @@ class VireSimulation(
         return stateMachines[identifier]
     }
 
-    override fun stateMachines(): Collection<StateMachine> {
-        return stateMachines.values
+    override fun stateMachines(): List<StateMachine> {
+        return stateMachines.values.toList()
     }
 
-    override fun components(): Collection<VireComponent> {
-        return components.values
+    override fun components(): List<VireComponent> {
+        return components.values.toList()
     }
 
     override fun component(uniqueId: UUID): VireComponent? {
@@ -84,8 +84,8 @@ class VireSimulation(
         components.remove(component.uniqueId)
     }
 
-    override fun networks(): Collection<VireNetwork> {
-        return networks.values
+    override fun networks(): List<VireNetwork> {
+        return networks.values.toList()
     }
 
     override fun network(uniqueId: UUID): VireNetwork? {
@@ -110,8 +110,8 @@ class VireSimulation(
         networks.remove(network.uniqueId)
     }
 
-    override fun networkNodes(): Collection<NetworkNode> {
-        return networkNodes.values
+    override fun networkNodes(): List<NetworkNode> {
+        return networkNodes.values.toList()
     }
 
     override fun networkNode(uniqueId: UUID): VireNetworkNode? {

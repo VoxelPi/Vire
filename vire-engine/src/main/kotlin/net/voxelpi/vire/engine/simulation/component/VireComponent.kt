@@ -20,8 +20,8 @@ class VireComponent(
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
 
-    override fun ports(): Collection<VireComponentPort> {
-        return ports.values
+    override fun ports(): List<VireComponentPort> {
+        return ports.values.toList()
     }
 
     fun tick() {
@@ -66,7 +66,7 @@ class VireComponent(
     }
 
     override fun remove() {
-        for (port in ports.values) {
+        for (port in ports.values.toList()) {
             port.node.remove()
         }
         simulation.unregisterComponent(this)
