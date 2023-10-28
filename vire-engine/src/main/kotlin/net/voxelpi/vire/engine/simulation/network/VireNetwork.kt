@@ -37,7 +37,7 @@ class VireNetwork(
         return nodes.values
     }
 
-    override fun createNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID): NetworkNode {
+    override fun createNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID): VireNetworkNode {
         // Check that the node is connected.
         if (nodes.isNotEmpty()) {
             require(connectedTo.isNotEmpty()) { "Created node must be connected to at least one existing node." }
