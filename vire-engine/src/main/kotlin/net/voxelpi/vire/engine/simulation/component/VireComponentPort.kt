@@ -42,7 +42,9 @@ class VireComponentPort(
             return null
         }
 
-        return component.stateMachineContext.pushOutput(variable, index, network.state)
+        val output = component.stateMachineContext.pushOutput(variable, index, network.state)
+        network.state = output
+        return output
     }
 
     override fun remove() {

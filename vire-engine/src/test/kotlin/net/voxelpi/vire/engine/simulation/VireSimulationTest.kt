@@ -127,4 +127,41 @@ class VireSimulationTest {
             previousState = state
         }
     }
+
+    @Test
+    fun separateAndJoin() {
+        val outputVariable = StateMachineOutput("output")
+        val outputState = NetworkState.value(true, 1)
+
+        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
+            init {
+                declare(outputVariable)
+            }
+
+            override fun tick(context: StateMachineContext) {
+                context[outputVariable] = outputState
+            }
+        }
+
+        val component = simulation.createComponent(stateMachine)
+        val outputPort = component.createPort(outputVariable.createView())
+
+        // Simulate output.
+        simulation.simulateSteps(1)
+
+        // Connect another node to the port.
+        val node1 = outputPort.node
+        val node2 = node1.network.createNode(listOf(node1))
+        assertEquals(outputState, node2.network.state)
+
+        // Separate the nodes.
+        simulation.removeNetworkNodeConnection(node1, node2)
+        assertEquals(outputState, node1.network.state)
+        assertEquals(NetworkState.None, node2.network.state)
+
+        // Connect the nodes.
+        simulation.createNetworkNodeConnection(node1, node2)
+        assertEquals(outputState, node1.network.state)
+        assertEquals(outputState, node2.network.state)
+    }
 }

@@ -7,8 +7,7 @@ import org.jlleitschuh.gradle.ktlint.KtlintPlugin
 plugins {
     alias(libs.plugins.kotlin) apply false
     alias(libs.plugins.dokka)
-    alias(libs.plugins.ktlint) // TODO: Disable until https://github.com/JLLeitschuh/ktlint-gradle/issues/692 is fixed.
-//    alias(libs.plugins.kotlinter)
+    alias(libs.plugins.ktlint)
     alias(libs.plugins.shadow) apply false
     alias(libs.plugins.indra)
     alias(libs.plugins.indra.git)
