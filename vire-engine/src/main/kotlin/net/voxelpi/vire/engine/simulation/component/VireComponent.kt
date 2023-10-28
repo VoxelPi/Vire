@@ -30,6 +30,7 @@ class VireComponent(
     }
 
     fun pullInputs() {
+        stateMachineContext.initializeInputs()
         for (port in ports.values) {
             val (variable, index) = port.variableView ?: continue
             if (variable is StateMachineInput) {

@@ -20,7 +20,6 @@ class VireSimulationTest {
     @BeforeEach
     fun setUp() {
         simulation = VireSimulation(emptyList())
-        logger.info { "Setup test simulation" }
     }
 
     @Test
@@ -119,5 +118,13 @@ class VireSimulationTest {
         network.state = NetworkState.value(false)
         simulation.simulateSteps(1)
         assertEquals(NetworkState.value(true), network.state) { "Incorrect simulation result." }
+
+        var previousState = network.state
+        for (i in 1..100) {
+            simulation.simulateSteps(1)
+            val state = network.state
+            assertEquals(!previousState, state) { "Clock stopped working after $i cycles" }
+            previousState = state
+        }
     }
 }
