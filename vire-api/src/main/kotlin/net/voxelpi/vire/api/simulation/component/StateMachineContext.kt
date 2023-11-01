@@ -3,17 +3,22 @@ package net.voxelpi.vire.api.simulation.component
 import net.voxelpi.vire.api.simulation.network.NetworkState
 
 /**
- * The context of a state machine
+ * The context of a state machine used when updating the state machine state.
  */
-interface StateMachineContext {
+interface StateMachineContext : StateMachineParameterContext {
 
     /**
      * The state machine.
      */
-    val stateMachine: StateMachine
+    override val stateMachine: StateMachine
 
     /**
-     * Gets the value of the given [variable]].
+     * Gets the value of the given [parameter].
+     */
+    override operator fun <T> get(parameter: StateMachineParameter<T>): T
+
+    /**
+     * Gets the value of the given [variable].
      */
     operator fun <T> get(variable: StateMachineVariable<T>): T
 

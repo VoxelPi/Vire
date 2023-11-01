@@ -15,6 +15,11 @@ abstract class StateMachine(
     constructor(library: Library, id: String) : this(Identifier(library.id, id))
 
     /**
+     * All registered parameters of the state machine.
+     */
+    protected val parameters: MutableMap<String, StateMachineParameter<*>> = mutableMapOf()
+
+    /**
      * All registered variables of the state machine.
      */
     protected val variables: MutableMap<String, StateMachineVariable<*>> = mutableMapOf()
@@ -30,14 +35,21 @@ abstract class StateMachine(
     protected val outputs: MutableMap<String, StateMachineOutput> = mutableMapOf()
 
     /**
-     * Initializes the logic of the state machine.
+     * Initializes the state machine.
      */
-    open fun init(context: StateMachineContext) {}
+    open fun configure(context: StateMachineContext) {}
 
     /**
-     * Updates the logic of the state machine.
+     * Updates the state machine.
      */
-    abstract fun tick(context: StateMachineContext)
+    open fun tick(context: StateMachineContext) {}
+
+    /**
+     * Returns all registered parameters of the state machine.
+     */
+    fun parameters(): List<StateMachineParameter<*>> {
+        return parameters.values.toList()
+    }
 
     /**
      * Returns all registered variables of the state machine.
@@ -61,6 +73,13 @@ abstract class StateMachine(
     }
 
     /**
+     * Returns the parameter with the given [name].
+     */
+    fun parameter(name: String): StateMachineParameter<*>? {
+        return parameters[name]
+    }
+
+    /**
      * Returns the variable with the given [name].
      */
     fun variable(name: String): StateMachineVariable<*>? {
@@ -79,6 +98,15 @@ abstract class StateMachine(
      */
     fun output(name: String): StateMachineOutput? {
         return outputs[name]
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected inline fun <reified T, reified U : StateMachineParameter<T>> declare(parameter: U): U {
+        require(!parameters.containsKey(parameter.name)) { "The state machine already has a parameter with the name ${parameter.name}." }
+        parameters[parameter.name] = parameter
+        return parameter
     }
 
     /**
@@ -109,17 +137,173 @@ abstract class StateMachine(
     }
 
     /**
-     * Declares a new public variable for the state machine.
+     * Declares a new parameter for the state machine.
      */
-    protected inline fun <reified T> declarePublic(name: String, initialValue: T? = null): StateMachineVariable<T> {
-        return declare<T>(StateMachineVariable.public(name, initialValue))
+    protected inline fun <reified T> declareParameter(
+        name: String,
+        initialValue: T,
+    ): StateMachineUnconstrainedParameter<T> {
+        return declare(StateMachineUnconstrainedParameter(name, initialValue))
     }
 
     /**
-     * Declares a new private variable for the state machine.
+     * Declares a new parameter for the state machine.
      */
-    protected inline fun <reified T> declarePrivate(name: String, initialValue: T? = null): StateMachineVariable<T> {
-        return declare<T>(StateMachineVariable.private(name, initialValue))
+    protected inline fun <reified T> declareParameter(
+        name: String,
+        initialValue: T,
+        noinline predicate: (value: T) -> Boolean,
+    ): StateMachinePredicateParameter<T> {
+        return declare(StateMachinePredicateParameter(name, initialValue, predicate))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected inline fun <reified T> declareParameter(
+        name: String,
+        initialValue: T,
+        noinline predicate: (value: T, context: StateMachineParameterContext) -> Boolean,
+    ): StateMachinePredicateParameter<T> {
+        return declare(StateMachinePredicateParameter(name, initialValue, predicate))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected inline fun <reified T> declareParameter(
+        name: String,
+        initialValue: T,
+        values: Collection<T>,
+    ): StateMachineSelectionParameter<T> {
+        return declare(StateMachineSelectionParameter(name, initialValue, values))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: Byte,
+        min: Byte = Byte.MIN_VALUE,
+        max: Byte = Byte.MAX_VALUE,
+    ): StateMachineRangeParameter<Byte> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: Short,
+        min: Short = Short.MIN_VALUE,
+        max: Short = Short.MAX_VALUE,
+    ): StateMachineRangeParameter<Short> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: Int,
+        min: Int = Int.MIN_VALUE,
+        max: Int = Int.MAX_VALUE,
+    ): StateMachineRangeParameter<Int> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: Long,
+        min: Long = Long.MIN_VALUE,
+        max: Long = Long.MAX_VALUE,
+    ): StateMachineRangeParameter<Long> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: UByte,
+        min: UByte = UByte.MIN_VALUE,
+        max: UByte = UByte.MAX_VALUE,
+    ): StateMachineRangeParameter<UByte> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: UShort,
+        min: UShort = UShort.MIN_VALUE,
+        max: UShort = UShort.MAX_VALUE,
+    ): StateMachineRangeParameter<UShort> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: UInt,
+        min: UInt = UInt.MIN_VALUE,
+        max: UInt = UInt.MAX_VALUE,
+    ): StateMachineRangeParameter<UInt> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: ULong,
+        min: ULong = ULong.MIN_VALUE,
+        max: ULong = ULong.MAX_VALUE,
+    ): StateMachineRangeParameter<ULong> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: Float,
+        min: Float = Float.MIN_VALUE,
+        max: Float = Float.MAX_VALUE,
+    ): StateMachineRangeParameter<Float> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new parameter for the state machine.
+     */
+    protected fun declareParameter(
+        name: String,
+        initialValue: Double,
+        min: Double = Double.MIN_VALUE,
+        max: Double = Double.MAX_VALUE,
+    ): StateMachineRangeParameter<Double> {
+        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+    }
+
+    /**
+     * Declares a new variable for the state machine.
+     */
+    protected inline fun <reified T> declareVariable(name: String, initialValue: T): StateMachineVariable<T> {
+        return declare(StateMachineVariable(name, initialValue))
     }
 
     /**

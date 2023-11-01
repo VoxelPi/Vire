@@ -7,9 +7,9 @@ import net.voxelpi.vire.stdlib.VireStandardLibrary
 
 object Clock : StateMachine(VireStandardLibrary, "clock") {
 
-    val ticksHigh = declarePublic("ticks_high", 1L)
-    val ticksLow = declarePublic("ticks_low", 1L)
-    val ticks = declarePrivate("ticks", 0L)
+    val ticksHigh = declareParameter("ticks_high", 1L, min = 1L)
+    val ticksLow = declareParameter("ticks_low", 1L, min = 1L)
+    val ticks = declareVariable("ticks", 0L)
     val output = declareOutput("output", 1)
 
     override fun tick(context: StateMachineContext) {

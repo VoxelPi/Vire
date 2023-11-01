@@ -7,11 +7,11 @@ import net.voxelpi.vire.stdlib.VireStandardLibrary
 
 object Output : StateMachine(VireStandardLibrary, "output") {
 
-    val value = declarePublic("value", true)
-    val channels = declarePublic("channels", 1)
+    val value = declareParameter("value", true)
+    val channels = declareParameter("channels", 1, min = 1)
     val output = declareOutput("output")
 
-    override fun tick(context: StateMachineContext) {
+    override fun configure(context: StateMachineContext) {
         context[output] = NetworkState.value(context[value], context[channels])
     }
 }

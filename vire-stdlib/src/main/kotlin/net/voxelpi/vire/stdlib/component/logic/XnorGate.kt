@@ -7,11 +7,11 @@ import net.voxelpi.vire.stdlib.VireStandardLibrary
 
 object XnorGate : StateMachine(VireStandardLibrary, "xnor") {
 
-    val inputCount = declarePublic<Int>("input_count", 2)
+    val inputCount = declareParameter("input_count", 2, min = 2)
     val input = declareInput("input", 2)
     val output = declareOutput("output")
 
-    override fun init(context: StateMachineContext) {
+    override fun configure(context: StateMachineContext) {
         context.resize(input, context[inputCount])
     }
 

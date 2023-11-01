@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.simulation.network
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
@@ -17,12 +16,9 @@ class VireNetworkTest {
 
     private lateinit var simulation: VireSimulation
 
-    private val logger = KotlinLogging.logger {}
-
     @BeforeEach
     fun setUp() {
         simulation = VireSimulation(emptyList())
-        logger.info { "Setup test simulation" }
     }
 
     @Test
