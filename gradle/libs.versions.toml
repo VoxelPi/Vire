@@ -4,7 +4,7 @@ event = "4.0.0-SNAPSHOT"
 junit = "5.10.0"
 junitPlatform = "1.10.0"
 log4j = "2.20.0"
-kotlin = "1.9.10"
+kotlin = "1.9.20"
 kotlinLogging = "5.1.0"
 slf4j = "1.7.36"
 
