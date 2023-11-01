@@ -1,11 +1,10 @@
 package net.voxelpi.vire.engine.simulation
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.component.StateMachineInput
-import net.voxelpi.vire.api.simulation.component.StateMachineOutput
+import net.voxelpi.vire.api.simulation.component.input
+import net.voxelpi.vire.api.simulation.component.output
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -14,8 +13,6 @@ import org.junit.jupiter.api.Test
 class VireSimulationTest {
 
     private lateinit var simulation: VireSimulation
-
-    private val logger = KotlinLogging.logger {}
 
     @BeforeEach
     fun setUp() {
@@ -90,8 +87,8 @@ class VireSimulationTest {
 
     @Test
     fun simpleClock() {
-        val inputVariable = StateMachineInput("input")
-        val outputVariable = StateMachineOutput("output")
+        val inputVariable = input("input")
+        val outputVariable = output("output")
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
             init {
@@ -130,7 +127,7 @@ class VireSimulationTest {
 
     @Test
     fun separateAndJoin() {
-        val outputVariable = StateMachineOutput("output")
+        val outputVariable = output("output")
         val outputState = NetworkState.value(true, 1)
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {

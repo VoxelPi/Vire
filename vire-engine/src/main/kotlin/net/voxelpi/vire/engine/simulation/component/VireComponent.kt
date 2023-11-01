@@ -27,7 +27,7 @@ class VireComponent(
 
     override fun <T> parameter(parameter: StateMachineParameter<T>, value: T): Boolean {
         // Check that the new value satisfies the predicate of the parameter.
-        if (!parameter.predicate(value, stateMachineContext)) {
+        if (!parameter.isValid(value, stateMachineContext)) {
             return false
         }
 

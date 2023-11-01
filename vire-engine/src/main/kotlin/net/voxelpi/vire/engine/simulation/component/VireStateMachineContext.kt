@@ -56,7 +56,7 @@ class VireStateMachineContext(
     }
 
     operator fun <T> set(parameter: StateMachineParameter<T>, value: T) {
-        require(parameter.predicate(value, this))
+        require(parameter.isValid(value, this))
         parameterStates[parameter.name] = value
         stateMachine.configure(this)
     }

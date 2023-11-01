@@ -2,14 +2,13 @@ package net.voxelpi.vire.stdlib.component
 
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.component.StateMachineParameter
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.stdlib.VireStandardLibrary
 
 object Clock : StateMachine(VireStandardLibrary, "clock") {
 
-    val ticksHigh = declare(StateMachineParameter.Long("ticks_high", 1L, min = 1L))
-    val ticksLow = declare(StateMachineParameter.Long("ticks_low", 1L, min = 1L))
+    val ticksHigh = declareParameter("ticks_high", 1L, min = 1L)
+    val ticksLow = declareParameter("ticks_low", 1L, min = 1L)
     val ticks = declareVariable("ticks", 0L)
     val output = declareOutput("output", 1)
 

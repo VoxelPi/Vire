@@ -1,12 +1,11 @@
 package net.voxelpi.vire.engine.simulation.component
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.component.StateMachineInput
-import net.voxelpi.vire.api.simulation.component.StateMachineOutput
-import net.voxelpi.vire.api.simulation.component.StateMachineParameter
+import net.voxelpi.vire.api.simulation.component.input
+import net.voxelpi.vire.api.simulation.component.output
+import net.voxelpi.vire.api.simulation.component.parameter
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -17,17 +16,14 @@ class VireComponentTest {
 
     private lateinit var simulation: VireSimulation
 
-    private val logger = KotlinLogging.logger {}
-
     @BeforeEach
     fun setUp() {
         simulation = VireSimulation(emptyList())
-        logger.info { "Setup test simulation" }
     }
 
     @Test
     fun pullInput() {
-        val inputVariable = StateMachineInput("input")
+        val inputVariable = input("input")
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
             init {
@@ -47,7 +43,7 @@ class VireComponentTest {
 
     @Test
     fun pushOutput() {
-        val outputVariable = StateMachineOutput("output")
+        val outputVariable = output("output")
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
             init {
@@ -69,8 +65,8 @@ class VireComponentTest {
 
     @Test
     fun simpleComponentTick() {
-        val inputVariable = StateMachineInput("input")
-        val outputVariable = StateMachineOutput("output")
+        val inputVariable = input("input")
+        val outputVariable = output("output")
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
             init {
@@ -96,8 +92,8 @@ class VireComponentTest {
 
     @Test
     fun removeComponent() {
-        val inputVariable = StateMachineInput("input")
-        val outputVariable = StateMachineOutput("output")
+        val inputVariable = input("input")
+        val outputVariable = output("output")
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
             init {
@@ -124,8 +120,8 @@ class VireComponentTest {
 
     @Test
     fun removeComponentPortTwice() {
-        val inputVariable = StateMachineInput("input")
-        val outputVariable = StateMachineOutput("output")
+        val inputVariable = input("input")
+        val outputVariable = output("output")
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
             init {
@@ -152,7 +148,7 @@ class VireComponentTest {
         var configureCounter = 0
         var tickCounter = 0
 
-        val testParameter = StateMachineParameter.Int("test", 0, min = 0, max = 10)
+        val testParameter = parameter("test", 0, min = 0, max = 10)
 
         val stateMachine = object : StateMachine(Identifier("vire-test", "test")) {
 
