@@ -6,6 +6,7 @@ import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
+import net.voxelpi.vire.api.simulation.component.StateMachineParameter
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
 import java.util.UUID
@@ -19,6 +20,21 @@ class VireComponent(
     override val stateMachineContext: VireStateMachineContext = VireStateMachineContext(stateMachine)
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
+
+    override fun <T> parameter(parameter: StateMachineParameter<T>): T {
+        return stateMachineContext[parameter]
+    }
+
+    override fun <T> parameter(parameter: StateMachineParameter<T>, value: T): Boolean {
+        // Check that the new value satisfies the predicate of the parameter.
+        if (!parameter.predicate(value, stateMachineContext)) {
+            return false
+        }
+
+        // Set the value of the parameter.
+        stateMachineContext[parameter] = value
+        return true
+    }
 
     override fun ports(): List<VireComponentPort> {
         return ports.values.toList()

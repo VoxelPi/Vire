@@ -15,6 +15,11 @@ abstract class StateMachine(
     constructor(library: Library, id: String) : this(Identifier(library.id, id))
 
     /**
+     * All registered parameters of the state machine.
+     */
+    protected val parameters: MutableMap<String, StateMachineParameter<*>> = mutableMapOf()
+
+    /**
      * All registered variables of the state machine.
      */
     protected val variables: MutableMap<String, StateMachineVariable<*>> = mutableMapOf()
@@ -40,6 +45,13 @@ abstract class StateMachine(
     abstract fun tick(context: StateMachineContext)
 
     /**
+     * Returns all registered parameters of the state machine.
+     */
+    fun parameters(): List<StateMachineParameter<*>> {
+        return parameters.values.toList()
+    }
+
+    /**
      * Returns all registered variables of the state machine.
      */
     fun variables(): List<StateMachineVariable<*>> {
@@ -61,6 +73,13 @@ abstract class StateMachine(
     }
 
     /**
+     * Returns the parameter with the given [name].
+     */
+    fun parameter(name: String): StateMachineParameter<*>? {
+        return parameters[name]
+    }
+
+    /**
      * Returns the variable with the given [name].
      */
     fun variable(name: String): StateMachineVariable<*>? {
@@ -79,6 +98,15 @@ abstract class StateMachine(
      */
     fun output(name: String): StateMachineOutput? {
         return outputs[name]
+    }
+
+    /**
+     * Declares a new variable for the state machine.
+     */
+    protected inline fun <reified T> declare(parameter: StateMachineParameter<T>): StateMachineParameter<T> {
+        require(!parameters.containsKey(parameter.name)) { "The state machine already has a parameter with the name ${parameter.name}." }
+        parameters[parameter.name] = parameter
+        return parameter
     }
 
     /**
@@ -111,15 +139,19 @@ abstract class StateMachine(
     /**
      * Declares a new public variable for the state machine.
      */
-    protected inline fun <reified T> declarePublic(name: String, initialValue: T? = null): StateMachineVariable<T> {
-        return declare<T>(StateMachineVariable.public(name, initialValue))
+    protected inline fun <reified T> declareParameter(
+        name: String,
+        initialValue: T,
+        predicate: (value: T, context: StateMachineParameterContext) -> Boolean = { _, _ -> true },
+    ): StateMachineParameter<T> {
+        return declare<T>(StateMachineParameter(name, initialValue))
     }
 
     /**
      * Declares a new private variable for the state machine.
      */
-    protected inline fun <reified T> declarePrivate(name: String, initialValue: T? = null): StateMachineVariable<T> {
-        return declare<T>(StateMachineVariable.private(name, initialValue))
+    protected inline fun <reified T> declareVariable(name: String, initialValue: T): StateMachineVariable<T> {
+        return declare<T>(StateMachineVariable(name, initialValue))
     }
 
     /**

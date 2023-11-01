@@ -4,19 +4,26 @@ import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
+import net.voxelpi.vire.api.simulation.component.StateMachineParameter
+import net.voxelpi.vire.api.simulation.component.StateMachineParameterContext
 import net.voxelpi.vire.api.simulation.component.StateMachineVariable
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import java.util.Arrays
 
 class VireStateMachineContext(
     override val stateMachine: StateMachine,
-) : StateMachineContext {
+) : StateMachineContext, StateMachineParameterContext {
 
+    private val parameterStates: MutableMap<String, Any?> = mutableMapOf()
     private val variableStates: MutableMap<String, Any?> = mutableMapOf()
     private val inputStates: MutableMap<String, Array<NetworkState>> = mutableMapOf()
     private val outputStates: MutableMap<String, Array<NetworkState>> = mutableMapOf()
 
     init {
+        // Initialize parameter states
+        for (parameter in stateMachine.parameters()) {
+            parameterStates[parameter.name] = parameter.initialValue
+        }
         // Initialize variable states
         for (variable in stateMachine.variables()) {
             variableStates[variable.name] = variable.initialValue
@@ -29,6 +36,25 @@ class VireStateMachineContext(
         for (output in stateMachine.outputs()) {
             outputStates[output.name] = Array(output.initialSize) { output.initialValue }
         }
+    }
+
+    override fun <T> get(parameter: StateMachineParameter<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return parameterStates[parameter.name]!! as T
+    }
+
+    override fun <T> set(parameter: StateMachineParameter<T>, value: T) {
+        require(parameter.predicate(value, this))
+        parameterStates[parameter.name] = parameter
+    }
+
+    override fun <T> get(variable: StateMachineVariable<T>): T {
+        @Suppress("UNCHECKED_CAST")
+        return variableStates[variable.name]!! as T
+    }
+
+    override fun <T> set(variable: StateMachineVariable<T>, value: T) {
+        variableStates[variable.name] = variable
     }
 
     override fun resize(input: StateMachineInput, size: Int) {
@@ -53,21 +79,12 @@ class VireStateMachineContext(
         }
     }
 
-    override fun <T> get(variable: StateMachineVariable<T>): T {
-        @Suppress("UNCHECKED_CAST")
-        return variableStates[variable.name]!! as T
-    }
-
     override fun vector(input: StateMachineInput): Array<NetworkState> {
         return inputStates[input.name]!!
     }
 
     override fun get(input: StateMachineInput, index: Int): NetworkState {
         return this.vector(input)[index]
-    }
-
-    override fun <T> set(variable: StateMachineVariable<T>, value: T) {
-        variableStates[variable.name] = variable
     }
 
     override fun vector(output: StateMachineOutput): Array<NetworkState> {
