@@ -68,7 +68,7 @@ class VireComponent(
 
     override fun remove() {
         for (port in ports.values.toList()) {
-            port.node.remove()
+            port.remove()
         }
         simulation.unregisterComponent(this)
     }

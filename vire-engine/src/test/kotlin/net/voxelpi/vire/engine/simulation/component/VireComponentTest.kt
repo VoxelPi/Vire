@@ -92,4 +92,57 @@ class VireComponentTest {
         component.pushOutputs()
         assertEquals(NetworkState.value(true), outputPort.network.state)
     }
+
+    @Test
+    fun removeComponent() {
+        val inputVariable = StateMachineInput("input")
+        val outputVariable = StateMachineOutput("output")
+
+        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
+            init {
+                declare(inputVariable)
+                declare(outputVariable)
+            }
+
+            override fun tick(context: StateMachineContext) {
+                context[outputVariable] = !context[inputVariable]
+            }
+        }
+
+        val component = simulation.createComponent(stateMachine)
+        val inputPort = component.createPort(inputVariable.createView())
+        val outputPort = component.createPort(outputVariable.createView())
+        val node1 = inputPort.network.createNode(listOf(inputPort.node))
+        val node2 = inputPort.network.createNode(listOf(node1))
+        val node3 = inputPort.network.createNode(listOf(node2))
+        simulation.createNetworkNodeConnection(node3, outputPort.node)
+
+        component.remove()
+        component.remove() // Try removing the already removed component.
+    }
+
+    @Test
+    fun removeComponentPortTwice() {
+        val inputVariable = StateMachineInput("input")
+        val outputVariable = StateMachineOutput("output")
+
+        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
+            init {
+                declare(inputVariable)
+                declare(outputVariable)
+            }
+
+            override fun tick(context: StateMachineContext) {
+                context[outputVariable] = !context[inputVariable]
+            }
+        }
+
+        val component = simulation.createComponent(stateMachine)
+        val inputPort = component.createPort(inputVariable.createView())
+        val outputPort = component.createPort(outputVariable.createView())
+        simulation.createNetworkNodeConnection(inputPort.node, outputPort.node)
+
+        inputPort.remove()
+        inputPort.remove() // Try removing the already removed component port.
+    }
 }

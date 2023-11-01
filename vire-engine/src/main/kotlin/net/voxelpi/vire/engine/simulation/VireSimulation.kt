@@ -149,6 +149,11 @@ class VireSimulation(
     override fun removeNetworkNode(node: NetworkNode) {
         require(node is VireNetworkNode)
 
+        // Skip if the node already has been removed.
+        if (node !in node.network) {
+            return
+        }
+
         // Remove node from its network.
         node.network.unregisterNode(node)
         unregisterNetworkNode(node)
