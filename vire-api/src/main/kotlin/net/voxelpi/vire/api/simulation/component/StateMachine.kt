@@ -35,14 +35,14 @@ abstract class StateMachine(
     protected val outputs: MutableMap<String, StateMachineOutput> = mutableMapOf()
 
     /**
-     * Initializes the logic of the state machine.
+     * Initializes the state machine.
      */
-    open fun init(context: StateMachineContext) {}
+    open fun configure(context: StateMachineContext) {}
 
     /**
-     * Updates the logic of the state machine.
+     * Updates the state machine.
      */
-    abstract fun tick(context: StateMachineContext)
+    open fun tick(context: StateMachineContext) {}
 
     /**
      * Returns all registered parameters of the state machine.
@@ -101,7 +101,7 @@ abstract class StateMachine(
     }
 
     /**
-     * Declares a new variable for the state machine.
+     * Declares a new parameter for the state machine.
      */
     protected inline fun <reified T> declare(parameter: StateMachineParameter<T>): StateMachineParameter<T> {
         require(!parameters.containsKey(parameter.name)) { "The state machine already has a parameter with the name ${parameter.name}." }
@@ -137,18 +137,18 @@ abstract class StateMachine(
     }
 
     /**
-     * Declares a new public variable for the state machine.
+     * Declares a new parameter for the state machine.
      */
     protected inline fun <reified T> declareParameter(
         name: String,
         initialValue: T,
-        predicate: (value: T, context: StateMachineParameterContext) -> Boolean = { _, _ -> true },
+        noinline predicate: (value: T, context: StateMachineParameterContext) -> Boolean = { _, _ -> true },
     ): StateMachineParameter<T> {
-        return declare<T>(StateMachineParameter(name, initialValue))
+        return declare<T>(StateMachineParameter(name, initialValue, predicate))
     }
 
     /**
-     * Declares a new private variable for the state machine.
+     * Declares a new variable for the state machine.
      */
     protected inline fun <reified T> declareVariable(name: String, initialValue: T): StateMachineVariable<T> {
         return declare<T>(StateMachineVariable(name, initialValue))
