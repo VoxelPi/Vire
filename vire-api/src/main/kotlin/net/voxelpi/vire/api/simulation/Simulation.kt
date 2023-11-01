@@ -3,7 +3,6 @@ package net.voxelpi.vire.api.simulation
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.StateMachine
-import net.voxelpi.vire.api.simulation.event.SimulationEventService
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
@@ -14,11 +13,6 @@ import java.util.UUID
  * The simulation that manages the state of all components and networks.
  */
 interface Simulation {
-
-    /**
-     * The event service of the simulation.
-     */
-    val eventService: SimulationEventService
 
     /**
      * Returns all registered libraries.

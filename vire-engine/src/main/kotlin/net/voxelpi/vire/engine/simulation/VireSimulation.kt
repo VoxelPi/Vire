@@ -9,7 +9,6 @@ import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.engine.simulation.component.VireComponent
-import net.voxelpi.vire.engine.simulation.event.VireSimulationEventService
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
 import org.slf4j.LoggerFactory
@@ -27,8 +26,6 @@ class VireSimulation(
     private val components: MutableMap<UUID, VireComponent> = mutableMapOf()
     private val networks: MutableMap<UUID, VireNetwork> = mutableMapOf()
     private val networkNodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
-
-    override val eventService: VireSimulationEventService = VireSimulationEventService()
 
     init {
         // Register libraries

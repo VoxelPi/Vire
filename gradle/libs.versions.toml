@@ -1,6 +1,5 @@
 [versions]
 coroutine = "1.7.2"
-event = "4.0.0-SNAPSHOT"
 junit = "5.10.0"
 junitPlatform = "1.10.0"
 log4j = "2.20.0"
@@ -14,9 +13,6 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "coroutine" }
 kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactive", version.ref = "coroutine" }
 
-event-api = { module = "net.kyori:event-api", version.ref = "event" }
-event-method = { module = "net.kyori:event-method", version.ref = "event" }
-
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlinLogging" }
@@ -26,7 +22,6 @@ junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", vers
 junit-jupiter-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitPlatform" }
 
 [bundles]
-event = ["event-api", "event-method"]
 kotlinx-coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kotlinx-coroutines-reactive"]
 
 [plugins]

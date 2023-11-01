@@ -12,7 +12,6 @@ dependencies {
     // Libraries
     implementation(libs.kotlin.reflect)
     implementation(libs.bundles.kotlinx.coroutines)
-    implementation(libs.bundles.event)
     implementation(libs.kotlin.logging.jvm)
 
     // Tests
