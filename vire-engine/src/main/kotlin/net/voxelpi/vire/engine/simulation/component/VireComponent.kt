@@ -88,4 +88,8 @@ class VireComponent(
         }
         simulation.unregisterComponent(this)
     }
+
+    override fun reset(parameters: Boolean) {
+        stateMachineContext.reset(parameters)
+    }
 }

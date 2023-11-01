@@ -42,4 +42,11 @@ interface Component : SimulationObject {
      * Removes the given [port].
      */
     fun removePort(port: ComponentPort)
+
+    /**
+     * Resets the state machine of the component.
+     * If [parameters] is set to `true`, the parameters of the state machine are also reset to their initial values,
+     * otherwise they are left unchanged.
+     */
+    fun reset(parameters: Boolean = false)
 }

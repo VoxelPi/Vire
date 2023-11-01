@@ -20,18 +20,27 @@ class VireStateMachineContext(
     private val outputStates: MutableMap<String, Array<NetworkState>> = mutableMapOf()
 
     init {
-        // Initialize parameter states
-        for (parameter in stateMachine.parameters()) {
-            parameterStates[parameter.name] = parameter.initialValue
+        reset(true)
+    }
+
+    fun reset(parameters: Boolean) {
+        if (parameters) {
+            // Initialize parameter states
+            for (parameter in stateMachine.parameters()) {
+                parameterStates[parameter.name] = parameter.initialValue
+            }
         }
+
         // Initialize variable states
         for (variable in stateMachine.variables()) {
             variableStates[variable.name] = variable.initialValue
         }
+
         // Initialize input states
         for (input in stateMachine.inputs()) {
             inputStates[input.name] = Array(input.initialSize) { NetworkState.None }
         }
+
         // Initialize output states
         for (output in stateMachine.outputs()) {
             outputStates[output.name] = Array(output.initialSize) { output.initialValue }
