@@ -1,9 +1,22 @@
 package net.voxelpi.vire.engine.simulation
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.Simulation
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.StateMachine
+import net.voxelpi.vire.api.simulation.event.SimulationEvent
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
@@ -13,6 +26,7 @@ import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import kotlin.reflect.KClass
 
 class VireSimulation(
     libraries: List<Library>,
@@ -26,6 +40,13 @@ class VireSimulation(
     private val components: MutableMap<UUID, VireComponent> = mutableMapOf()
     private val networks: MutableMap<UUID, VireNetwork> = mutableMapOf()
     private val networkNodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
+
+    private val eventsFlow: MutableSharedFlow<SimulationEvent> = MutableSharedFlow()
+
+    override val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override val events: SharedFlow<SimulationEvent>
+        get() = eventsFlow.asSharedFlow()
 
     init {
         // Register libraries
@@ -383,5 +404,20 @@ class VireSimulation(
     override fun clear() {
         components.clear()
         networks.clear()
+    }
+
+    override fun <T : SimulationEvent> subscribe(type: KClass<T>, scope: CoroutineScope, consumer: suspend T.() -> Unit): Job {
+        return events
+            .filterIsInstance(type)
+            .onEach { event ->
+                scope.launch { runCatching { consumer(event) }.onFailure { logger.error("Unable to process event", it) } }
+            }
+            .launchIn(scope)
+    }
+
+    fun publish(event: SimulationEvent) {
+        runBlocking {
+            eventsFlow.emit(event)
+        }
     }
 }
