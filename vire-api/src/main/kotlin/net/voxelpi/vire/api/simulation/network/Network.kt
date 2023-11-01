@@ -30,6 +30,11 @@ interface Network : SimulationObject {
     fun createNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID = UUID.randomUUID()): NetworkNode
 
     /**
+     * Remove the given [node] from the network.
+     */
+    fun removeNode(node: NetworkNode)
+
+    /**
      * Returns a collection of all component ports that are part of the network.
      */
     fun ports(): Collection<ComponentPort>

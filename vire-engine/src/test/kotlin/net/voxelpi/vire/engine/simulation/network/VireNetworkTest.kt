@@ -5,7 +5,13 @@ import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkDestroyEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeDestroyEvent
+import net.voxelpi.vire.api.simulation.on
 import net.voxelpi.vire.engine.simulation.VireSimulation
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -93,5 +99,53 @@ class VireNetworkTest {
 
         simulation.createNetworkNodeConnection(inputPort.node, outputPort.node)
         assertEquals(2, simulation.networks().first().ports().size)
+    }
+
+    @Test
+    fun createDestroyNetwork() {
+        var createCounter = 0
+        var destroyCounter = 0
+
+        simulation.on<NetworkCreateEvent> {
+            createCounter++
+        }
+
+        simulation.on<NetworkDestroyEvent> {
+            destroyCounter++
+        }
+
+        val network = simulation.createNetwork()
+        network.remove()
+        network.remove() // Try removing the network twice.
+
+        // Wait for events to finish.
+        simulation.shutdown()
+
+        Assertions.assertEquals(1, createCounter)
+        Assertions.assertEquals(1, destroyCounter)
+    }
+
+    @Test
+    fun createDestroyNetworkNode() {
+        var createCounter = 0
+        var destroyCounter = 0
+
+        simulation.on<NetworkNodeCreateEvent> {
+            createCounter++
+        }
+
+        simulation.on<NetworkNodeDestroyEvent> {
+            destroyCounter++
+        }
+
+        val node = simulation.createNetworkNode()
+        node.remove()
+        node.remove() // Try removing the network node twice.
+
+        // Wait for events to finish.
+        simulation.shutdown()
+
+        Assertions.assertEquals(1, createCounter)
+        Assertions.assertEquals(1, destroyCounter)
     }
 }
