@@ -17,6 +17,8 @@ import net.voxelpi.vire.api.simulation.Simulation
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.event.SimulationEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
@@ -85,21 +87,26 @@ class VireSimulation(
     }
 
     override fun createComponent(stateMachine: StateMachine): VireComponent {
+        // Create the component.
         val component = VireComponent(this, stateMachine)
-        registerComponent(component)
+        components[component.uniqueId] = component
+
+        // Fire the event.
+        publish(ComponentCreateEvent(component))
+
+        // Return the created component.
         return component
     }
 
     override fun removeComponent(component: Component) {
-        component.remove()
-    }
+        require(component is VireComponent)
 
-    fun registerComponent(component: VireComponent) {
-        components[component.uniqueId] = component
-    }
+        // Fire the event.
+        publish(ComponentDestroyEvent(component))
 
-    fun unregisterComponent(component: VireComponent) {
+        // Destroy the port.
         components.remove(component.uniqueId)
+        component.destroy()
     }
 
     override fun networks(): List<VireNetwork> {
@@ -418,6 +425,15 @@ class VireSimulation(
     fun publish(event: SimulationEvent) {
         runBlocking {
             eventsFlow.emit(event)
+        }
+    }
+
+    fun flushEvents() {
+        runBlocking {
+            eventsFlow.emit(object : SimulationEvent {
+                override val simulation: Simulation
+                    get() = this@VireSimulation
+            })
         }
     }
 }

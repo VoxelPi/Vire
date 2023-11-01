@@ -7,6 +7,8 @@ import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.api.simulation.component.StateMachineParameter
+import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
 import java.util.UUID
@@ -64,29 +66,35 @@ class VireComponent(
         }
     }
 
-    fun registerPort(port: VireComponentPort) {
-        ports[port.uniqueId] = port
-    }
-
-    fun unregisterPort(port: VireComponentPort) {
-        ports.remove(port.uniqueId)
-    }
-
     override fun createPort(variableView: ComponentPortVariableView?): VireComponentPort {
+        // Create the port.
         val port = VireComponentPort(this, variableView)
-        registerPort(port)
+        ports[port.uniqueId] = port
+
+        // Fire the event.
+        simulation.publish(ComponentPortCreateEvent(port))
+
+        // Return the created port.
         return port
     }
 
     override fun removePort(port: ComponentPort) {
-        port.remove()
+        require(port is VireComponentPort)
+
+        // Fire the event.
+        simulation.publish(ComponentPortDestroyEvent(port))
+
+        // Destroy the port.
+        ports.remove(port.uniqueId)
+        port.destroy()
     }
 
     override fun remove() {
-        for (port in ports.values.toList()) {
-            port.remove()
-        }
-        simulation.unregisterComponent(this)
+        simulation.removeComponent(this)
+    }
+
+    fun destroy() {
+        ports.values.forEach(VireComponentPort::destroy)
     }
 
     override fun reset(parameters: Boolean) {

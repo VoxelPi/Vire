@@ -48,7 +48,10 @@ class VireComponentPort(
     }
 
     override fun remove() {
-        component.unregisterPort(this)
+        component.removePort(this)
+    }
+
+    fun destroy() {
         simulation.removeNetworkNode(node)
     }
 }
