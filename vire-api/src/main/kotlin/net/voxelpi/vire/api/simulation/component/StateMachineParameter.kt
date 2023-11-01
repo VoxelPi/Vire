@@ -160,5 +160,20 @@ data class StateMachineParameter<T>(
                 value in min..max
             }
         }
+
+        /**
+         * A parameter with the given [name] and [initialValue]. The value of the parameter must be in [possibleValues].
+         */
+        @Suppress("FunctionName")
+        fun <T> Selection(
+            name: String,
+            initialValue: T,
+            possibleValues: List<T>,
+        ): StateMachineParameter<T> {
+            require(initialValue in possibleValues)
+            return StateMachineParameter(name, initialValue) { value ->
+                value in possibleValues
+            }
+        }
     }
 }
