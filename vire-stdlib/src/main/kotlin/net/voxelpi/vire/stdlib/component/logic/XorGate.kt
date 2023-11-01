@@ -12,7 +12,7 @@ object XorGate : StateMachine(VireStandardLibrary, "xor") {
     val input = declareInput("input", 2)
     val output = declareOutput("output")
 
-    override fun init(context: StateMachineContext) {
+    override fun configure(context: StateMachineContext) {
         context.resize(input, context[inputCount])
     }
 

@@ -36,6 +36,9 @@ class VireStateMachineContext(
         for (output in stateMachine.outputs()) {
             outputStates[output.name] = Array(output.initialSize) { output.initialValue }
         }
+
+        // Configure the state machine.
+        stateMachine.configure(this)
     }
 
     override fun <T> get(parameter: StateMachineParameter<T>): T {
@@ -43,9 +46,10 @@ class VireStateMachineContext(
         return parameterStates[parameter.name]!! as T
     }
 
-    override fun <T> set(parameter: StateMachineParameter<T>, value: T) {
+    operator fun <T> set(parameter: StateMachineParameter<T>, value: T) {
         require(parameter.predicate(value, this))
-        parameterStates[parameter.name] = parameter
+        parameterStates[parameter.name] = value
+        stateMachine.configure(this)
     }
 
     override fun <T> get(variable: StateMachineVariable<T>): T {
@@ -54,7 +58,7 @@ class VireStateMachineContext(
     }
 
     override fun <T> set(variable: StateMachineVariable<T>, value: T) {
-        variableStates[variable.name] = variable
+        variableStates[variable.name] = value
     }
 
     override fun resize(input: StateMachineInput, size: Int) {
