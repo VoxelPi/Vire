@@ -4,8 +4,10 @@ import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.StateMachineParameter
 
 /**
- * Called when a parameter of a state machine is modified.
+ * An event that is called when a parameter of a state machine is modified.
  * Note that this function is not called when the parameter modification is caused by a component reset.
+ * @property newValue the new variable.
+ * @property oldValue the old variable.
  */
 data class ComponentModifyParameterEvent<T>(
     override val component: Component,
