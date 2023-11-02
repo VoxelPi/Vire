@@ -1,5 +1,8 @@
 # Vire
 
+[![GitHub CI Status](https://img.shields.io/github/actions/workflow/status/voxelpi/vire/ci.yml?branch=main&label=CI&style=for-the-badge)]()
+[![Latest Version](https://img.shields.io/github/v/tag/voxelpi/vire?filter=v*&style=for-the-badge&label=latest)]()
+
 Vire is a simple but powerful logic simulation library.
 
 ## Modules
