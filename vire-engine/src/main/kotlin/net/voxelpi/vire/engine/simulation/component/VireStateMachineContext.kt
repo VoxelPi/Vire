@@ -7,17 +7,26 @@ import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.api.simulation.component.StateMachineParameter
 import net.voxelpi.vire.api.simulation.component.StateMachineParameterContext
 import net.voxelpi.vire.api.simulation.component.StateMachineVariable
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentConfigureEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentModifyParameterEvent
 import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.engine.simulation.VireSimulation
 import java.util.Arrays
 
 class VireStateMachineContext(
-    override val stateMachine: StateMachine,
+    private val component: VireComponent,
 ) : StateMachineContext, StateMachineParameterContext {
 
     private val parameterStates: MutableMap<String, Any?> = mutableMapOf()
     private val variableStates: MutableMap<String, Any?> = mutableMapOf()
     private val inputStates: MutableMap<String, Array<NetworkState>> = mutableMapOf()
     private val outputStates: MutableMap<String, Array<NetworkState>> = mutableMapOf()
+
+    override val stateMachine: StateMachine
+        get() = component.stateMachine
+
+    val simulation: VireSimulation
+        get() = component.simulation
 
     init {
         reset(true)
@@ -48,6 +57,9 @@ class VireStateMachineContext(
 
         // Configure the state machine.
         stateMachine.configure(this)
+
+        // Publish event.
+        simulation.publish(ComponentConfigureEvent(component))
     }
 
     override fun <T> get(parameter: StateMachineParameter<T>): T {
@@ -56,7 +68,12 @@ class VireStateMachineContext(
     }
 
     operator fun <T> set(parameter: StateMachineParameter<T>, value: T) {
+        // Check that the parameter is valid.
         require(parameter.isValid(value, this))
+
+        // Publish event.
+        simulation.publish(ComponentModifyParameterEvent(component, parameter, value, this[parameter]))
+
         parameterStates[parameter.name] = value
         stateMachine.configure(this)
     }
