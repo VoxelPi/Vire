@@ -498,6 +498,7 @@ class VireSimulation(
     }
 
     fun shutdown() {
+        flushEvents()
         coroutineScope.cancel()
     }
 }

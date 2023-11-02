@@ -220,7 +220,6 @@ class VireComponentTest {
         component.remove()
 
         // Wait for events to finish.
-        simulation.flushEvents()
         simulation.shutdown()
 
         assertEquals(1, createCounter)

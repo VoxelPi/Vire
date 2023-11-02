@@ -2,7 +2,6 @@ package net.voxelpi.vire.api.simulation.component
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.api.simulation.network.NetworkState
 
 /**
  * The state machine of the component.
@@ -316,7 +315,7 @@ abstract class StateMachine(
     /**
      * Declares a new output for the state machine.
      */
-    protected fun declareOutput(name: String, initialSize: Int = 1, initialValue: NetworkState = NetworkState.None): StateMachineOutput {
-        return declare(StateMachineOutput(name, initialSize, initialValue))
+    protected fun declareOutput(name: String, initialSize: Int = 1): StateMachineOutput {
+        return declare(StateMachineOutput(name, initialSize))
     }
 }

@@ -52,7 +52,7 @@ class VireStateMachineContext(
 
         // Initialize output states
         for (output in stateMachine.outputs()) {
-            outputStates[output.name] = Array(output.initialSize) { output.initialValue }
+            outputStates[output.name] = Array(output.initialSize) { NetworkState.None }
         }
 
         // Configure the state machine.
@@ -104,7 +104,7 @@ class VireStateMachineContext(
             if (index < previous.size) {
                 previous[index]
             } else {
-                output.initialValue
+                NetworkState.None
             }
         }
     }

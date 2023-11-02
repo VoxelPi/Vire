@@ -1,7 +1,5 @@
 package net.voxelpi.vire.api.simulation.component
 
-import net.voxelpi.vire.api.simulation.network.NetworkState
-
 /**
  * Creates a new parameter.
  */
@@ -182,6 +180,6 @@ fun input(name: String, initialSize: Int = 1): StateMachineInput {
 /**
  * Creates a new output.
  */
-fun output(name: String, initialSize: Int = 1, initialValue: NetworkState = NetworkState.None): StateMachineOutput {
-    return StateMachineOutput(name, initialSize, initialValue)
+fun output(name: String, initialSize: Int = 1): StateMachineOutput {
+    return StateMachineOutput(name, initialSize)
 }
