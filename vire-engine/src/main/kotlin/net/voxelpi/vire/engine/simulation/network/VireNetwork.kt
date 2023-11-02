@@ -43,27 +43,28 @@ class VireNetwork(
             require(connectedTo.isNotEmpty()) { "Created node must be connected to at least one existing node." }
         }
 
+        // Check that all node that the node is connected to are in the network.
+        for (connectedNode in connectedTo) {
+            require(connectedNode is VireNetworkNode)
+            require(connectedNode.network == this) { "Connected node is in different network" }
+        }
+
         // Create the node.
         val node = simulation.createNetworkNode(this, uniqueId)
 
         // Register a connection to every connected node in the created node.
         for (connectedNode in connectedTo) {
             require(connectedNode is VireNetworkNode)
-            if (connectedNode.network.uniqueId != this.uniqueId) {
-                simulation.unregisterNetworkNode(node)
-                throw IllegalArgumentException("Connected node is in different network")
-            }
             node.registerConnection(connectedNode)
-        }
-
-        // Register a connection to the created node in every connected node.
-        for (connectedNode in connectedTo) {
-            require(connectedNode is VireNetworkNode)
             connectedNode.registerConnection(node)
         }
 
         // Return the created node.
         return node
+    }
+
+    override fun removeNode(node: NetworkNode) {
+        simulation.removeNetworkNode(node)
     }
 
     override fun ports(): Collection<VireComponentPort> {
@@ -82,16 +83,10 @@ class VireNetwork(
     }
 
     override fun remove() {
-        val nodes = nodes.values.toList()
-        for (node in nodes) {
-            if (node.holder != null) {
-                node.network = simulation.createNetwork(state = state)
-                node.network.pushPortOutputs()
-            } else {
-                simulation.unregisterNetworkNode(node)
-            }
-        }
+        simulation.removeNetwork(this)
+    }
 
-        simulation.unregisterNetwork(this)
+    fun destroy() {
+        nodes.clear()
     }
 }

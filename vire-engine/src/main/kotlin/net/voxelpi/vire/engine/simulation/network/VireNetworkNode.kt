@@ -46,6 +46,6 @@ class VireNetworkNode(
     }
 
     override fun remove() {
-        simulation.removeNetworkNode(this)
+        network.removeNode(this)
     }
 }

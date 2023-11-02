@@ -6,7 +6,12 @@ import net.voxelpi.vire.api.simulation.component.StateMachineContext
 import net.voxelpi.vire.api.simulation.component.input
 import net.voxelpi.vire.api.simulation.component.output
 import net.voxelpi.vire.api.simulation.component.parameter
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
 import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.api.simulation.on
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -192,5 +197,62 @@ class VireComponentTest {
         assertEquals(1, configureCounter) { "Resetting the component didn't call configure()" }
         assertEquals(0, component.parameter(testParameter)) { "Parameter value didn't reset" }
         configureCounter = 0
+    }
+
+    @Test
+    fun lifecycleEvents() {
+        var createCounter = 0
+        var destroyCounter = 0
+
+        simulation.on<ComponentCreateEvent> {
+            createCounter++
+        }
+
+        simulation.on<ComponentDestroyEvent> {
+            destroyCounter++
+        }
+
+        val component = simulation.createComponent(
+            object : StateMachine(Identifier("vire-test", "unit")) {
+                override fun tick(context: StateMachineContext) {}
+            }
+        )
+        component.remove()
+
+        // Wait for events to finish.
+        simulation.flushEvents()
+        simulation.shutdown()
+
+        assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
+    }
+
+    @Test
+    fun componentPort() {
+        var createCounter = 0
+        var destroyCounter = 0
+
+        simulation.on<ComponentPortCreateEvent> {
+            createCounter++
+        }
+
+        simulation.on<ComponentPortDestroyEvent> {
+            destroyCounter++
+        }
+
+        val component = simulation.createComponent(
+            object : StateMachine(Identifier("vire-test", "unit")) {
+                override fun tick(context: StateMachineContext) {}
+            }
+        )
+        val port = component.createPort(null)
+        port.remove()
+        component.remove()
+
+        // Wait for events to finish.
+        simulation.shutdown()
+
+        assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
     }
 }

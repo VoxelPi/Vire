@@ -3,8 +3,8 @@ package net.voxelpi.vire.api.simulation.event.simulation.component
 import net.voxelpi.vire.api.simulation.component.Component
 
 /**
- * An event that is called when a component is created.
+ * An event that is called when a component is destroyed.
  */
-data class ComponentCreateEvent(
+data class ComponentDestroyEvent(
     override val component: Component,
 ) : ComponentEvent

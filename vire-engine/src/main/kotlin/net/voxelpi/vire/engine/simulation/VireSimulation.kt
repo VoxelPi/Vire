@@ -1,9 +1,31 @@
 package net.voxelpi.vire.engine.simulation
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.Simulation
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.StateMachine
+import net.voxelpi.vire.api.simulation.event.SimulationEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkDestroyEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkMergeEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkSplitEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeCreateEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeDestroyEvent
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
@@ -13,6 +35,7 @@ import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import kotlin.reflect.KClass
 
 class VireSimulation(
     libraries: List<Library>,
@@ -26,6 +49,13 @@ class VireSimulation(
     private val components: MutableMap<UUID, VireComponent> = mutableMapOf()
     private val networks: MutableMap<UUID, VireNetwork> = mutableMapOf()
     private val networkNodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
+
+    private val eventsFlow: MutableSharedFlow<SimulationEvent> = MutableSharedFlow()
+
+    override val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override val events: SharedFlow<SimulationEvent>
+        get() = eventsFlow.asSharedFlow()
 
     init {
         // Register libraries
@@ -64,21 +94,26 @@ class VireSimulation(
     }
 
     override fun createComponent(stateMachine: StateMachine): VireComponent {
+        // Create the component.
         val component = VireComponent(this, stateMachine)
-        registerComponent(component)
+        components[component.uniqueId] = component
+
+        // Fire the event.
+        publish(ComponentCreateEvent(component))
+
+        // Return the created component.
         return component
     }
 
     override fun removeComponent(component: Component) {
-        component.remove()
-    }
+        require(component is VireComponent)
 
-    fun registerComponent(component: VireComponent) {
-        components[component.uniqueId] = component
-    }
+        // Fire the event.
+        publish(ComponentDestroyEvent(component))
 
-    fun unregisterComponent(component: VireComponent) {
+        // Destroy the port.
         components.remove(component.uniqueId)
+        component.destroy()
     }
 
     override fun networks(): List<VireNetwork> {
@@ -90,20 +125,49 @@ class VireSimulation(
     }
 
     override fun createNetwork(uniqueId: UUID, state: NetworkState): VireNetwork {
+        // Create the network.
         val network = VireNetwork(this, uniqueId, state)
         registerNetwork(network)
+
+        // Publish event.
+        publish(NetworkCreateEvent(network))
+
+        // Return the created network.
         return network
     }
 
     override fun removeNetwork(network: Network) {
-        network.remove()
+        require(network is VireNetwork)
+
+        // Network has already been removed.
+        if (network.uniqueId !in networks) {
+            return
+        }
+
+        // Publish event.
+        publish(NetworkDestroyEvent(network))
+
+        // Remove all nodes.
+        val nodes = network.nodes()
+        for (node in nodes) {
+            if (node.holder != null) {
+                node.network = createNetwork()
+                node.network.pushPortOutputs()
+            } else {
+                unregisterNetworkNode(node)
+            }
+        }
+
+        // Remove the network.
+        network.destroy()
+        unregisterNetwork(network)
     }
 
-    fun registerNetwork(network: VireNetwork) {
+    private fun registerNetwork(network: VireNetwork) {
         networks[network.uniqueId] = network
     }
 
-    fun unregisterNetwork(network: VireNetwork) {
+    private fun unregisterNetwork(network: VireNetwork) {
         networks.remove(network.uniqueId)
     }
 
@@ -115,17 +179,23 @@ class VireSimulation(
         return networkNodes[uniqueId]
     }
 
-    fun registerNetworkNode(node: VireNetworkNode) {
+    private fun registerNetworkNode(node: VireNetworkNode) {
         networkNodes[node.uniqueId] = node
     }
 
-    fun unregisterNetworkNode(node: VireNetworkNode) {
+    private fun unregisterNetworkNode(node: VireNetworkNode) {
         networkNodes.remove(node.uniqueId)
     }
 
     override fun createNetworkNode(network: Network, uniqueId: UUID): VireNetworkNode {
+        // Create the network node.
         val node = VireNetworkNode(this, network as VireNetwork, uniqueId)
         registerNetworkNode(node)
+
+        // Publish event.
+        publish(NetworkNodeCreateEvent(node))
+
+        // Return the created network node.
         return node
     }
 
@@ -150,6 +220,9 @@ class VireSimulation(
         if (node !in node.network) {
             return
         }
+
+        // Publish event.
+        publish(NetworkNodeDestroyEvent(node))
 
         // Remove node from its network.
         node.network.unregisterNode(node)
@@ -200,6 +273,8 @@ class VireSimulation(
         for (network in networks) {
             network.pushPortOutputs()
         }
+
+        publish(NetworkSplitEvent(node.network, networks))
     }
 
     override fun areNodesConnectedDirectly(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
@@ -251,13 +326,20 @@ class VireSimulation(
         // Check if the two nodes are in the same network. If not, merge the two networks.
         require(nodeA is VireNetworkNode)
         require(nodeB is VireNetworkNode)
-        if (nodeA.network.uniqueId != nodeB.network.uniqueId) {
+        val networkA = nodeA.network
+        val networkB = nodeB.network
+        if (networkA != networkB) {
             mergeNetworks(nodeA.network, nodeB.network)
         }
 
         // Connect the nodes with each other.
         nodeA.registerConnection(nodeB)
         nodeB.registerConnection(nodeA)
+
+        // Publish event.
+        if (networkA != networkB) {
+            publish(NetworkMergeEvent(nodeA.network, listOf(networkA, networkB)))
+        }
     }
 
     override fun removeNetworkNodeConnection(nodeA: NetworkNode, nodeB: NetworkNode) {
@@ -300,6 +382,9 @@ class VireSimulation(
         // Update network states
         networkA.pushPortOutputs()
         networkB.pushPortOutputs()
+
+        // Publish event.
+        publish(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
     }
 
     private fun collectConnectedNodes(networkNode: VireNetworkNode, collected: MutableSet<UUID>) {
@@ -325,6 +410,9 @@ class VireSimulation(
             for (other in networks.drop(1)) {
                 network = mergeNetworks(network, other)
             }
+
+            // Publish event.
+            publish(NetworkMergeEvent(network, networks))
         }
 
         // Return the merged network.
@@ -383,5 +471,33 @@ class VireSimulation(
     override fun clear() {
         components.clear()
         networks.clear()
+    }
+
+    override fun <T : SimulationEvent> subscribe(type: KClass<T>, scope: CoroutineScope, consumer: suspend T.() -> Unit): Job {
+        return events
+            .filterIsInstance(type)
+            .onEach { event ->
+                scope.launch { runCatching { consumer(event) }.onFailure { logger.error("Unable to process event", it) } }
+            }
+            .launchIn(scope)
+    }
+
+    fun publish(event: SimulationEvent) {
+        runBlocking {
+            eventsFlow.emit(event)
+        }
+    }
+
+    fun flushEvents() {
+        runBlocking {
+            eventsFlow.emit(object : SimulationEvent {
+                override val simulation: Simulation
+                    get() = this@VireSimulation
+            })
+        }
+    }
+
+    fun shutdown() {
+        coroutineScope.cancel()
     }
 }
