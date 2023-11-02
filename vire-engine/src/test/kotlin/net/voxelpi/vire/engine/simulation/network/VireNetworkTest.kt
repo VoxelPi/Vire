@@ -1,5 +1,7 @@
 package net.voxelpi.vire.engine.simulation.network
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineContext
@@ -120,6 +122,7 @@ class VireNetworkTest {
 
         // Wait for events to finish.
         simulation.shutdown()
+        runBlocking { delay(10) }
 
         Assertions.assertEquals(1, createCounter)
         Assertions.assertEquals(1, destroyCounter)
@@ -144,6 +147,7 @@ class VireNetworkTest {
 
         // Wait for events to finish.
         simulation.shutdown()
+        runBlocking { delay(10) }
 
         Assertions.assertEquals(1, createCounter)
         Assertions.assertEquals(1, destroyCounter)
