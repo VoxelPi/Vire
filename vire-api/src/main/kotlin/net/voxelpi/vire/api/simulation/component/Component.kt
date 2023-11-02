@@ -34,9 +34,9 @@ interface Component : SimulationObject {
     fun ports(): Collection<ComponentPort>
 
     /**
-     * Creates a new component port.
+     * Creates a new component port that has the given [variable] assigned to it.
      */
-    fun createPort(variableView: ComponentPortVariableView? = null): ComponentPort
+    fun createPort(variable: ComponentPortVectorVariable? = null): ComponentPort
 
     /**
      * Removes the given [port].

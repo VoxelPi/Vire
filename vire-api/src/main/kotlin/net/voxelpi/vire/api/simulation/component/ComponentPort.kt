@@ -6,7 +6,7 @@ import net.voxelpi.vire.api.simulation.network.NetworkNodeHolder
 import net.voxelpi.vire.api.simulation.network.NetworkState
 
 /**
- * An interface of a component.
+ * A port of a component.
  * Interfaces the specified state machine input or output to connected network.
  */
 interface ComponentPort : SimulationObject, NetworkNodeHolder {
@@ -17,9 +17,9 @@ interface ComponentPort : SimulationObject, NetworkNodeHolder {
     val component: Component
 
     /**
-     * The variable that should be bound to the interface.
+     * The variable that should be bound to the port.
      */
-    var variableView: ComponentPortVariableView?
+    var variable: ComponentPortVectorVariable?
 
     /**
      * The network of the component port.

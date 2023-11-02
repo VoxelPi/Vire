@@ -1,7 +1,7 @@
 package net.voxelpi.vire.api.simulation.event.simulation.component.port
 
 import net.voxelpi.vire.api.simulation.component.ComponentPort
-import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
+import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
 
 /**
  * An event that is called when the variable of port is selected.
@@ -10,6 +10,6 @@ import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
  */
 class ComponentPortVariableSelectEvent(
     override val port: ComponentPort,
-    val newVariable: ComponentPortVariableView?,
-    val oldVariable: ComponentPortVariableView?,
+    val newVariable: ComponentPortVectorVariable?,
+    val oldVariable: ComponentPortVectorVariable?,
 ) : ComponentPortEvent

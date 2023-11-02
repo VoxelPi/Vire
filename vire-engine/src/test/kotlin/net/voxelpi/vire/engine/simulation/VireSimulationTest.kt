@@ -102,8 +102,8 @@ class VireSimulationTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val inputPort = component.createPort(inputVariable.createView())
-        val outputPort = component.createPort(outputVariable.createView())
+        val inputPort = component.createPort(inputVariable.variable())
+        val outputPort = component.createPort(outputVariable.variable())
         simulation.createNetworkNodeConnection(inputPort.node, outputPort.node)
 
         assertEquals(1, simulation.networks().size) { "More than one network remain after connecting the two nodes." }
@@ -141,7 +141,7 @@ class VireSimulationTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val outputPort = component.createPort(outputVariable.createView())
+        val outputPort = component.createPort(outputVariable.variable())
 
         // Simulate output.
         simulation.simulateSteps(1)

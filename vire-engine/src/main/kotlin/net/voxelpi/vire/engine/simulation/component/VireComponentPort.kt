@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.simulation.component
 
 import net.voxelpi.vire.api.simulation.component.ComponentPort
-import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
+import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortVariableSelectEvent
 import net.voxelpi.vire.api.simulation.network.NetworkState
@@ -14,11 +14,11 @@ import java.util.UUID
 
 class VireComponentPort(
     override val component: VireComponent,
-    variableView: ComponentPortVariableView?,
+    variable: ComponentPortVectorVariable?,
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : VireSimulationObject(), ComponentPort, VireNetworkNodeHolder {
 
-    override var variableView: ComponentPortVariableView? = variableView
+    override var variable: ComponentPortVectorVariable? = variable
         set(value) {
             simulation.publish(ComponentPortVariableSelectEvent(this, value, field))
             field = value
@@ -42,14 +42,14 @@ class VireComponentPort(
     }
 
     override fun pushOutput(): NetworkState? {
-        val access = variableView ?: return null
+        val variable = variable ?: return null
 
-        val (variable, index) = access
-        if (variable !is StateMachineOutput) {
+        val (vector, index) = variable
+        if (vector !is StateMachineOutput) {
             return null
         }
 
-        val output = component.stateMachineContext.pushOutput(variable, index, network.state)
+        val output = component.stateMachineContext.pushOutput(vector, index, network.state)
         network.state = output
         return output
     }

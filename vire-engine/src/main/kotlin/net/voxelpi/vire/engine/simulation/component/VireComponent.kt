@@ -2,7 +2,7 @@ package net.voxelpi.vire.engine.simulation.component
 
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
-import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
+import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
 import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.component.StateMachineInput
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
@@ -51,25 +51,25 @@ class VireComponent(
     fun pullInputs() {
         stateMachineContext.initializeInputs()
         for (port in ports.values) {
-            val (variable, index) = port.variableView ?: continue
-            if (variable is StateMachineInput) {
-                stateMachineContext.pullInput(variable, index, port.node.network.state)
+            val (vector, index) = port.variable ?: continue
+            if (vector is StateMachineInput) {
+                stateMachineContext.pullInput(vector, index, port.node.network.state)
             }
         }
     }
 
     fun pushOutputs() {
         for (port in ports.values) {
-            val (variable, index) = port.variableView ?: continue
-            if (variable is StateMachineOutput) {
-                port.network.state = stateMachineContext.pushOutput(variable, index, port.network.state)
+            val (vector, index) = port.variable ?: continue
+            if (vector is StateMachineOutput) {
+                port.network.state = stateMachineContext.pushOutput(vector, index, port.network.state)
             }
         }
     }
 
-    override fun createPort(variableView: ComponentPortVariableView?): VireComponentPort {
+    override fun createPort(variable: ComponentPortVectorVariable?): VireComponentPort {
         // Create the port.
-        val port = VireComponentPort(this, variableView)
+        val port = VireComponentPort(this, variable)
         ports[port.uniqueId] = port
 
         // Fire the event.

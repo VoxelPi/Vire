@@ -91,8 +91,8 @@ class VireNetworkTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val inputPort = component.createPort(inputVariable.createView())
-        val outputPort = component.createPort(outputVariable.createView())
+        val inputPort = component.createPort(inputVariable.variable())
+        val outputPort = component.createPort(outputVariable.variable())
 
         assertEquals(1, inputPort.network.ports().size)
         assertEquals(1, outputPort.network.ports().size)

@@ -39,7 +39,7 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val inputPort = component.createPort(inputVariable.createView())
+        val inputPort = component.createPort(inputVariable.variable())
 
         inputPort.network.state = NetworkState.value(true)
         component.pullInputs()
@@ -61,7 +61,7 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val outputPort = component.createPort(outputVariable.createView())
+        val outputPort = component.createPort(outputVariable.variable())
 
         component.tick()
         component.pushOutputs()
@@ -85,8 +85,8 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val inputPort = component.createPort(inputVariable.createView())
-        val outputPort = component.createPort(outputVariable.createView())
+        val inputPort = component.createPort(inputVariable.variable())
+        val outputPort = component.createPort(outputVariable.variable())
 
         inputPort.network.state = NetworkState.value(true)
         component.pullInputs()
@@ -112,8 +112,8 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val inputPort = component.createPort(inputVariable.createView())
-        val outputPort = component.createPort(outputVariable.createView())
+        val inputPort = component.createPort(inputVariable.variable())
+        val outputPort = component.createPort(outputVariable.variable())
         val node1 = inputPort.network.createNode(listOf(inputPort.node))
         val node2 = inputPort.network.createNode(listOf(node1))
         val node3 = inputPort.network.createNode(listOf(node2))
@@ -140,8 +140,8 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(stateMachine)
-        val inputPort = component.createPort(inputVariable.createView())
-        val outputPort = component.createPort(outputVariable.createView())
+        val inputPort = component.createPort(inputVariable.variable())
+        val outputPort = component.createPort(outputVariable.variable())
         simulation.createNetworkNodeConnection(inputPort.node, outputPort.node)
 
         inputPort.remove()
