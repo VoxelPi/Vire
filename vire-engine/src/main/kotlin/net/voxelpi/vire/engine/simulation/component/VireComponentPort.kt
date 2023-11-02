@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.simulation.component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVariableView
 import net.voxelpi.vire.api.simulation.component.StateMachineOutput
+import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortVariableSelectEvent
 import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
@@ -13,9 +14,15 @@ import java.util.UUID
 
 class VireComponentPort(
     override val component: VireComponent,
-    override var variableView: ComponentPortVariableView?,
+    variableView: ComponentPortVariableView?,
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : VireSimulationObject(), ComponentPort, VireNetworkNodeHolder {
+
+    override var variableView: ComponentPortVariableView? = variableView
+        set(value) {
+            simulation.publish(ComponentPortVariableSelectEvent(this, value, field))
+            field = value
+        }
 
     override val simulation: VireSimulation
         get() = component.simulation
