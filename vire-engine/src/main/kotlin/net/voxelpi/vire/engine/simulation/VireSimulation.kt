@@ -22,6 +22,8 @@ import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreat
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkDestroyEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkMergeEvent
+import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkSplitEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeDestroyEvent
 import net.voxelpi.vire.api.simulation.library.Library
@@ -271,6 +273,8 @@ class VireSimulation(
         for (network in networks) {
             network.pushPortOutputs()
         }
+
+        publish(NetworkSplitEvent(node.network, networks))
     }
 
     override fun areNodesConnectedDirectly(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
@@ -322,13 +326,20 @@ class VireSimulation(
         // Check if the two nodes are in the same network. If not, merge the two networks.
         require(nodeA is VireNetworkNode)
         require(nodeB is VireNetworkNode)
-        if (nodeA.network.uniqueId != nodeB.network.uniqueId) {
+        val networkA = nodeA.network
+        val networkB = nodeB.network
+        if (networkA != networkB) {
             mergeNetworks(nodeA.network, nodeB.network)
         }
 
         // Connect the nodes with each other.
         nodeA.registerConnection(nodeB)
         nodeB.registerConnection(nodeA)
+
+        // Publish event.
+        if (networkA != networkB) {
+            publish(NetworkMergeEvent(nodeA.network, listOf(networkA, networkB)))
+        }
     }
 
     override fun removeNetworkNodeConnection(nodeA: NetworkNode, nodeB: NetworkNode) {
@@ -371,6 +382,9 @@ class VireSimulation(
         // Update network states
         networkA.pushPortOutputs()
         networkB.pushPortOutputs()
+
+        // Publish event.
+        publish(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
     }
 
     private fun collectConnectedNodes(networkNode: VireNetworkNode, collected: MutableSet<UUID>) {
@@ -396,6 +410,9 @@ class VireSimulation(
             for (other in networks.drop(1)) {
                 network = mergeNetworks(network, other)
             }
+
+            // Publish event.
+            publish(NetworkMergeEvent(network, networks))
         }
 
         // Return the merged network.
