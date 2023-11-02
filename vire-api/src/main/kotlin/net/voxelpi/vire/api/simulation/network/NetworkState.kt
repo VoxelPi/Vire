@@ -2,6 +2,9 @@ package net.voxelpi.vire.api.simulation.network
 
 import kotlin.math.min
 
+/**
+ * The state of a network.
+ */
 sealed interface NetworkState {
 
     /**

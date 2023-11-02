@@ -4,7 +4,7 @@ import java.util.regex.Pattern
 
 /**
  * A resource identifier which consists of a namespace and a value.
- * The namespaces may only contain lowercase alphanumeric characters, periods, underscores, and hyphens.
+ * The namespace may only contain lowercase alphanumeric characters, periods, underscores, and hyphens.
  * The value may only contain lowercase alphanumeric characters, periods, underscores, hyphens, and forward slashes.
  *
  * @property namespace the namespace.
@@ -26,7 +26,7 @@ data class Identifier(val namespace: String, val value: String) {
         val VALUE_PATTERN: Pattern = Pattern.compile("[a-z0-9/._-]+")
 
         /**
-         * Parse the identifier from the given string.
+         * Parse an identifier from the given [identifier] string.
          */
         fun parse(identifier: String): Identifier {
             val index = identifier.indexOf(':')

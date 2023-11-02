@@ -2,6 +2,9 @@ package net.voxelpi.vire.api.simulation
 
 import java.util.UUID
 
+/**
+ * An object of a simulation.
+ */
 interface SimulationObject {
 
     /**
