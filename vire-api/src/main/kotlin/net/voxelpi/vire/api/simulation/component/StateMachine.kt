@@ -2,6 +2,7 @@ package net.voxelpi.vire.api.simulation.component
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.library.Library
+import kotlin.reflect.typeOf
 
 /**
  * The state machine of the component.
@@ -142,7 +143,7 @@ abstract class StateMachine(
         name: String,
         initialValue: T,
     ): StateMachineUnconstrainedParameter<T> {
-        return declare(StateMachineUnconstrainedParameter(name, initialValue))
+        return declare(StateMachineUnconstrainedParameter(name, typeOf<T>(), initialValue))
     }
 
     /**
@@ -153,7 +154,7 @@ abstract class StateMachine(
         initialValue: T,
         noinline predicate: (value: T) -> Boolean,
     ): StateMachinePredicateParameter<T> {
-        return declare(StateMachinePredicateParameter(name, initialValue, predicate))
+        return declare(StateMachinePredicateParameter(name, typeOf<T>(), initialValue, predicate))
     }
 
     /**
@@ -164,7 +165,7 @@ abstract class StateMachine(
         initialValue: T,
         noinline predicate: (value: T, context: StateMachineParameterContext) -> Boolean,
     ): StateMachinePredicateParameter<T> {
-        return declare(StateMachinePredicateParameter(name, initialValue, predicate))
+        return declare(StateMachinePredicateParameter(name, typeOf<T>(), initialValue, predicate))
     }
 
     /**
@@ -175,7 +176,7 @@ abstract class StateMachine(
         initialValue: T,
         values: Collection<T>,
     ): StateMachineSelectionParameter<T> {
-        return declare(StateMachineSelectionParameter(name, initialValue, values))
+        return declare(StateMachineSelectionParameter(name, typeOf<T>(), initialValue, values))
     }
 
     /**
@@ -187,7 +188,7 @@ abstract class StateMachine(
         min: Byte = Byte.MIN_VALUE,
         max: Byte = Byte.MAX_VALUE,
     ): StateMachineRangeParameter<Byte> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<Byte>(), initialValue, min, max))
     }
 
     /**
@@ -199,7 +200,7 @@ abstract class StateMachine(
         min: Short = Short.MIN_VALUE,
         max: Short = Short.MAX_VALUE,
     ): StateMachineRangeParameter<Short> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<Short>(), initialValue, min, max))
     }
 
     /**
@@ -211,7 +212,7 @@ abstract class StateMachine(
         min: Int = Int.MIN_VALUE,
         max: Int = Int.MAX_VALUE,
     ): StateMachineRangeParameter<Int> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<Int>(), initialValue, min, max))
     }
 
     /**
@@ -223,7 +224,7 @@ abstract class StateMachine(
         min: Long = Long.MIN_VALUE,
         max: Long = Long.MAX_VALUE,
     ): StateMachineRangeParameter<Long> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<Long>(), initialValue, min, max))
     }
 
     /**
@@ -235,7 +236,7 @@ abstract class StateMachine(
         min: UByte = UByte.MIN_VALUE,
         max: UByte = UByte.MAX_VALUE,
     ): StateMachineRangeParameter<UByte> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<UByte>(), initialValue, min, max))
     }
 
     /**
@@ -247,7 +248,7 @@ abstract class StateMachine(
         min: UShort = UShort.MIN_VALUE,
         max: UShort = UShort.MAX_VALUE,
     ): StateMachineRangeParameter<UShort> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<UShort>(), initialValue, min, max))
     }
 
     /**
@@ -259,7 +260,7 @@ abstract class StateMachine(
         min: UInt = UInt.MIN_VALUE,
         max: UInt = UInt.MAX_VALUE,
     ): StateMachineRangeParameter<UInt> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<UInt>(), initialValue, min, max))
     }
 
     /**
@@ -271,7 +272,7 @@ abstract class StateMachine(
         min: ULong = ULong.MIN_VALUE,
         max: ULong = ULong.MAX_VALUE,
     ): StateMachineRangeParameter<ULong> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<ULong>(), initialValue, min, max))
     }
 
     /**
@@ -283,7 +284,7 @@ abstract class StateMachine(
         min: Float = Float.MIN_VALUE,
         max: Float = Float.MAX_VALUE,
     ): StateMachineRangeParameter<Float> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<Float>(), initialValue, min, max))
     }
 
     /**
@@ -295,14 +296,14 @@ abstract class StateMachine(
         min: Double = Double.MIN_VALUE,
         max: Double = Double.MAX_VALUE,
     ): StateMachineRangeParameter<Double> {
-        return declare(StateMachineRangeParameter(name, initialValue, min, max))
+        return declare(StateMachineRangeParameter(name, typeOf<Double>(), initialValue, min, max))
     }
 
     /**
      * Declares a new variable for the state machine.
      */
     protected inline fun <reified T> declareVariable(name: String, initialValue: T): StateMachineVariable<T> {
-        return declare(StateMachineVariable(name, initialValue))
+        return declare(StateMachineVariable(name, typeOf<T>(), initialValue))
     }
 
     /**

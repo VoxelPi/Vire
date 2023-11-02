@@ -11,3 +11,10 @@ data class StateMachineOutput(
     override val name: String,
     val initialSize: Int = 1,
 ) : ComponentPortVector
+
+/**
+ * Creates a new output.
+ */
+fun output(name: String, initialSize: Int = 1): StateMachineOutput {
+    return StateMachineOutput(name, initialSize)
+}

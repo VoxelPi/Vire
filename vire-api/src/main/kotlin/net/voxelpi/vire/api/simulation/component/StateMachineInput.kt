@@ -11,3 +11,10 @@ class StateMachineInput(
     override val name: String,
     val initialSize: Int = 1,
 ) : ComponentPortVector
+
+/**
+ * Creates a new input.
+ */
+fun input(name: String, initialSize: Int = 1): StateMachineInput {
+    return StateMachineInput(name, initialSize)
+}
