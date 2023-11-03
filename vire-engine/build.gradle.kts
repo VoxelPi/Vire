@@ -1,7 +1,6 @@
 plugins {
-//    alias(libs.plugins.blossom)
-//    alias(libs.plugins.indra.git)
-    `vire-module`
+    id("vire.module")
+    id("vire.publishing")
 }
 
 dependencies {
@@ -25,13 +24,13 @@ dependencies {
     testImplementation(libs.log4j.slf4j.impl)
 }
 
-//sourceSets {
-//    main {
-//        blossom {
-//            kotlinSources {
-//                property("version", project.version.toString())
-//                property("git_commit", indraGit.commit()?.name)
-//            }
-//        }
-//    }
-//}
+sourceSets {
+    main {
+        blossom {
+            kotlinSources {
+                property("version", project.version.toString())
+                property("git_commit", indraGit.commit()?.name)
+            }
+        }
+    }
+}

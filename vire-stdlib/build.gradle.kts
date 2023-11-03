@@ -1,6 +1,6 @@
 plugins {
-    `maven-publish`
-    `vire-module`
+    id("vire.module")
+    id("vire.publishing")
 }
 
 dependencies {

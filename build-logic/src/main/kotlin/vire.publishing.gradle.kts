@@ -1,5 +1,5 @@
 plugins {
-    net.kyori.indra
+    id("net.kyori.indra.publishing")
 }
 
 tasks {
@@ -20,8 +20,8 @@ tasks {
                 developers {
                     developer {
                         id.set("voxelpi")
-                        name.set("VoxelPi")
-                        url.set("https://voxelpi.dev")
+                        name.set("Peter Smek")
+                        url.set("https://voxelpi.net")
                     }
                 }
             }
