@@ -5,11 +5,9 @@ pluginManagement {
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.5.0"
-}
-
 rootProject.name = "vire"
 include("vire-api")
 include("vire-engine")
 include("vire-stdlib")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

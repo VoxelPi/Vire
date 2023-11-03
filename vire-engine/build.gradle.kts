@@ -7,7 +7,7 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     // Project
-    api(project(":vire-api"))
+    api(projects.vireApi)
 
     // Libraries
     implementation(libs.kotlin.reflect)
