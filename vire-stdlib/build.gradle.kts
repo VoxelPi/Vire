@@ -1,5 +1,6 @@
 plugins {
     `maven-publish`
+    `vire-module`
 }
 
 dependencies {
@@ -13,12 +14,4 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testRuntimeOnly(libs.junit.jupiter.platform.launcher)
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

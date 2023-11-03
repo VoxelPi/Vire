@@ -1,6 +1,6 @@
 plugins {
     `maven-publish`
-    `java-library`
+    `vire-module`
 }
 
 dependencies {
@@ -20,14 +20,6 @@ dependencies {
 
     testImplementation(libs.slf4j.api)
     testImplementation(libs.log4j.slf4j.impl)
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 // val sourcesJar by tasks.creating(Jar::class) {
