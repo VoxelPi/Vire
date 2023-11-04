@@ -17,6 +17,17 @@ val javadocJar by tasks.register<Jar>("dokkaJavadocJar") {
  }
 
  publishing {
+     repositories {
+         maven {
+             name = "GitHubPackages"
+             url = uri("https://maven.pkg.github.com/voxelpi/vire")
+             credentials {
+                 username = System.getenv("GITHUB_ACTOR")
+                 password = System.getenv("GITHUB_TOKEN")
+             }
+         }
+     }
+
      publications {
          create<MavenPublication>("maven") {
              groupId = project.group.toString()
