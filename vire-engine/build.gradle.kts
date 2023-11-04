@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.blossom)
-    alias(libs.plugins.indra.git)
+    id("vire.module")
+    id("vire.publishing")
 }
 
 dependencies {
@@ -13,23 +13,6 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.bundles.kotlinx.coroutines)
     implementation(libs.kotlin.logging.jvm)
-
-    // Tests
-    testImplementation(kotlin("test"))
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testRuntimeOnly(libs.junit.jupiter.platform.launcher)
-
-    testImplementation(libs.slf4j.api)
-    testImplementation(libs.log4j.slf4j.impl)
-}
-
-kotlin {
-    jvmToolchain(17)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 sourceSets {
