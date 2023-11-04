@@ -13,6 +13,7 @@ tasks {
         github("VoxelPi", "Vire") {
             ci(true)
             issues(true)
+            publishing(true)
         }
 
         configurePublications {
