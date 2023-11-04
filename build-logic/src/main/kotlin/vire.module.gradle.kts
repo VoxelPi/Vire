@@ -7,7 +7,6 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.jlleitschuh.gradle.ktlint")
     id("net.kyori.blossom")
-    id("net.kyori.indra")
     id("net.kyori.indra.git")
     `java-library`
 }

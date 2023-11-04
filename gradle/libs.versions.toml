@@ -47,10 +47,10 @@ buildsrc-plugins = [
 ]
 
 [plugins]
-#kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-#ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
-#blossom = { id = "net.kyori.blossom", version = "2.1.0" }
-#indra = { id = "net.kyori.indra", version.ref = "indra" }
-#indra-git = { id = "net.kyori.indra.git", version.ref = "indra" }
-#indra-publishing = { id = "net.kyori.indra.publishing", version.ref = "indra" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
+blossom = { id = "net.kyori.blossom", version.ref = "blossom" }
+indra = { id = "net.kyori.indra", version.ref = "indra" }
+indra-git = { id = "net.kyori.indra.git", version.ref = "indra" }
+indra-publishing = { id = "net.kyori.indra.publishing", version.ref = "indra" }
