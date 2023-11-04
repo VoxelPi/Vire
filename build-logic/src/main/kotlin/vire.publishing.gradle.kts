@@ -2,6 +2,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     `maven-publish`
+    signing
 }
 
 val javadocJar by tasks.register<Jar>("dokkaJavadocJar") {
@@ -65,3 +66,10 @@ val javadocJar by tasks.register<Jar>("dokkaJavadocJar") {
          }
      }
  }
+
+signing {
+    val signingSecretKey = System.getenv("SIGNING_KEY")
+    val signingPassword = System.getenv("SIGNING_PASSWORD")
+    useInMemoryPgpKeys(signingSecretKey, signingPassword)
+    sign(publishing.publications)
+}
