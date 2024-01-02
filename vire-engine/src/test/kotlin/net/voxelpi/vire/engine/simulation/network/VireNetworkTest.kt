@@ -1,15 +1,15 @@
 package net.voxelpi.vire.engine.simulation.network
 
 import net.voxelpi.vire.api.Identifier
-import net.voxelpi.vire.api.simulation.component.StateMachine
-import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.component.StateMachineInput
-import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkDestroyEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeDestroyEvent
 import net.voxelpi.vire.api.simulation.on
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,7 +23,7 @@ class VireNetworkTest {
 
     @BeforeEach
     fun setUp() {
-        simulation = VireSimulation(emptyList())
+        simulation = VireImplementation.createSimulation(emptyList())
     }
 
     @Test
@@ -75,16 +75,14 @@ class VireNetworkTest {
 
     @Test
     fun ports() {
-        val inputVariable = StateMachineInput("input")
-        val outputVariable = StateMachineOutput("output")
+        val inputVariable = input("input")
+        val outputVariable = output("output")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(inputVariable)
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "buffer")) {
+            declare(inputVariable)
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
+            update = { context ->
                 context[outputVariable] = context[inputVariable]
             }
         }
