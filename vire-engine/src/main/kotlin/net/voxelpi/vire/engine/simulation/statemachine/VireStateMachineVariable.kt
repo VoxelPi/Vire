@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
+import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
 
 /**
@@ -13,4 +14,9 @@ data class VireStateMachineVariable<T>(
     override val name: String,
     override val type: KType,
     override val initialValue: T,
-) : StateMachineVariable<T>
+) : StateMachineVariable<T> {
+
+    override fun acceptsValue(value: Any?): Boolean {
+        return isInstanceOfType(value, type)
+    }
+}

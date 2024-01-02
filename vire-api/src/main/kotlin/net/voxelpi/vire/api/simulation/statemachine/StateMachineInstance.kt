@@ -35,6 +35,17 @@ interface StateMachineInstance {
     fun vector(output: StateMachineOutput): Array<LogicState>
 
     interface ConfigurationContext {
+
+        /**
+         * The state machine.
+         */
+        val stateMachine: StateMachine
+
+        /**
+         * Returns the current value of the given [parameter].
+         */
+        operator fun <T> get(parameter: StateMachineParameter<T>): T
+
         /**
          * Sets the value of the given [parameter] to the given [value].
          */

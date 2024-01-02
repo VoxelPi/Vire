@@ -10,6 +10,7 @@ import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -48,6 +49,25 @@ interface Simulation {
      * If no state machine with such key exists, `null` is returned.
      */
     fun stateMachine(identifier: Identifier): StateMachine?
+
+    /**
+     * Creates a new state machine instance for the given [stateMachine].
+     * The parameters of the instance are configured using the specified [configuration].
+     */
+    fun createStateMachineInstance(
+        stateMachine: StateMachine,
+        configuration: StateMachineInstance.ConfigurationContext.() -> Unit = {},
+    ): StateMachineInstance
+
+    /**
+     * Creates a new state machine instance for the given [stateMachine].
+     * The parameters of the instance are configured using the specified [configuration].
+     * Whilst Not all parameters must be specified, only existing parameters may be specified.
+     */
+    fun createStateMachineInstance(
+        stateMachine: StateMachine,
+        configuration: Map<String, Any?>,
+    ): StateMachineInstance
 
     /**
      * Returns a collection of all registered components.

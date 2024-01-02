@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
+import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
 
 /**
@@ -8,6 +9,10 @@ import kotlin.reflect.KType
  * Parameters can be used the configure the state machine as they can be accessed and modified externally.
  */
 interface VireStateMachineParameter<T> : StateMachineParameter<T> {
+
+    override fun acceptsValue(value: Any?): Boolean {
+        return isInstanceOfType(value, type)
+    }
 
     /**
      * A parameter with the given [name] and [initialValue].

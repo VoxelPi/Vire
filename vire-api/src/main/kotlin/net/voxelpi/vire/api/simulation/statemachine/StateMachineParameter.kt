@@ -26,6 +26,11 @@ interface StateMachineParameter<T> : StateMachineState {
     val initialValue: T
 
     /**
+     * Returns if the variable accepts the given value.
+     */
+    fun acceptsValue(value: Any?): Boolean
+
+    /**
      * Returns if the given [value] is valid for this parameter.
      */
     fun isValid(value: T): Boolean

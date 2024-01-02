@@ -23,6 +23,11 @@ interface StateMachineVariable<T> : StateMachineState {
      * The initial value of the variable.
      */
     val initialValue: T
+
+    /**
+     * Returns if the variable accepts the given value.
+     */
+    fun acceptsValue(value: Any?): Boolean
 }
 
 /**

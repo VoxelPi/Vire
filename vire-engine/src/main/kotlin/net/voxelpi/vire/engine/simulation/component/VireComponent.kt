@@ -19,7 +19,7 @@ class VireComponent(
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : VireSimulationObject(), Component {
 
-    override val stateMachineInstance: VireStateMachineInstance = VireStateMachineInstance(simulation, stateMachine)
+    override val stateMachineInstance: VireStateMachineInstance = simulation.createStateMachineInstance(stateMachine) {}
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
 

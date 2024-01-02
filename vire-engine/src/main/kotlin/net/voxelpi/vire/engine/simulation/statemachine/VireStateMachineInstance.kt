@@ -15,7 +15,10 @@ import java.util.Arrays
 class VireStateMachineInstance(
     val simulation: VireSimulation,
     override val stateMachine: StateMachine,
+    configuration: StateMachineInstance.ConfigurationContext.() -> Unit,
 ) : StateMachineInstance {
+
+    private val initialParameterStates: Map<String, Any?>
 
     private val parameterStates: MutableMap<String, Any?> = mutableMapOf()
     private val variableStates: MutableMap<String, Any?> = mutableMapOf()
@@ -23,6 +26,14 @@ class VireStateMachineInstance(
     private val outputStates: MutableMap<String, Array<LogicState>> = mutableMapOf()
 
     init {
+        val initialParameterStates = mutableMapOf<String, Any?>()
+        for (parameter in stateMachine.parameters.values) {
+            initialParameterStates[parameter.name] = parameter.initialValue
+        }
+        VireInitialConfigurationContext(stateMachine, initialParameterStates).configuration()
+        check(stateMachine.parameters.values.all { it.acceptsValue(initialParameterStates[it.name]) })
+        this.initialParameterStates = initialParameterStates
+
         reset(true)
     }
 
@@ -30,7 +41,7 @@ class VireStateMachineInstance(
         if (parameters) {
             // Initialize parameter states
             for (parameter in stateMachine.parameters.values) {
-                parameterStates[parameter.name] = parameter.initialValue
+                parameterStates[parameter.name] = initialParameterStates[parameter.name]
             }
         }
 
@@ -119,7 +130,7 @@ class VireStateMachineInstance(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: StateMachineParameter<T>): T {
-        return parameterStates[parameter.name]!! as T
+        return parameterStates[parameter.name] as T
     }
 
     operator fun <T> set(parameter: StateMachineParameter<T>, value: T) {
@@ -193,10 +204,37 @@ class VireStateMachineInstance(
         return true
     }
 
-    class VireConfigurationContext(val instance: VireStateMachineInstance) : StateMachineInstance.ConfigurationContext {
+    class VireConfigurationContext(
+        val instance: VireStateMachineInstance,
+    ) : StateMachineInstance.ConfigurationContext {
+
+        override val stateMachine: StateMachine
+            get() = instance.stateMachine
+
+        override fun <T> get(parameter: StateMachineParameter<T>): T {
+            return instance[parameter]
+        }
 
         override fun <T> set(parameter: StateMachineParameter<T>, value: T) {
             instance[parameter] = value
+        }
+    }
+
+    class VireInitialConfigurationContext(
+        override val stateMachine: StateMachine,
+        private val initialParameterStates: MutableMap<String, Any?>,
+    ) : StateMachineInstance.ConfigurationContext {
+
+        @Suppress("UNCHECKED_CAST")
+        override fun <T> get(parameter: StateMachineParameter<T>): T {
+            return initialParameterStates[parameter.name] as T
+        }
+
+        override fun <T> set(parameter: StateMachineParameter<T>, value: T) {
+            // Check that the parameter is valid.
+            require(parameter.isValid(value))
+
+            initialParameterStates[parameter.name] = value
         }
     }
 }
