@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.Identifier
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
@@ -35,8 +36,9 @@ class VireStateMachineFactory : StateMachineFactory {
     override fun createOutput(
         name: String,
         initialSize: StateMachineIOState.InitialSizeProvider,
+        initialValue: LogicState,
     ): VireStateMachineOutput {
-        return VireStateMachineOutput(name, initialSize)
+        return VireStateMachineOutput(name, initialSize, initialValue)
     }
 
     override fun <T> createVariable(

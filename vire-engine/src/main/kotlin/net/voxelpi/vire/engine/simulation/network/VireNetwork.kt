@@ -11,7 +11,7 @@ import java.util.UUID
 class VireNetwork(
     override val simulation: VireSimulation,
     override val uniqueId: UUID = UUID.randomUUID(),
-    override var state: LogicState = LogicState.NONE,
+    override var state: LogicState = LogicState.EMPTY,
 ) : VireSimulationObject(), Network {
 
     private val nodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
@@ -72,7 +72,7 @@ class VireNetwork(
     }
 
     override fun pushPortOutputs(): LogicState {
-        state = LogicState.NONE
+        state = LogicState.EMPTY
 
         // Push the last simulated state onto the network.
         for (port in ports()) {

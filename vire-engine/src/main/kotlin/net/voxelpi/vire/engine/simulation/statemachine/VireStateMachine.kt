@@ -31,6 +31,7 @@ class VireStateMachine(
         override var configure: (StateMachineConfigureContext) -> Unit = {}
 
         override var update: (StateMachineUpdateContext) -> Unit = {}
+
         override fun <T, U : StateMachineParameter<T>> declare(parameter: U): U {
             require(parameter.name !in parameters) { "A parameter with the name \"${parameter.name}\" already exists." }
             parameters[parameter.name] = parameter

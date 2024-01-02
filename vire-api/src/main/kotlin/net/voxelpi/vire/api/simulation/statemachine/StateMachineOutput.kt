@@ -1,6 +1,8 @@
 package net.voxelpi.vire.api.simulation.statemachine
 
 import net.voxelpi.vire.api.Vire
+import net.voxelpi.vire.api.simulation.LogicState
+import net.voxelpi.vire.api.simulation.LogicValue
 
 /**
  * An output of a state machine.
@@ -16,6 +18,11 @@ interface StateMachineOutput : StateMachineIOState {
      * The initial size of the output.
      */
     override val initialSize: StateMachineIOState.InitialSizeProvider
+
+    /**
+     * The initial state of the output.
+     */
+    val initialValue: LogicState
 }
 
 /**
@@ -24,8 +31,9 @@ interface StateMachineOutput : StateMachineIOState {
 fun output(
     name: String,
     initialSize: Int = 1,
+    initialValue: LogicState = LogicState.value(LogicValue.NONE),
 ): StateMachineOutput {
-    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize))
+    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize), initialValue)
 }
 
 /**
@@ -33,7 +41,8 @@ fun output(
  */
 fun output(
     name: String,
-    initialSize: StateMachineParameter<Number>,
+    initialSize: StateMachineParameter<out Number>,
+    initialValue: LogicState = LogicState.value(LogicValue.NONE),
 ): StateMachineOutput {
-    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize))
+    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize), initialValue)
 }

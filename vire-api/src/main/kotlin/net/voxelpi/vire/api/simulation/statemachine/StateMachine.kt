@@ -2,6 +2,8 @@ package net.voxelpi.vire.api.simulation.statemachine
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.Vire
+import net.voxelpi.vire.api.simulation.LogicState
+import net.voxelpi.vire.api.simulation.LogicValue
 
 interface StateMachine {
 
@@ -365,8 +367,9 @@ interface StateMachine {
         fun declareOutput(
             name: String,
             initialSize: Int = 1,
+            initialValue: LogicState = LogicState.value(LogicValue.NONE),
         ): StateMachineOutput {
-            return declare(output(name, initialSize))
+            return declare(output(name, initialSize, initialValue))
         }
 
         /**
@@ -374,9 +377,10 @@ interface StateMachine {
          */
         fun declareOutput(
             name: String,
-            initialSize: StateMachineParameter<Number>,
+            initialSize: StateMachineParameter<out Number>,
+            initialValue: LogicState = LogicState.value(LogicValue.NONE),
         ): StateMachineOutput {
-            return declare(output(name, initialSize))
+            return declare(output(name, initialSize, initialValue))
         }
 
         // endregion

@@ -22,13 +22,17 @@ interface StateMachineInstance {
 
     operator fun <T> get(parameter: StateMachineParameter<T>): T
 
-    operator  fun <T> get(variable: StateMachineVariable<T>): T
+    operator fun <T> get(variable: StateMachineVariable<T>): T
 
     operator fun <T> set(variable: StateMachineVariable<T>, value: T)
 
-    operator fun get(input: StateMachineInput, index: Int): LogicState
+    operator fun get(input: StateMachineInput, index: Int = 0): LogicState
 
-    operator fun get(output: StateMachineOutput, index: Int): LogicState
+    fun vector(input: StateMachineInput): Array<LogicState>
+
+    operator fun get(output: StateMachineOutput, index: Int = 0): LogicState
+
+    fun vector(output: StateMachineOutput): Array<LogicState>
 
     interface ConfigurationContext {
         /**

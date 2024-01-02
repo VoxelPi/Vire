@@ -2,13 +2,11 @@ package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
-import net.voxelpi.vire.api.simulation.statemachine.StateMachineConfigureContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineUpdateContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
-import net.voxelpi.vire.api.simulation.statemachine.input
 
 class VireStateMachineUpdateContext(
     private val instance: VireStateMachineInstance,
@@ -41,7 +39,15 @@ class VireStateMachineUpdateContext(
         return instance[input, index]
     }
 
+    override fun vector(input: StateMachineInput): Array<LogicState> {
+        return instance.vector(input)
+    }
+
     override fun set(output: StateMachineOutput, index: Int, value: LogicState) {
         instance[output, index] = value
+    }
+
+    override fun vector(output: StateMachineOutput, value: Array<LogicState>) {
+        instance.vector(output, value)
     }
 }

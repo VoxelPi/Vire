@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.simulation.LogicState
-import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentConfigureEvent
+import net.voxelpi.vire.api.simulation.event.simulation.statemachine.StateMachineConfigureEvent
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
@@ -10,18 +10,12 @@ import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
 import net.voxelpi.vire.engine.simulation.VireSimulation
-import net.voxelpi.vire.engine.simulation.component.VireComponent
 import java.util.Arrays
 
 class VireStateMachineInstance(
-    private val component: VireComponent,
+    val simulation: VireSimulation,
+    override val stateMachine: StateMachine,
 ) : StateMachineInstance {
-
-    override val stateMachine: StateMachine
-        get() = component.stateMachine
-
-    val simulation: VireSimulation
-        get() = component.simulation
 
     private val parameterStates: MutableMap<String, Any?> = mutableMapOf()
     private val variableStates: MutableMap<String, Any?> = mutableMapOf()
@@ -47,19 +41,17 @@ class VireStateMachineInstance(
 
         // Initialize input states
         for (input in stateMachine.inputs.values) {
-            inputStates[input.name] = Array(initialSize(input)) { LogicState.NONE }
+            inputStates[input.name] = Array(initialSize(input)) { LogicState.EMPTY }
         }
 
         // Initialize output states
         for (output in stateMachine.outputs.values) {
-            outputStates[output.name] = Array(initialSize(output)) { LogicState.NONE }
+            outputStates[output.name] = Array(initialSize(output)) { LogicState.EMPTY }
         }
 
-        // Configure the state machine.
+        // Configure the state machine and publish configure event.
         stateMachine.configure(VireStateMachineConfigureContext(this))
-
-        // Publish event.
-        simulation.publish(ComponentConfigureEvent(component))
+        simulation.publish(StateMachineConfigureEvent(simulation, this))
     }
 
     fun initialSize(stateVariable: StateMachineIOState): Int {
@@ -72,7 +64,7 @@ class VireStateMachineInstance(
     fun initializeInputs() {
         // Initialize input states
         for (input in stateMachine.inputs.values) {
-            Arrays.setAll(inputStates[input.name]) { LogicState.NONE }
+            Arrays.setAll(inputStates[input.name]) { LogicState.EMPTY }
         }
     }
 
@@ -83,7 +75,7 @@ class VireStateMachineInstance(
     fun initializeOutputs() {
         // Initialize input states
         for (output in stateMachine.outputs.values) {
-            Arrays.setAll(outputStates[output.name]) { LogicState.NONE }
+            Arrays.setAll(outputStates[output.name]) { LogicState.EMPTY }
         }
     }
 
@@ -109,7 +101,7 @@ class VireStateMachineInstance(
             if (index < previous.size) {
                 previous[index]
             } else {
-                LogicState.NONE
+                LogicState.EMPTY
             }
         }
     }
@@ -120,7 +112,7 @@ class VireStateMachineInstance(
             if (index < previous.size) {
                 previous[index]
             } else {
-                LogicState.NONE
+                LogicState.EMPTY
             }
         }
     }
@@ -142,7 +134,7 @@ class VireStateMachineInstance(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override  fun <T> get(variable: StateMachineVariable<T>): T {
+    override fun <T> get(variable: StateMachineVariable<T>): T {
         return variableStates[variable.name]!! as T
     }
 
@@ -154,28 +146,51 @@ class VireStateMachineInstance(
         return inputStates[input.name]!![index]
     }
 
-    operator fun set(input: StateMachineInput, index: Int, value: LogicState) {
+    override fun vector(input: StateMachineInput): Array<LogicState> {
+        return inputStates[input.name]!!
+    }
+
+    operator fun set(input: StateMachineInput, index: Int = 0, value: LogicState) {
         inputStates[input.name]!![index] = value
+    }
+
+    fun vector(input: StateMachineInput, value: Array<LogicState>) {
+        require(value.size == size(input)) { "Invalid vector size." }
+        inputStates[input.name] = value
     }
 
     override fun get(output: StateMachineOutput, index: Int): LogicState {
         return outputStates[output.name]!![index]
     }
 
-    operator fun set(output: StateMachineOutput, index: Int, value: LogicState) {
+    override fun vector(output: StateMachineOutput): Array<LogicState> {
+        return outputStates[output.name]!!
+    }
+
+    operator fun set(output: StateMachineOutput, index: Int = 0, value: LogicState) {
         outputStates[output.name]!![index] = value
+    }
+
+    fun vector(output: StateMachineOutput, value: Array<LogicState>) {
+        require(value.size == size(output)) { "Invalid vector size." }
+        outputStates[output.name] = value
     }
 
     override fun configureParameters(action: StateMachineInstance.ConfigurationContext.() -> Unit): Boolean {
         val previous = parameterStates.toMutableMap()
         try {
+            // Apply the action.
             VireConfigurationContext(this).action()
-            return true
         } catch (exception: Exception) {
             // Reset to previous values.
             parameterStates.putAll(previous)
             return false
         }
+
+        // Configure the state machine and publish configure event.
+        stateMachine.configure(VireStateMachineConfigureContext(this))
+        simulation.publish(StateMachineConfigureEvent(simulation, this))
+        return true
     }
 
     class VireConfigurationContext(val instance: VireStateMachineInstance) : StateMachineInstance.ConfigurationContext {

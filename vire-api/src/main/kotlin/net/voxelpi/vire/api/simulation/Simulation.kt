@@ -5,12 +5,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharedFlow
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.Component
-import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.event.SimulationEvent
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
-import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import java.util.UUID
 import kotlin.reflect.KClass
 
@@ -84,7 +83,7 @@ interface Simulation {
     /**
      * Creates a new network with the given [uniqueId] and [state].
      */
-    fun createNetwork(uniqueId: UUID = UUID.randomUUID(), state: NetworkState = NetworkState.None): Network
+    fun createNetwork(uniqueId: UUID = UUID.randomUUID(), state: LogicState = LogicState.EMPTY): Network
 
     /**
      * Removes the given [network] and all its nodes from the simulation.

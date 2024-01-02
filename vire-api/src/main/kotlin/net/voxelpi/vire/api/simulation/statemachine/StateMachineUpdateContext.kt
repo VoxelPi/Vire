@@ -1,6 +1,8 @@
 package net.voxelpi.vire.api.simulation.statemachine
 
+import net.voxelpi.vire.api.simulation.BooleanState
 import net.voxelpi.vire.api.simulation.LogicState
+import net.voxelpi.vire.api.simulation.logicStates
 
 /**
  * The available data during the update of a state machine
@@ -43,7 +45,31 @@ interface StateMachineUpdateContext {
     operator fun get(input: StateMachineInput, index: Int = 0): LogicState
 
     /**
+     * Gets the value of the given [input].
+     */
+    fun vector(input: StateMachineInput): Array<LogicState>
+
+    /**
      * Sets the value of the given [output] at index [index] to the given [value].
      */
     operator fun set(output: StateMachineOutput, index: Int = 0, value: LogicState)
+
+    /**
+     * Sets the value of the given [output] to [value].
+     */
+    fun vector(output: StateMachineOutput, value: Array<LogicState>)
+
+    /**
+     * Sets the value of the given [output] at index [index] to the given [value].
+     */
+    operator fun set(output: StateMachineOutput, index: Int = 0, value: BooleanState) {
+        this[output, index] = value.logicState()
+    }
+
+    /**
+     * Sets the value of the given [output] to [value].
+     */
+    fun vector(output: StateMachineOutput, value: Array<BooleanState>) {
+        vector(output, value.logicStates())
+    }
 }

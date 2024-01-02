@@ -17,8 +17,19 @@ sealed interface StateMachineIOState : StateMachineState, ComponentPortVector {
      */
     val initialSize: InitialSizeProvider
 
+    /**
+     * The provider of the initial size.
+     */
     sealed interface InitialSizeProvider {
+
+        /**
+         * The initial size is a constant number.
+         */
         data class Value(val value: Int) : InitialSizeProvider
+
+        /**
+         * The initial size is the value of the given parameter.
+         */
         data class Parameter(val parameter: StateMachineParameter<out Number>) : InitialSizeProvider
     }
 }

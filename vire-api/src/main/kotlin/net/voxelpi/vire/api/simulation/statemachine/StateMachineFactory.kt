@@ -1,6 +1,7 @@
 package net.voxelpi.vire.api.simulation.statemachine
 
 import net.voxelpi.vire.api.Identifier
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -36,6 +37,7 @@ interface StateMachineFactory {
     fun createOutput(
         name: String,
         initialSize: StateMachineIOState.InitialSizeProvider,
+        initialValue: LogicState,
     ): StateMachineOutput
 
     /**

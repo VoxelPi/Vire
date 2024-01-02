@@ -1,6 +1,6 @@
 package net.voxelpi.vire.api.util
 
-class ServiceProvider<T: Any> {
+class ServiceProvider<T : Any> {
 
     private var provider: T? = null
 

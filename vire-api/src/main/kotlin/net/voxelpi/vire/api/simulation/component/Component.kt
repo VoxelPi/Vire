@@ -3,7 +3,6 @@ package net.voxelpi.vire.api.simulation.component
 import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
-import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 
 /**
  * A component in a logic circuit.

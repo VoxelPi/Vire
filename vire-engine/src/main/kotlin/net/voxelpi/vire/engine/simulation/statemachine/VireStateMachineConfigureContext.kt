@@ -6,7 +6,6 @@ import net.voxelpi.vire.api.simulation.statemachine.StateMachineConfigureContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
-import net.voxelpi.vire.api.simulation.statemachine.StateMachineUpdateContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
 
 class VireStateMachineConfigureContext(

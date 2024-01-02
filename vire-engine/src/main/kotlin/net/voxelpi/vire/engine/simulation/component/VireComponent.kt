@@ -3,7 +3,6 @@ package net.voxelpi.vire.engine.simulation.component
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
-import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentConfigureEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
@@ -20,7 +19,7 @@ class VireComponent(
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : VireSimulationObject(), Component {
 
-    override val stateMachineInstance: VireStateMachineInstance = VireStateMachineInstance(this)
+    override val stateMachineInstance: VireStateMachineInstance = VireStateMachineInstance(simulation, stateMachine)
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
 
@@ -85,6 +84,5 @@ class VireComponent(
 
     override fun reset(parameters: Boolean) {
         stateMachineInstance.reset(parameters)
-        simulation.publish(ComponentConfigureEvent(this))
     }
 }

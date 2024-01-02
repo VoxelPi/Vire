@@ -14,9 +14,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.voxelpi.vire.api.Identifier
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.Simulation
 import net.voxelpi.vire.api.simulation.component.Component
-import net.voxelpi.vire.api.simulation.component.StateMachine
 import net.voxelpi.vire.api.simulation.event.SimulationEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
@@ -29,7 +29,7 @@ import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNode
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
-import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.engine.simulation.component.VireComponent
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
@@ -64,7 +64,7 @@ class VireSimulation(
 
         // Register state machines
         val stateMachines = mutableMapOf<Identifier, StateMachine>()
-        this.libraries.values.forEach { stateMachines.putAll(it.stateMachines().associateBy(StateMachine::identifier)) }
+        this.libraries.values.forEach { stateMachines.putAll(it.stateMachines().associateBy(StateMachine::id)) }
         this.stateMachines = stateMachines
         logger.info("Registered ${stateMachines.size} state machines")
     }
@@ -124,7 +124,7 @@ class VireSimulation(
         return networks[uniqueId]
     }
 
-    override fun createNetwork(uniqueId: UUID, state: NetworkState): VireNetwork {
+    override fun createNetwork(uniqueId: UUID, state: LogicState): VireNetwork {
         // Create the network.
         val network = VireNetwork(this, uniqueId, state)
         registerNetwork(network)
@@ -426,7 +426,7 @@ class VireSimulation(
         }
 
         // Create a new network.
-        val network = createNetwork(state = NetworkState.merge(network1.state, network2.state))
+        val network = createNetwork(state = LogicState.merge(network1.state, network2.state))
 
         // Add all nodes of the previous two networks to the new network.
         for (node in network1.nodes()) {
@@ -455,7 +455,7 @@ class VireSimulation(
 
         // Reset network states.
         for (network in networks()) {
-            network.state = NetworkState.None
+            network.state = LogicState.EMPTY
         }
 
         // Push outputs to their assigned networks.
