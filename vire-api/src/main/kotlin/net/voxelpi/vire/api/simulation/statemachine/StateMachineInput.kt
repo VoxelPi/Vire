@@ -11,36 +11,29 @@ interface StateMachineInput : StateMachineIOState {
      * The name of the input.
      */
     override val name: String
-}
-
-/**
- * An input vector of a state machine.
- */
-interface StateMachineInputVector : StateMachineIOStateVector {
 
     /**
-     * The name of the input vector.
+     * The initial size of the input.
      */
-    override val name: String
+    override val initialSize: StateMachineIOState.InitialSizeProvider
 }
 
 /**
  * Creates a new input.
  */
-fun input(name: String): StateMachineInput {
-    return Vire.stateMachineFactory.get().createInput(name)
+fun input(
+    name: String,
+    initialSize: Int = 1,
+): StateMachineInput {
+    return Vire.stateMachineFactory.get().createInput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize))
 }
 
 /**
- * Creates a new input vector.
+ * Creates a new input.
  */
-fun inputVector(name: String, initialSize: Int): StateMachineInputVector {
-    return Vire.stateMachineFactory.get().createInputVector(name, StateMachineStateVector.InitialSizeProvider.Value(initialSize))
-}
-
-/**
- * Creates a new input vector.
- */
-fun inputVector(name: String, initialSize: StateMachineParameter<Number>): StateMachineInputVector {
-    return Vire.stateMachineFactory.get().createInputVector(name, StateMachineStateVector.InitialSizeProvider.Parameter(initialSize))
+fun input(
+    name: String,
+    initialSize: StateMachineParameter<out Number>,
+): StateMachineInput {
+    return Vire.stateMachineFactory.get().createInput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize))
 }

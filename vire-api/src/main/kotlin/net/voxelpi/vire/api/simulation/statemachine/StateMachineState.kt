@@ -8,24 +8,15 @@ sealed interface StateMachineState {
     val name: String
 }
 
-sealed interface StateMachineStateVector {
+sealed interface StateMachineIOState : StateMachineState {
 
     /**
-     * The name of the state vector.
-     */
-    val name: String
-
-    /**
-     * The initial size of the state.
+     * The initial size of the state vector.
      */
     val initialSize: InitialSizeProvider
 
     sealed interface InitialSizeProvider {
         data class Value(val value: Int) : InitialSizeProvider
-        data class Parameter(val parameter: StateMachineParameter<Number>) : InitialSizeProvider
+        data class Parameter(val parameter: StateMachineParameter<out Number>) : InitialSizeProvider
     }
 }
-
-sealed interface StateMachineIOState : StateMachineState
-
-sealed interface StateMachineIOStateVector : StateMachineStateVector

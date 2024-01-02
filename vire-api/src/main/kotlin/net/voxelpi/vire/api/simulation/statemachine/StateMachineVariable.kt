@@ -26,27 +26,6 @@ interface StateMachineVariable<T> : StateMachineState {
 }
 
 /**
- * A variable vector of a state machine.
- */
-interface StateMachineVariableVector<T> : StateMachineIOStateVector {
-
-    /**
-     * The name of the variable vector.
-     */
-    override val name: String
-
-    /**
-     * The type of each entry of the variable vector.
-     */
-    val type: KType
-
-    /**
-     * The initial value of each entry of the variable vector.
-     */
-    val initialValue: T
-}
-
-/**
  * Creates a new variable.
  */
 inline fun <reified T> variable(
@@ -56,38 +35,6 @@ inline fun <reified T> variable(
     return Vire.stateMachineFactory.get().createVariable(
         name,
         typeOf<T>(),
-        initialValue,
-    )
-}
-
-/**
- * Creates a new variable vector.
- */
-inline fun <reified T> variableVector(
-    name: String,
-    initialSize: Int,
-    initialValue: T,
-): StateMachineVariableVector<T> {
-    return Vire.stateMachineFactory.get().createVariableVector(
-        name,
-        typeOf<T>(),
-        StateMachineStateVector.InitialSizeProvider.Value(initialSize),
-        initialValue,
-    )
-}
-
-/**
- * Creates a new variable vector.
- */
-inline fun <reified T> variableVector(
-    name: String,
-    initialSize: StateMachineParameter<Number>,
-    initialValue: T,
-): StateMachineVariableVector<T> {
-    return Vire.stateMachineFactory.get().createVariableVector(
-        name,
-        typeOf<T>(),
-        StateMachineStateVector.InitialSizeProvider.Parameter(initialSize),
         initialValue,
     )
 }

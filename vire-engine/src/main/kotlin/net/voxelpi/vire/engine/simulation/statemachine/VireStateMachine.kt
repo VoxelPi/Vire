@@ -2,9 +2,11 @@ package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineConfigureContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineUpdateContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
 
 class VireStateMachine : StateMachine {
@@ -27,9 +29,9 @@ class VireStateMachine : StateMachine {
             TODO("Not yet implemented")
         }
 
-        override var initialize: () -> Unit = {}
+        override var configure: (StateMachineConfigureContext) -> Unit = {}
 
-        override var update: () -> Unit = {}
+        override var update: (StateMachineUpdateContext) -> Unit = {}
 
         override fun create(): VireStateMachine {
             TODO("Not yet implemented")

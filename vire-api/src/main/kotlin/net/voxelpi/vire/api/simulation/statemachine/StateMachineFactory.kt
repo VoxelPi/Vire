@@ -27,30 +27,16 @@ interface StateMachineFactory {
      */
     fun createInput(
         name: String,
+        initialSize: StateMachineIOState.InitialSizeProvider,
     ): StateMachineInput
-
-    /**
-     * Creates a new input vector.
-     */
-    fun createInputVector(
-        name: String,
-        initialSize: StateMachineStateVector.InitialSizeProvider,
-    ): StateMachineInputVector
 
     /**
      * Creates a new output.
      */
     fun createOutput(
         name: String,
+        initialSize: StateMachineIOState.InitialSizeProvider,
     ): StateMachineOutput
-
-    /**
-     * Creates a new output vector.
-     */
-    fun createOutputVector(
-        name: String,
-        initialSize: StateMachineStateVector.InitialSizeProvider,
-    ): StateMachineOutputVector
 
     /**
      * Creates a new variable.
@@ -60,16 +46,6 @@ interface StateMachineFactory {
         type: KType,
         initialValue: T,
     ): StateMachineVariable<T>
-
-    /**
-     * Creates a new variable vector.
-     */
-    fun <T> createVariableVector(
-        name: String,
-        type: KType,
-        initialSize: StateMachineStateVector.InitialSizeProvider,
-        initialValue: T,
-    ): StateMachineVariableVector<T>
 
     /**
      * Creates a new unconstrained parameter.

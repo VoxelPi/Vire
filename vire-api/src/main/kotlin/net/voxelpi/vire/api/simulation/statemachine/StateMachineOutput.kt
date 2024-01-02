@@ -11,36 +11,29 @@ interface StateMachineOutput : StateMachineIOState {
      * the name of the output.
      */
     override val name: String
-}
-
-/**
- * An output vector of a state machine.
- */
-interface StateMachineOutputVector : StateMachineIOStateVector {
 
     /**
-     * The name of the output vector.
+     * The initial size of the output.
      */
-    override val name: String
+    override val initialSize: StateMachineIOState.InitialSizeProvider
 }
 
 /**
  * Creates a new output.
  */
-fun output(name: String): StateMachineOutput {
-    return Vire.stateMachineFactory.get().createOutput(name)
+fun output(
+    name: String,
+    initialSize: Int = 1,
+): StateMachineOutput {
+    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize))
 }
 
 /**
- * Creates a new output vector.
+ * Creates a new output.
  */
-fun outputVector(name: String, initialSize: Int): StateMachineOutputVector {
-    return Vire.stateMachineFactory.get().createOutputVector(name, StateMachineStateVector.InitialSizeProvider.Value(initialSize))
-}
-
-/**
- * Creates a new output vector.
- */
-fun outputVector(name: String, initialSize: StateMachineParameter<Number>): StateMachineOutputVector {
-    return Vire.stateMachineFactory.get().createOutputVector(name, StateMachineStateVector.InitialSizeProvider.Parameter(initialSize))
+fun output(
+    name: String,
+    initialSize: StateMachineParameter<Number>,
+): StateMachineOutput {
+    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize))
 }

@@ -3,7 +3,7 @@ package net.voxelpi.vire.engine.simulation.statemachine
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
-import net.voxelpi.vire.api.simulation.statemachine.StateMachineStateVector
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -27,28 +27,16 @@ class VireStateMachineFactory : StateMachineFactory {
 
     override fun createInput(
         name: String,
+        initialSize: StateMachineIOState.InitialSizeProvider,
     ): VireStateMachineInput {
-        return VireStateMachineInput(name)
-    }
-
-    override fun createInputVector(
-        name: String,
-        initialSize: StateMachineStateVector.InitialSizeProvider,
-    ): VireStateMachineInputVector {
-        return VireStateMachineInputVector(name, initialSize)
+        return VireStateMachineInput(name, initialSize)
     }
 
     override fun createOutput(
         name: String,
+        initialSize: StateMachineIOState.InitialSizeProvider,
     ): VireStateMachineOutput {
-        return VireStateMachineOutput(name)
-    }
-
-    override fun createOutputVector(
-        name: String,
-        initialSize: StateMachineStateVector.InitialSizeProvider,
-    ): VireStateMachineOutputVector {
-        return VireStateMachineOutputVector(name, initialSize)
+        return VireStateMachineOutput(name, initialSize)
     }
 
     override fun <T> createVariable(
@@ -57,15 +45,6 @@ class VireStateMachineFactory : StateMachineFactory {
         initialValue: T,
     ): VireStateMachineVariable<T> {
         return VireStateMachineVariable(name, type, initialValue)
-    }
-
-    override fun <T> createVariableVector(
-        name: String,
-        type: KType,
-        initialSize: StateMachineStateVector.InitialSizeProvider,
-        initialValue: T,
-    ): VireStateMachineVariableVector<T> {
-        return VireStateMachineVariableVector(name, type, initialSize, initialValue)
     }
 
     override fun <T> createUnconstrainedParameter(

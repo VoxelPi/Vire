@@ -3,37 +3,27 @@ package net.voxelpi.vire.api.simulation.statemachine
 /**
  * The available data during the initialization of a state machine
  */
-interface StateMachineInitContext {
+interface StateMachineConfigureContext {
 
     /**
      * Returns the size of the given [vector].
      */
-    fun size(vector: StateMachineVariableVector<*>): Int
+    fun size(vector: StateMachineInput): Int
 
     /**
      * Returns the size of the given [vector].
      */
-    fun size(vector: StateMachineInputVector): Int
-
-    /**
-     * Returns the size of the given [vector].
-     */
-    fun size(vector: StateMachineOutputVector): Int
+    fun size(vector: StateMachineOutput): Int
 
     /**
      * Sets the size of the given [vector] to [size].
      */
-    fun resize(vector: StateMachineVariableVector<*>, size: Int)
+    fun resize(vector: StateMachineInput, size: Int)
 
     /**
      * Sets the size of the given [vector] to [size].
      */
-    fun resize(vector: StateMachineInputVector, size: Int)
-
-    /**
-     * Sets the size of the given [vector] to [size].
-     */
-    fun resize(vector: StateMachineOutputVector, size: Int)
+    fun resize(vector: StateMachineOutput, size: Int)
 
     /**
      * Returns the current value of the given [parameter].
