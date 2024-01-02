@@ -17,6 +17,8 @@ repositories {
 
 dependencies {
     // Tests
+    testImplementation(kotlin("stdlib"))
+    testImplementation(libs.kotlin.reflect)
     testImplementation(kotlin("test"))
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
