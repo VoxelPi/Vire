@@ -8,14 +8,19 @@ import net.voxelpi.vire.api.simulation.LogicState
 interface StateMachineUpdateContext {
 
     /**
-     * Returns the size of the given [vector].
+     * The state machine.
      */
-    fun size(vector: StateMachineInput): Int
+    val stateMachine: StateMachine
 
     /**
-     * Returns the size of the given [vector].
+     * Returns the size of the given [input].
      */
-    fun size(vector: StateMachineOutput): Int
+    fun size(input: StateMachineInput): Int
+
+    /**
+     * Returns the size of the given [output].
+     */
+    fun size(output: StateMachineOutput): Int
 
     /**
      * Returns the current value of the given [parameter].
@@ -28,14 +33,14 @@ interface StateMachineUpdateContext {
     operator fun <T> get(variable: StateMachineVariable<T>): T
 
     /**
+     * Sets the current value of the given [variable] to the given [value].
+     */
+    operator fun <T> set(variable: StateMachineVariable<T>, value: T)
+
+    /**
      * Returns the current value of the given [input] at index [index].
      */
     operator fun get(input: StateMachineInput, index: Int = 0): LogicState
-
-    /**
-     * Returns the current value of the given [output] at index [index] .
-     */
-    operator fun get(output: StateMachineOutput, index: Int = 0): LogicState
 
     /**
      * Sets the value of the given [output] at index [index] to the given [value].

@@ -87,6 +87,8 @@ data class LogicState(
 
     companion object {
 
+        val NONE = LogicState(0) { Value.NONE }
+
         fun value(value: Value, size: Int): LogicState {
             return LogicState(size) { value }
         }

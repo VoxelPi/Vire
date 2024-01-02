@@ -3,15 +3,15 @@ package net.voxelpi.vire.engine.simulation.component
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
-import net.voxelpi.vire.api.simulation.component.StateMachine
-import net.voxelpi.vire.api.simulation.component.StateMachineInput
-import net.voxelpi.vire.api.simulation.component.StateMachineOutput
-import net.voxelpi.vire.api.simulation.component.StateMachineParameter
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentConfigureEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
+import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachineInstance
 import java.util.UUID
 
 class VireComponent(
@@ -20,40 +20,25 @@ class VireComponent(
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : VireSimulationObject(), Component {
 
-    override val stateMachineContext: VireStateMachineContext = VireStateMachineContext(this)
+    override val stateMachineInstance: VireStateMachineInstance = VireStateMachineInstance(this)
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
-
-    override fun <T> parameter(parameter: StateMachineParameter<T>): T {
-        return stateMachineContext[parameter]
-    }
-
-    override fun <T> parameter(parameter: StateMachineParameter<T>, value: T): Boolean {
-        // Check that the new value satisfies the predicate of the parameter.
-        if (!parameter.isValid(value, stateMachineContext)) {
-            return false
-        }
-
-        // Set the value of the parameter.
-        stateMachineContext[parameter] = value
-        return true
-    }
 
     override fun ports(): List<VireComponentPort> {
         return ports.values.toList()
     }
 
     fun tick() {
-        stateMachineContext.initializeOutputs()
-        stateMachine.tick(stateMachineContext)
+        stateMachineInstance.initializeOutputs()
+        stateMachineInstance.update()
     }
 
     fun pullInputs() {
-        stateMachineContext.initializeInputs()
+        stateMachineInstance.initializeInputs()
         for (port in ports.values) {
             val (vector, index) = port.variable ?: continue
             if (vector is StateMachineInput) {
-                stateMachineContext.pullInput(vector, index, port.node.network.state)
+                stateMachineInstance.pullInput(vector, index, port.node.network.state)
             }
         }
     }
@@ -62,7 +47,7 @@ class VireComponent(
         for (port in ports.values) {
             val (vector, index) = port.variable ?: continue
             if (vector is StateMachineOutput) {
-                port.network.state = stateMachineContext.pushOutput(vector, index, port.network.state)
+                port.network.state = stateMachineInstance.pushOutput(vector, index, port.network.state)
             }
         }
     }
@@ -99,7 +84,7 @@ class VireComponent(
     }
 
     override fun reset(parameters: Boolean) {
-        stateMachineContext.reset(parameters)
+        stateMachineInstance.reset(parameters)
         simulation.publish(ComponentConfigureEvent(this))
     }
 }

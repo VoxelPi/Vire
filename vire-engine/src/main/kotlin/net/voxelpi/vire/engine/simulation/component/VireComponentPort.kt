@@ -1,10 +1,10 @@
 package net.voxelpi.vire.engine.simulation.component
 
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
-import net.voxelpi.vire.api.simulation.component.StateMachineOutput
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortVariableSelectEvent
-import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
@@ -41,7 +41,7 @@ class VireComponentPort(
         node.holder = this
     }
 
-    override fun pushOutput(): NetworkState? {
+    override fun pushOutput(): LogicState? {
         val variable = variable ?: return null
 
         val (vector, index) = variable
@@ -49,7 +49,7 @@ class VireComponentPort(
             return null
         }
 
-        val output = component.stateMachineContext.pushOutput(vector, index, network.state)
+        val output = component.stateMachineInstance.pushOutput(vector, index, network.state)
         network.state = output
         return output
     }

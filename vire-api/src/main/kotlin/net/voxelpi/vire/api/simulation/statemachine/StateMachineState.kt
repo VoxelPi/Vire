@@ -1,5 +1,7 @@
 package net.voxelpi.vire.api.simulation.statemachine
 
+import net.voxelpi.vire.api.simulation.component.ComponentPortVector
+
 sealed interface StateMachineState {
 
     /**
@@ -8,7 +10,7 @@ sealed interface StateMachineState {
     val name: String
 }
 
-sealed interface StateMachineIOState : StateMachineState {
+sealed interface StateMachineIOState : StateMachineState, ComponentPortVector {
 
     /**
      * The initial size of the state vector.

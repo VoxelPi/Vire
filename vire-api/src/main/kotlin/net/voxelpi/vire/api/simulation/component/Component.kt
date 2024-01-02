@@ -1,6 +1,9 @@
 package net.voxelpi.vire.api.simulation.component
 
 import net.voxelpi.vire.api.simulation.SimulationObject
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 
 /**
  * A component in a logic circuit.
@@ -13,20 +16,9 @@ interface Component : SimulationObject {
     val stateMachine: StateMachine
 
     /**
-     * The state machine context of the component.
+     * The state machine instance of the component.
      */
-    val stateMachineContext: StateMachineContext
-
-    /**
-     * Queries the current value of the given [parameter].
-     */
-    fun <T> parameter(parameter: StateMachineParameter<T>): T
-
-    /**
-     * Sets the value of the given [parameter] to the given [value].
-     * If the new value doesn't satisfy all predicates, `false` is returned, otherwise `true` is returned.
-     */
-    fun <T> parameter(parameter: StateMachineParameter<T>, value: T): Boolean
+    val stateMachineInstance: StateMachineInstance
 
     /**
      * Returns a collection of all ports that belong to the component.

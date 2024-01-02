@@ -289,6 +289,18 @@ fun parameter(
 }
 
 /**
+ * Creates a new float parameter with the given [name] and [initialValue].
+ * The value must be in the given [range].
+ */
+fun parameter(
+    name: String,
+    initialValue: Float,
+    range: ClosedFloatingPointRange<Float>,
+): StateMachineParameter.Range<Float> {
+    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Float>(), initialValue, range.start, range.endInclusive)
+}
+
+/**
  * Creates a new double parameter with the given [name] and [initialValue].
  * The value must be in the range of [min] to [max].
  */
@@ -299,4 +311,16 @@ fun parameter(
     max: Double = Double.POSITIVE_INFINITY,
 ): StateMachineParameter.Range<Double> {
     return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Double>(), initialValue, min, max)
+}
+
+/**
+ * Creates a new double parameter with the given [name] and [initialValue].
+ * The value must be in the given [range].
+ */
+fun parameter(
+    name: String,
+    initialValue: Double,
+    range: ClosedFloatingPointRange<Double>,
+): StateMachineParameter.Range<Double> {
+    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Double>(), initialValue, range.start, range.endInclusive)
 }

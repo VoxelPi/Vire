@@ -3,7 +3,7 @@ package net.voxelpi.vire.api.simulation.component
 /**
  * An io vector that can be assigned to a component port.
  */
-sealed interface ComponentPortVector {
+interface ComponentPortVector {
 
     /**
      * The name of the vector.

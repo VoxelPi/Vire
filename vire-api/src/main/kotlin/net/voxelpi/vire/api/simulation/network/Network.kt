@@ -1,5 +1,6 @@
 package net.voxelpi.vire.api.simulation.network
 
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import java.util.UUID
@@ -12,7 +13,7 @@ interface Network : SimulationObject {
     /**
      * The state of the network.
      */
-    val state: NetworkState
+    val state: LogicState
 
     /**
      * Returns all nodes that are part of the network.
@@ -41,6 +42,7 @@ interface Network : SimulationObject {
 
     /**
      * Pushes the state of all connected output variables to the network.
+     * @return The resulting [LogicState].
      */
-    fun pushPortOutputs(): NetworkState
+    fun pushPortOutputs(): LogicState
 }
