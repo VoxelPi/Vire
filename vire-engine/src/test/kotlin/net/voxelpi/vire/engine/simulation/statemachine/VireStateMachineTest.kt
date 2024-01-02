@@ -87,4 +87,31 @@ class VireStateMachineTest {
             }
         }
     }
+
+    @Test
+    fun testParameterReconfiguration() {
+        val parameter = parameter("parameter", 5, 1, 10)
+        val input = input("input", initialSize = parameter)
+        val output = output("output", initialSize = parameter)
+
+        // Create state machine.
+        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+            declare(parameter)
+            declare(input)
+            declare(output)
+        }
+
+        // Create an instance of the state machine.
+        val instance = simulation.createStateMachineInstance(stateMachine)
+        assertEquals(5, instance[parameter])
+        assertEquals(5, instance.size(input))
+        assertEquals(5, instance.size(output))
+
+        instance.configureParameters {
+            this[parameter] = 6
+        }
+        assertEquals(6, instance[parameter])
+        assertEquals(6, instance.size(input))
+        assertEquals(6, instance.size(output))
+    }
 }

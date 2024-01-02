@@ -57,7 +57,25 @@ class VireStateMachineInstance(
 
         // Initialize output states
         for (output in stateMachine.outputs.values) {
-            outputStates[output.name] = Array(initialSize(output)) { LogicState.EMPTY }
+            outputStates[output.name] = Array(initialSize(output)) { output.initialValue }
+        }
+
+        configure()
+    }
+
+    fun configure() {
+        // Update size of inputs defined by parameters.
+        for (input in stateMachine.inputs.values) {
+            if (input.initialSize is StateMachineIOState.InitialSizeProvider.Parameter) {
+                resize(input, initialSize(input))
+            }
+        }
+
+        // Update size of outputs defined by parameters.
+        for (output in stateMachine.outputs.values) {
+            if (output.initialSize is StateMachineIOState.InitialSizeProvider.Parameter) {
+                resize(output, initialSize(output))
+            }
         }
 
         // Configure the state machine and publish configure event.
@@ -118,7 +136,7 @@ class VireStateMachineInstance(
     }
 
     fun resize(output: StateMachineOutput, size: Int) {
-        val previous = inputStates[output.name]!!
+        val previous = outputStates[output.name]!!
         outputStates[output.name] = Array(size) { index ->
             if (index < previous.size) {
                 previous[index]
@@ -198,9 +216,7 @@ class VireStateMachineInstance(
             return false
         }
 
-        // Configure the state machine and publish configure event.
-        stateMachine.configure(VireStateMachineConfigureContext(this))
-        simulation.publish(StateMachineConfigureEvent(simulation, this))
+        configure()
         return true
     }
 
