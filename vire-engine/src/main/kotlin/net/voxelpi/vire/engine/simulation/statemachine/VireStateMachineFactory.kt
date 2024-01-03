@@ -5,9 +5,21 @@ import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Input
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Output
+import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineMeta
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.api.simulation.statemachine.variable
 import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.jvmErasure
 
 class VireStateMachineFactory : StateMachineFactory {
 
@@ -21,9 +33,81 @@ class VireStateMachineFactory : StateMachineFactory {
     }
 
     override fun create(
-        type: KClass<StateMachineTemplate>,
-    ) {
-        TODO("Not yet implemented")
+        type: KClass<out StateMachineTemplate>,
+    ): StateMachine {
+        val meta = type.findAnnotation<StateMachineMeta>()
+        require(meta != null) { "State machine template must be annotated with the StateMachineMeta annotation." }
+
+        val id = Identifier(meta.namespace, meta.id)
+
+        val inputProperties = type.memberProperties
+            .filter { it.findAnnotation<Input>() != null }
+            .filter { it.returnType.jvmErasure == LogicState::class }
+            .filterIsInstance<KMutableProperty1<StateMachineTemplate, LogicState>>()
+            .associateBy { it.findAnnotation<Input>()!!.id }
+
+        val outputProperties = type.memberProperties
+            .filter { it.findAnnotation<Output>() != null }
+            .filter { it.returnType.jvmErasure == LogicState::class }
+            .filterIsInstance<KProperty1<StateMachineTemplate, LogicState>>()
+            .associateBy { it.findAnnotation<Output>()!!.id }
+
+        val testTemplateInstance = type.createInstance()
+        val outputInitialValues = outputProperties.map { (id, property) ->
+            val initialValue = if (property is KMutableProperty1 && property.isLateinit) {
+                LogicState.EMPTY
+            } else {
+                property.get(testTemplateInstance)
+            }
+            Pair(id, initialValue)
+        }.associate { it }
+
+        val inputs = inputProperties.map { (id, property) ->
+            input(id, initialSize = 1) // TODO: Initial size?
+        }
+        val outputs = outputProperties.map { (id, property) ->
+            output(id, initialSize = 1, initialValue = outputInitialValues[id]!!) // TODO: Initial size?
+        }
+        val templateInstance = variable("__template_instance__", testTemplateInstance)
+
+        val stateMachine = create(id) {
+            for (input in inputs) {
+                declare(input)
+            }
+            for (output in outputs) {
+                declare(output)
+            }
+
+            configure = { context ->
+                val instance = type.createInstance()
+                context[templateInstance] = instance
+
+                // Run the configure method on the template.
+                instance.configure()
+            }
+
+            update = { context ->
+                // Get template instance.
+                val instance = context[templateInstance]
+
+                // Update all inputs.
+                for (input in inputs) {
+                    val property = inputProperties[input.name]!!
+                    property.set(instance, context[input])
+                }
+
+                // Run the configure method on the template.
+                instance.update()
+
+                // Update all outputs
+                for (output in outputs) {
+                    val property = outputProperties[output.name]!!
+                    context[output] = property.get(instance)
+                }
+            }
+        }
+
+        return stateMachine
     }
 
     override fun createInput(

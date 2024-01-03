@@ -19,9 +19,7 @@ interface StateMachineFactory {
     /**
      * Creates a new state machine from the given [type].
      */
-    fun create(
-        type: KClass<StateMachineTemplate>,
-    )
+    fun create(type: KClass<out StateMachineTemplate>): StateMachine
 
     /**
      * Creates a new input.

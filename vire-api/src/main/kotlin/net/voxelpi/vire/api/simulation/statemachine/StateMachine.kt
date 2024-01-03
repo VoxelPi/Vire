@@ -4,6 +4,8 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.Vire
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.LogicValue
+import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
+import kotlin.reflect.KClass
 
 interface StateMachine {
 
@@ -398,6 +400,20 @@ interface StateMachine {
          */
         fun create(id: Identifier, init: Builder.() -> Unit): StateMachine {
             return Vire.stateMachineFactory.get().create(id, init)
+        }
+
+        /**
+         * Creates a new state machine from the given template [type].
+         */
+        fun create(type: KClass<out StateMachineTemplate>): StateMachine {
+            return Vire.stateMachineFactory.get().create(type)
+        }
+
+        /**
+         * Creates a new state machine from the given template [type].
+         */
+        inline fun <reified T : StateMachineTemplate> create(): StateMachine {
+            return Vire.stateMachineFactory.get().create(T::class)
         }
     }
 }
