@@ -1,22 +1,29 @@
 package net.voxelpi.vire.stdlib
 
 import net.voxelpi.vire.api.simulation.library.Library
+import net.voxelpi.vire.stdlib.component.AndGate
+import net.voxelpi.vire.stdlib.component.BufferGate
 import net.voxelpi.vire.stdlib.component.Clock
 import net.voxelpi.vire.stdlib.component.FullAdder
 import net.voxelpi.vire.stdlib.component.HalfAdder
+import net.voxelpi.vire.stdlib.component.Input
+import net.voxelpi.vire.stdlib.component.NandGate
+import net.voxelpi.vire.stdlib.component.NorGate
+import net.voxelpi.vire.stdlib.component.NotGate
+import net.voxelpi.vire.stdlib.component.OrGate
 import net.voxelpi.vire.stdlib.component.Output
-import net.voxelpi.vire.stdlib.component.logic.AndGate
-import net.voxelpi.vire.stdlib.component.logic.BufferGate
-import net.voxelpi.vire.stdlib.component.logic.NandGate
-import net.voxelpi.vire.stdlib.component.logic.NorGate
-import net.voxelpi.vire.stdlib.component.logic.NotGate
-import net.voxelpi.vire.stdlib.component.logic.OrGate
-import net.voxelpi.vire.stdlib.component.logic.XnorGate
-import net.voxelpi.vire.stdlib.component.logic.XorGate
+import net.voxelpi.vire.stdlib.component.Packager
+import net.voxelpi.vire.stdlib.component.Unpackager
+import net.voxelpi.vire.stdlib.component.XnorGate
+import net.voxelpi.vire.stdlib.component.XorGate
 
 object VireStandardLibrary : Library("vire", "Vire", "The vire standard library", emptyList()) {
 
     init {
+        // IO
+        register(Input)
+        register(Output)
+
         // Logic gates
         register(BufferGate)
         register(NotGate)
@@ -31,6 +38,7 @@ object VireStandardLibrary : Library("vire", "Vire", "The vire standard library"
         register(FullAdder)
         register(HalfAdder)
         register(Clock)
-        register(Output)
+        register(Packager)
+        register(Unpackager)
     }
 }

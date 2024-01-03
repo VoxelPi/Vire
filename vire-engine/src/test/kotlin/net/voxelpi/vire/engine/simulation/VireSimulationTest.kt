@@ -1,11 +1,11 @@
 package net.voxelpi.vire.engine.simulation
 
 import net.voxelpi.vire.api.Identifier
-import net.voxelpi.vire.api.simulation.component.StateMachine
-import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.component.input
-import net.voxelpi.vire.api.simulation.component.output
-import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.api.simulation.LogicState
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.engine.VireImplementation
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,7 +16,7 @@ class VireSimulationTest {
 
     @BeforeEach
     fun setUp() {
-        simulation = VireSimulation(emptyList())
+        simulation = VireImplementation.createSimulation(emptyList())
     }
 
     @Test
@@ -90,14 +90,12 @@ class VireSimulationTest {
         val inputVariable = input("input")
         val outputVariable = output("output")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(inputVariable)
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "buffer")) {
+            declare(inputVariable)
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
-                context[outputVariable] = !context[inputVariable]
+            update = { context ->
+                context[outputVariable] = !context[inputVariable].booleanState()
             }
         }
 
@@ -112,30 +110,28 @@ class VireSimulationTest {
         assertEquals(network, inputPort.network) { "Input port network was not updated." }
         assertEquals(network, outputPort.network) { "Output port network was not updated." }
 
-        network.state = NetworkState.value(false)
+        network.state = LogicState.value(false)
         simulation.simulateSteps(1)
-        assertEquals(NetworkState.value(true), network.state) { "Incorrect simulation result." }
+        assertEquals(LogicState.value(true), network.state) { "Incorrect simulation result." }
 
-        var previousState = network.state
+        var previousState = network.state.booleanState()
         for (i in 1..100) {
             simulation.simulateSteps(1)
             val state = network.state
-            assertEquals(!previousState, state) { "Clock stopped working after $i cycles" }
-            previousState = state
+            assertEquals(!previousState, state.booleanState()) { "Clock stopped working after $i cycles" }
+            previousState = state.booleanState()
         }
     }
 
     @Test
     fun separateAndJoin() {
         val outputVariable = output("output")
-        val outputState = NetworkState.value(true, 1)
+        val outputState = LogicState.value(true, 1)
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "buffer")) {
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
+            update = { context ->
                 context[outputVariable] = outputState
             }
         }
@@ -154,7 +150,7 @@ class VireSimulationTest {
         // Separate the nodes.
         simulation.removeNetworkNodeConnection(node1, node2)
         assertEquals(outputState, node1.network.state)
-        assertEquals(NetworkState.None, node2.network.state)
+        assertEquals(LogicState.EMPTY, node2.network.state)
 
         // Connect the nodes.
         simulation.createNetworkNodeConnection(node1, node2)

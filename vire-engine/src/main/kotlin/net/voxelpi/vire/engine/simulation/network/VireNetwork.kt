@@ -1,8 +1,8 @@
 package net.voxelpi.vire.engine.simulation.network
 
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
-import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import net.voxelpi.vire.engine.simulation.VireSimulationObject
 import net.voxelpi.vire.engine.simulation.component.VireComponentPort
@@ -11,7 +11,7 @@ import java.util.UUID
 class VireNetwork(
     override val simulation: VireSimulation,
     override val uniqueId: UUID = UUID.randomUUID(),
-    override var state: NetworkState = NetworkState.None,
+    override var state: LogicState = LogicState.EMPTY,
 ) : VireSimulationObject(), Network {
 
     private val nodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
@@ -71,8 +71,8 @@ class VireNetwork(
         return nodes.values.mapNotNull { it.holder }.filterIsInstance<VireComponentPort>()
     }
 
-    override fun pushPortOutputs(): NetworkState {
-        state = NetworkState.None
+    override fun pushPortOutputs(): LogicState {
+        state = LogicState.EMPTY
 
         // Push the last simulated state onto the network.
         for (port in ports()) {

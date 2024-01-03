@@ -1,7 +1,7 @@
 package net.voxelpi.vire.api.simulation.event.simulation.component
 
 import net.voxelpi.vire.api.simulation.component.Component
-import net.voxelpi.vire.api.simulation.component.StateMachineParameter
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 
 /**
  * An event that is called when a parameter of a state machine is modified.

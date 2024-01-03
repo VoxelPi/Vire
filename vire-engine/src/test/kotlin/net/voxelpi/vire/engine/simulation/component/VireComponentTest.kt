@@ -1,17 +1,17 @@
 package net.voxelpi.vire.engine.simulation.component
 
 import net.voxelpi.vire.api.Identifier
-import net.voxelpi.vire.api.simulation.component.StateMachine
-import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.component.input
-import net.voxelpi.vire.api.simulation.component.output
-import net.voxelpi.vire.api.simulation.component.parameter
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
-import net.voxelpi.vire.api.simulation.network.NetworkState
 import net.voxelpi.vire.api.simulation.on
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.api.simulation.statemachine.parameter
+import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -23,40 +23,34 @@ class VireComponentTest {
 
     @BeforeEach
     fun setUp() {
-        simulation = VireSimulation(emptyList())
+        simulation = VireImplementation.createSimulation(emptyList())
     }
 
     @Test
     fun pullInput() {
         val inputVariable = input("input")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(inputVariable)
-            }
-
-            override fun tick(context: StateMachineContext) {}
+        val stateMachine = StateMachine.create(Identifier("vire-test", "buffer")) {
+            declare(inputVariable)
         }
 
         val component = simulation.createComponent(stateMachine)
         val inputPort = component.createPort(inputVariable.variable())
 
-        inputPort.network.state = NetworkState.value(true)
+        inputPort.network.state = LogicState.value(true)
         component.pullInputs()
-        assertEquals(NetworkState.value(true), component.stateMachineContext[inputVariable])
+        assertEquals(LogicState.value(true), component.stateMachineInstance[inputVariable])
     }
 
     @Test
     fun pushOutput() {
         val outputVariable = output("output")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "buffer")) {
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
-                context[outputVariable] = NetworkState.value(true)
+            update = { context ->
+                context[outputVariable] = LogicState.value(true)
             }
         }
 
@@ -65,7 +59,7 @@ class VireComponentTest {
 
         component.tick()
         component.pushOutputs()
-        assertEquals(NetworkState.value(true), outputPort.network.state)
+        assertEquals(LogicState.value(true), outputPort.network.state)
     }
 
     @Test
@@ -73,14 +67,12 @@ class VireComponentTest {
         val inputVariable = input("input")
         val outputVariable = output("output")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(inputVariable)
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "buffer")) {
+            declare(inputVariable)
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
-                context[outputVariable] = context[inputVariable]
+            update = { context ->
+                context[outputVariable] = context[inputVariable].booleanState()
             }
         }
 
@@ -88,11 +80,11 @@ class VireComponentTest {
         val inputPort = component.createPort(inputVariable.variable())
         val outputPort = component.createPort(outputVariable.variable())
 
-        inputPort.network.state = NetworkState.value(true)
+        inputPort.network.state = LogicState.value(true)
         component.pullInputs()
         component.tick()
         component.pushOutputs()
-        assertEquals(NetworkState.value(true), outputPort.network.state)
+        assertEquals(LogicState.value(true), outputPort.network.state)
     }
 
     @Test
@@ -100,14 +92,12 @@ class VireComponentTest {
         val inputVariable = input("input")
         val outputVariable = output("output")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(inputVariable)
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "not")) {
+            declare(inputVariable)
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
-                context[outputVariable] = !context[inputVariable]
+            update = { context ->
+                context[outputVariable] = !context[inputVariable].booleanState()
             }
         }
 
@@ -128,14 +118,12 @@ class VireComponentTest {
         val inputVariable = input("input")
         val outputVariable = output("output")
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "buffer")) {
-            init {
-                declare(inputVariable)
-                declare(outputVariable)
-            }
+        val stateMachine = StateMachine.create(Identifier("vire-test", "not")) {
+            declare(inputVariable)
+            declare(outputVariable)
 
-            override fun tick(context: StateMachineContext) {
-                context[outputVariable] = !context[inputVariable]
+            update = { context ->
+                context[outputVariable] = !context[inputVariable].booleanState()
             }
         }
 
@@ -155,17 +143,14 @@ class VireComponentTest {
 
         val testParameter = parameter("test", 0, min = 0, max = 10)
 
-        val stateMachine = object : StateMachine(Identifier("vire-test", "test")) {
+        val stateMachine = StateMachine.create(Identifier("vire-test", "test")) {
+            declare(testParameter)
 
-            init {
-                declare(testParameter)
-            }
-
-            override fun configure(context: StateMachineContext) {
+            configure = { _ ->
                 configureCounter++
             }
 
-            override fun tick(context: StateMachineContext) {
+            update = { _ ->
                 tickCounter++
             }
         }
@@ -183,19 +168,23 @@ class VireComponentTest {
         }
         tickCounter = 0
 
-        component.parameter(testParameter, 1)
+        component.stateMachineInstance.configureParameters {
+            this[testParameter] = 1
+        }
         assertEquals(1, configureCounter) { "Setting a parameter didn't call configure()" }
-        assertEquals(1, component.parameter(testParameter)) { "Parameter value didn't change to new valid value" }
+        assertEquals(1, component.stateMachineInstance[testParameter]) { "Parameter value didn't change to new valid value" }
         configureCounter = 0
 
-        component.parameter(testParameter, -3)
+        component.stateMachineInstance.configureParameters {
+            this[testParameter] = -3
+        }
         assertEquals(0, configureCounter) { "Setting an invalid parameter called configure()" }
-        assertEquals(1, component.parameter(testParameter)) { "Parameter value did change to invalid value" }
+        assertEquals(1, component.stateMachineInstance[testParameter]) { "Parameter value did change to invalid value" }
         configureCounter = 0
 
         component.reset(parameters = true)
         assertEquals(1, configureCounter) { "Resetting the component didn't call configure()" }
-        assertEquals(0, component.parameter(testParameter)) { "Parameter value didn't reset" }
+        assertEquals(0, component.stateMachineInstance[testParameter]) { "Parameter value didn't reset" }
         configureCounter = 0
     }
 
@@ -213,9 +202,7 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(
-            object : StateMachine(Identifier("vire-test", "unit")) {
-                override fun tick(context: StateMachineContext) {}
-            }
+            StateMachine.create(Identifier("vire-test", "unit")) {}
         )
         component.remove()
 
@@ -241,9 +228,7 @@ class VireComponentTest {
         }
 
         val component = simulation.createComponent(
-            object : StateMachine(Identifier("vire-test", "unit")) {
-                override fun tick(context: StateMachineContext) {}
-            }
+            StateMachine.create(Identifier("vire-test", "unit")) {}
         )
         val port = component.createPort(null)
         port.remove()

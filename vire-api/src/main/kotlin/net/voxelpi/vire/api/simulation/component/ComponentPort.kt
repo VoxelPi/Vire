@@ -1,9 +1,9 @@
 package net.voxelpi.vire.api.simulation.component
 
+import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNodeHolder
-import net.voxelpi.vire.api.simulation.network.NetworkState
 
 /**
  * A port of a component.
@@ -27,9 +27,9 @@ interface ComponentPort : SimulationObject, NetworkNodeHolder {
     val network: Network
 
     /**
-     * If the port has an output variable assigned to it, the state of that output variable is pushed to the [node] network
-     * and the resulting [NetworkState] is returned.
+     * If the port has an output variable assigned to it, the state of that output variable is pushed to the network of the [node]
+     * and the resulting [LogicState] is returned.
      * Otherwise, nothing happens and null is returned.
      */
-    fun pushOutput(): NetworkState?
+    fun pushOutput(): LogicState?
 }

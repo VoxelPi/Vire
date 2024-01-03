@@ -1,7 +1,7 @@
 package net.voxelpi.vire.api.simulation.library
 
 import net.voxelpi.vire.api.Identifier
-import net.voxelpi.vire.api.simulation.component.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 
 /**
  * A library that adds content to the simulation.
@@ -25,11 +25,11 @@ abstract class Library(
      * Registers a new state machine in the library.
      */
     protected fun register(stateMachine: StateMachine) {
-        require(!stateMachines.containsKey(stateMachine.identifier)) {
-            "The module already has a state machine with the id ${stateMachine.identifier}."
+        require(!stateMachines.containsKey(stateMachine.id)) {
+            "The module already has a state machine with the id ${stateMachine.id}."
         }
 
-        stateMachines[stateMachine.identifier] = stateMachine
+        stateMachines[stateMachine.id] = stateMachine
     }
 
     /**

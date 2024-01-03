@@ -1,20 +1,20 @@
 package net.voxelpi.vire.stdlib.component
 
-import net.voxelpi.vire.api.simulation.component.StateMachine
-import net.voxelpi.vire.api.simulation.component.StateMachineContext
-import net.voxelpi.vire.api.simulation.network.NetworkState
+import net.voxelpi.vire.api.Identifier
+import net.voxelpi.vire.api.simulation.LogicState
+import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.stdlib.VireStandardLibrary
 
-object Clock : StateMachine(VireStandardLibrary, "clock") {
+val Clock = StateMachine.create(Identifier(VireStandardLibrary.id, "clock")) {
 
     val ticksHigh = declareParameter("ticks_high", 1L, min = 1L)
     val ticksLow = declareParameter("ticks_low", 1L, min = 1L)
     val ticks = declareVariable("ticks", 0L)
-    val output = declareOutput("output", 1)
+    val output = declareOutput("output")
 
-    override fun tick(context: StateMachineContext) {
+    update = { context ->
         // Update output
-        context[output] = NetworkState.value(context[ticks] < context[ticksHigh])
+        context[output] = LogicState.value(context[ticks] < context[ticksHigh])
 
         // Increment counter
         context[ticks] = context[ticks] + 1
