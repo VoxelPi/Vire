@@ -5,14 +5,26 @@ import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
+import net.voxelpi.vire.api.simulation.statemachine.annotation.ByteLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.DoubleLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.FloatLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Input
+import net.voxelpi.vire.api.simulation.statemachine.annotation.IntLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.LongLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Output
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Parameter
+import net.voxelpi.vire.api.simulation.statemachine.annotation.ShortLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineMeta
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
+import net.voxelpi.vire.api.simulation.statemachine.annotation.StringSelection
+import net.voxelpi.vire.api.simulation.statemachine.annotation.UByteLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.UIntLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.ULongLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.UShortLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Variable
 import net.voxelpi.vire.api.simulation.statemachine.input
 import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.api.simulation.statemachine.parameter
 import net.voxelpi.vire.api.simulation.statemachine.variable
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -79,6 +91,9 @@ class VireStateMachineFactory : StateMachineFactory {
         val variableInitialValues = variableProperties.map { (id, property) ->
             Pair(id, property.get(testTemplateInstance))
         }.associate { it }
+        val parameterInitialValues = parameterProperties.map { (id, property) ->
+            Pair(id, property.get(testTemplateInstance))
+        }.associate { it }
 
         // Create variables, parameters inputs and outputs.
         val variables = variableProperties.map { (id, property) ->
@@ -90,23 +105,80 @@ class VireStateMachineFactory : StateMachineFactory {
         val outputs = outputProperties.map { (id, _) ->
             output(id, initialSize = 1, initialValue = outputInitialValues[id]!!) // TODO: Initial size?
         }
+        val parameters = parameterProperties.map { (id, property) ->
+            // Get the initial value of the parameter.
+            val initialValue = parameterInitialValues[id]
+
+            // Check the parameter constraints.
+            when {
+                property.findAnnotation<StringSelection>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<StringSelection>()!!
+                    parameter(id, initialValue, predicateAnnotation.values)
+                }
+                property.findAnnotation<ByteLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<ByteLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<UByteLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<UByteLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<ShortLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<ShortLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<UShortLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<UShortLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<IntLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<IntLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<UIntLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<UIntLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<LongLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<LongLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<ULongLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<ULongLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<FloatLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<FloatLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                property.findAnnotation<DoubleLimits>() != null -> {
+                    val predicateAnnotation = property.findAnnotation<DoubleLimits>()!!
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                }
+                else -> {
+                    // Fallback to unconstrained parameter.
+                    parameter(id, initialValue)
+                }
+            }
+        }
         val templateInstance = variable("__template_instance__", testTemplateInstance)
 
         val stateMachine = create(id) {
             // Declare all created state variables.
-            for (variable in variables) {
-                declare(variable)
-            }
-            for (input in inputs) {
-                declare(input)
-            }
-            for (output in outputs) {
-                declare(output)
-            }
+            parameters.forEach(this::declare)
+            variables.forEach(this::declare)
+            inputs.forEach(this::declare)
+            outputs.forEach(this::declare)
 
             configure = { context ->
                 val instance = type.createInstance()
                 context[templateInstance] = instance
+
+                // Update all parameters that may have been configured.
+                for (parameter in parameters) {
+                    val property = parameterProperties[parameter.name]!! as KMutableProperty1<StateMachineTemplate, Any?>
+                    property.set(instance, context[parameter])
+                }
 
                 // Run the configure method on the template.
                 instance.configure()

@@ -3,8 +3,10 @@ package net.voxelpi.vire.engine.simulation.statemachine
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.LogicValue
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Input
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Output
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Parameter
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineMeta
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Variable
@@ -23,15 +25,19 @@ class VireStateMachineFactoryTest {
         simulation = VireImplementation.createSimulation(emptyList())
     }
 
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun createAnnotatedStateMachine() {
         val stateMachine = StateMachine.create<Buffer>()
+        assertEquals(setOf("counter_step"), stateMachine.parameters.keys)
+        assertEquals(setOf("counter"), stateMachine.variables.keys)
         assertEquals(setOf("input"), stateMachine.inputs.keys)
         assertEquals(setOf("output", "active"), stateMachine.outputs.keys)
-        assertEquals(setOf("counter"), stateMachine.variables.keys)
 
         val stateMachineInstance1 = simulation.createStateMachineInstance(stateMachine)
-        val stateMachineInstance2 = simulation.createStateMachineInstance(stateMachine)
+        val stateMachineInstance2 = simulation.createStateMachineInstance(stateMachine) {
+            this[stateMachine.parameters["counter_step"]!! as StateMachineParameter<Int>] = 2
+        }
 
         // Test initial values.
         assertEquals(LogicState.value(LogicValue.TRUE, 1), stateMachineInstance1[stateMachine.outputs["active"]!!])
@@ -50,7 +56,7 @@ class VireStateMachineFactoryTest {
         stateMachineInstance2[stateMachine.inputs["input"]!!] = state2
         stateMachineInstance2.update()
         assertEquals(state2, stateMachineInstance2[stateMachine.outputs["output"]!!])
-        assertEquals(1, stateMachineInstance2[stateMachine.variables["counter"]!!])
+        assertEquals(2, stateMachineInstance2[stateMachine.variables["counter"]!!])
 
         // Check that the other instance did not change.
         assertEquals(state1, stateMachineInstance1[stateMachine.outputs["output"]!!])
@@ -59,6 +65,9 @@ class VireStateMachineFactoryTest {
 
     @StateMachineMeta("test", "buffer")
     class Buffer : StateMachineTemplate {
+
+        @Parameter("counter_step")
+        var counterStep: Int = 1
 
         @Input("input")
         lateinit var input: LogicState
@@ -74,7 +83,7 @@ class VireStateMachineFactoryTest {
 
         override fun update() {
             output = input
-            counter += 1
+            counter += counterStep
         }
     }
 }
