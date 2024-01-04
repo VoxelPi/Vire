@@ -7,8 +7,10 @@ import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Input
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Output
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Parameter
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineMeta
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Variable
 import net.voxelpi.vire.api.simulation.statemachine.input
 import net.voxelpi.vire.api.simulation.statemachine.output
 import net.voxelpi.vire.api.simulation.statemachine.variable
@@ -32,14 +34,16 @@ class VireStateMachineFactory : StateMachineFactory {
         return builder.create()
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun create(
         type: KClass<out StateMachineTemplate>,
     ): StateMachine {
+        // Get state machine meta.
         val meta = type.findAnnotation<StateMachineMeta>()
         require(meta != null) { "State machine template must be annotated with the StateMachineMeta annotation." }
-
         val id = Identifier(meta.namespace, meta.id)
 
+        // Get all annotated properties.
         val inputProperties = type.memberProperties
             .filter { it.findAnnotation<Input>() != null }
             .filter { it.returnType.jvmErasure == LogicState::class }
@@ -52,6 +56,17 @@ class VireStateMachineFactory : StateMachineFactory {
             .filterIsInstance<KProperty1<StateMachineTemplate, LogicState>>()
             .associateBy { it.findAnnotation<Output>()!!.id }
 
+        val variableProperties = type.memberProperties
+            .filter { it.findAnnotation<Variable>() != null }
+            .filterIsInstance<KMutableProperty1<StateMachineTemplate, *>>()
+            .associateBy { it.findAnnotation<Variable>()!!.id }
+
+        val parameterProperties = type.memberProperties
+            .filter { it.findAnnotation<Parameter>() != null }
+            .filterIsInstance<KMutableProperty1<StateMachineTemplate, *>>()
+            .associateBy { it.findAnnotation<Parameter>()!!.id }
+
+        // Get initial values of all parameters, variables and outputs.
         val testTemplateInstance = type.createInstance()
         val outputInitialValues = outputProperties.map { (id, property) ->
             val initialValue = if (property is KMutableProperty1 && property.isLateinit) {
@@ -61,16 +76,27 @@ class VireStateMachineFactory : StateMachineFactory {
             }
             Pair(id, initialValue)
         }.associate { it }
+        val variableInitialValues = variableProperties.map { (id, property) ->
+            Pair(id, property.get(testTemplateInstance))
+        }.associate { it }
 
-        val inputs = inputProperties.map { (id, property) ->
+        // Create variables, parameters inputs and outputs.
+        val variables = variableProperties.map { (id, property) ->
+            variable(id, property.returnType, variableInitialValues[id])
+        }
+        val inputs = inputProperties.map { (id, _) ->
             input(id, initialSize = 1) // TODO: Initial size?
         }
-        val outputs = outputProperties.map { (id, property) ->
+        val outputs = outputProperties.map { (id, _) ->
             output(id, initialSize = 1, initialValue = outputInitialValues[id]!!) // TODO: Initial size?
         }
         val templateInstance = variable("__template_instance__", testTemplateInstance)
 
         val stateMachine = create(id) {
+            // Declare all created state variables.
+            for (variable in variables) {
+                declare(variable)
+            }
             for (input in inputs) {
                 declare(input)
             }
@@ -95,6 +121,10 @@ class VireStateMachineFactory : StateMachineFactory {
                     val property = inputProperties[input.name]!!
                     property.set(instance, context[input])
                 }
+                for (variable in variables) {
+                    val property = variableProperties[variable.name]!! as KMutableProperty1<StateMachineTemplate, Any?>
+                    property.set(instance, context[variable])
+                }
 
                 // Run the configure method on the template.
                 instance.update()
@@ -103,6 +133,10 @@ class VireStateMachineFactory : StateMachineFactory {
                 for (output in outputs) {
                     val property = outputProperties[output.name]!!
                     context[output] = property.get(instance)
+                }
+                for (variable in variables) {
+                    val property = variableProperties[variable.name]!!
+                    context[variable] = property.get(instance)
                 }
             }
         }

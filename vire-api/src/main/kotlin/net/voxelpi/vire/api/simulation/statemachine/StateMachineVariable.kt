@@ -43,3 +43,18 @@ inline fun <reified T> variable(
         initialValue,
     )
 }
+
+/**
+ * Creates a new variable.
+ */
+fun <T> variable(
+    name: String,
+    type: KType,
+    initialValue: T,
+): StateMachineVariable<T> {
+    return Vire.stateMachineFactory.get().createVariable(
+        name,
+        type,
+        initialValue,
+    )
+}
