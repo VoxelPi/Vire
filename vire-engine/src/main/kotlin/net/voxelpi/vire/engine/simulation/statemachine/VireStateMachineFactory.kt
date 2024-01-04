@@ -5,9 +5,12 @@ import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.annotation.ByteLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.DoubleLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.FloatLimits
+import net.voxelpi.vire.api.simulation.statemachine.annotation.InitialParameterSize
+import net.voxelpi.vire.api.simulation.statemachine.annotation.InitialSize
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Input
 import net.voxelpi.vire.api.simulation.statemachine.annotation.IntLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.LongLimits
@@ -32,8 +35,10 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.typeOf
 
 class VireStateMachineFactory : StateMachineFactory {
 
@@ -58,14 +63,14 @@ class VireStateMachineFactory : StateMachineFactory {
         // Get all annotated properties.
         val inputProperties = type.memberProperties
             .filter { it.findAnnotation<Input>() != null }
-            .filter { it.returnType.jvmErasure == LogicState::class }
-            .filterIsInstance<KMutableProperty1<StateMachineTemplate, LogicState>>()
+            .filter { it.returnType.jvmErasure == LogicState::class || it.returnType == typeOf<Array<LogicState>>() }
+            .filterIsInstance<KMutableProperty1<StateMachineTemplate, *>>()
             .associateBy { it.findAnnotation<Input>()!!.id }
 
         val outputProperties = type.memberProperties
             .filter { it.findAnnotation<Output>() != null }
-            .filter { it.returnType.jvmErasure == LogicState::class }
-            .filterIsInstance<KProperty1<StateMachineTemplate, LogicState>>()
+            .filter { it.returnType.jvmErasure == LogicState::class || it.returnType == typeOf<Array<LogicState>>() }
+            .filterIsInstance<KProperty1<StateMachineTemplate, *>>()
             .associateBy { it.findAnnotation<Output>()!!.id }
 
         val variableProperties = type.memberProperties
@@ -84,7 +89,12 @@ class VireStateMachineFactory : StateMachineFactory {
             val initialValue = if (property is KMutableProperty1 && property.isLateinit) {
                 LogicState.EMPTY
             } else {
-                property.get(testTemplateInstance)
+                val value = property.get(testTemplateInstance)
+                if (value is Array<*>) {
+                    value[0] as LogicState
+                } else {
+                    value as LogicState
+                }
             }
             Pair(id, initialValue)
         }.associate { it }
@@ -95,16 +105,7 @@ class VireStateMachineFactory : StateMachineFactory {
             Pair(id, property.get(testTemplateInstance))
         }.associate { it }
 
-        // Create variables, parameters inputs and outputs.
-        val variables = variableProperties.map { (id, property) ->
-            variable(id, property.returnType, variableInitialValues[id])
-        }
-        val inputs = inputProperties.map { (id, _) ->
-            input(id, initialSize = 1) // TODO: Initial size?
-        }
-        val outputs = outputProperties.map { (id, _) ->
-            output(id, initialSize = 1, initialValue = outputInitialValues[id]!!) // TODO: Initial size?
-        }
+        // Create parameters, variables, inputs and outputs.
         val parameters = parameterProperties.map { (id, property) ->
             // Get the initial value of the parameter.
             val initialValue = parameterInitialValues[id]
@@ -112,54 +113,131 @@ class VireStateMachineFactory : StateMachineFactory {
             // Check the parameter constraints.
             when {
                 property.findAnnotation<StringSelection>() != null -> {
+                    require(initialValue is String) { "A property annotated by StringSelection must be a String." }
                     val predicateAnnotation = property.findAnnotation<StringSelection>()!!
-                    parameter(id, initialValue, predicateAnnotation.values)
+                    parameter(id, property.returnType, initialValue, predicateAnnotation.values.toList())
                 }
                 property.findAnnotation<ByteLimits>() != null -> {
+                    require(initialValue is Byte) { "A property annotated by ByteLimits must be a Byte." }
                     val predicateAnnotation = property.findAnnotation<ByteLimits>()!!
-                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
+                    parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max) as StateMachineParameter<Any?>
                 }
                 property.findAnnotation<UByteLimits>() != null -> {
+                    require(initialValue is UByte) { "A property annotated by UByteLimits must be an UByte." }
                     val predicateAnnotation = property.findAnnotation<UByteLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<ShortLimits>() != null -> {
+                    require(initialValue is Short) { "A property annotated by ShortLimits must be a Short." }
                     val predicateAnnotation = property.findAnnotation<ShortLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<UShortLimits>() != null -> {
+                    require(initialValue is UShort) { "A property annotated by UShortLimits must be an UShort." }
                     val predicateAnnotation = property.findAnnotation<UShortLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<IntLimits>() != null -> {
+                    require(initialValue is Int) { "A property annotated by IntLimits must be an Int." }
                     val predicateAnnotation = property.findAnnotation<IntLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<UIntLimits>() != null -> {
+                    require(initialValue is UInt) { "A property annotated by UIntLimits must be an UInt." }
                     val predicateAnnotation = property.findAnnotation<UIntLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<LongLimits>() != null -> {
+                    require(initialValue is Long) { "A property annotated by LongLimits must be a Long." }
                     val predicateAnnotation = property.findAnnotation<LongLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<ULongLimits>() != null -> {
+                    require(initialValue is ULong) { "A property annotated by ULongLimits must be an ULong." }
                     val predicateAnnotation = property.findAnnotation<ULongLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<FloatLimits>() != null -> {
+                    require(initialValue is Float) { "A property annotated by FloatLimits must be a Float." }
                     val predicateAnnotation = property.findAnnotation<FloatLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 property.findAnnotation<DoubleLimits>() != null -> {
+                    require(initialValue is Double) { "A property annotated by DoubleLimits must be a Double." }
                     val predicateAnnotation = property.findAnnotation<DoubleLimits>()!!
                     parameter(id, initialValue, predicateAnnotation.min, predicateAnnotation.max)
                 }
                 else -> {
                     // Fallback to unconstrained parameter.
-                    parameter(id, initialValue)
+                    parameter(id, property.returnType, initialValue)
                 }
             }
+        }.map { it as StateMachineParameter<Any?> }
+        val variables = variableProperties.map { (id, property) ->
+            variable(id, property.returnType, variableInitialValues[id])
+        }
+        val inputs = inputProperties.map { (id, property) ->
+            val initialSize = when {
+                property.findAnnotation<InitialSize>() != null -> {
+                    StateMachineIOState.InitialSizeProvider.Value(property.findAnnotation<InitialSize>()!!.size)
+                }
+                property.findAnnotation<InitialParameterSize>() != null -> {
+                    val parameterId = property.findAnnotation<InitialParameterSize>()!!.parameter
+                    require(parameterId in parameterProperties) {
+                        "Unknown parameter \"$parameterId\" used for initial size of input \"$id\""
+                    }
+                    val parameter = parameters.first { it.name == parameterId }
+                    require(parameter.type.isSubtypeOf(typeOf<Number>())) {
+                        "Non numeric parameter \"$parameterId\" (${parameter.type}) used for initial size of input \"$id\""
+                    }
+                    parameter as StateMachineParameter<out Number>
+                    StateMachineIOState.InitialSizeProvider.Parameter(parameter)
+                }
+                else -> {
+                    StateMachineIOState.InitialSizeProvider.Value(1)
+                }
+            }
+            // Property must be an array if the initial size is greater than 1 or a parameter.
+            if (!(initialSize is StateMachineIOState.InitialSizeProvider.Value && initialSize.value == 1)) {
+                require(property.returnType.isSubtypeOf(typeOf<Array<LogicState>>())) {
+                    "Input property \"$id\" (${property.returnType.classifier}) must be an array. (size > 1 or unknown)"
+                }
+            }
+
+            input(id, initialSize = initialSize)
+        }
+        val outputs = outputProperties.map { (id, property) ->
+            val initialSize = when {
+                !property.isLateinit -> {
+                    StateMachineIOState.InitialSizeProvider.Value(outputInitialValues[id]!!.size)
+                }
+                property.findAnnotation<InitialSize>() != null -> {
+                    StateMachineIOState.InitialSizeProvider.Value(property.findAnnotation<InitialSize>()!!.size)
+                }
+                property.findAnnotation<InitialParameterSize>() != null -> {
+                    val parameterId = property.findAnnotation<InitialParameterSize>()!!.parameter
+                    require(parameterId in parameterProperties) {
+                        "Unknown parameter \"$parameterId\" used for initial size of output \"$id\""
+                    }
+                    val parameter = parameters.first { it.name == parameterId }
+                    require(parameter.type.isSubtypeOf(typeOf<Number>())) {
+                        "Non numeric parameter \"$parameterId\" (${parameter.type}) used for initial size of output \"$id\""
+                    }
+                    parameter as StateMachineParameter<out Number>
+                    StateMachineIOState.InitialSizeProvider.Parameter(parameter)
+                }
+                else -> {
+                    StateMachineIOState.InitialSizeProvider.Value(1)
+                }
+            }
+            // Property must be an array if the initial size is greater than 1 or a parameter.
+            if (!(initialSize is StateMachineIOState.InitialSizeProvider.Value && initialSize.value == 1)) {
+                require(property.returnType.isSubtypeOf(typeOf<Array<LogicState>>())) {
+                    "Output property \"$id\" (${property.returnType.classifier}) must be an array. (size > 1 or unknown)"
+                }
+            }
+
+            output(id, initialSize = initialSize, initialValue = outputInitialValues[id]!!)
         }
         val templateInstance = variable("__template_instance__", testTemplateInstance)
 
@@ -180,6 +258,28 @@ class VireStateMachineFactory : StateMachineFactory {
                     property.set(instance, context[parameter])
                 }
 
+                // Create all late init input arrays.
+                for (input in inputs) {
+                    val property = inputProperties[input.name]!!
+                    if (property.isLateinit) {
+                        if (property.returnType.isSubtypeOf(typeOf<Array<LogicState>>())) {
+                            (property as KMutableProperty1<StateMachineTemplate, Array<LogicState>>)
+                                .set(instance, Array(context.size(input)) { LogicState.EMPTY })
+                        }
+                    }
+                }
+
+                // Create all late init output arrays.
+                for (output in outputs) {
+                    val property = outputProperties[output.name]!!
+                    if (property.isLateinit) {
+                        if (property.returnType.isSubtypeOf(typeOf<Array<LogicState>>())) {
+                            (property as KMutableProperty1<StateMachineTemplate, Array<LogicState>>)
+                                .set(instance, Array(context.size(output)) { output.initialValue })
+                        }
+                    }
+                }
+
                 // Run the configure method on the template.
                 instance.configure()
             }
@@ -191,7 +291,11 @@ class VireStateMachineFactory : StateMachineFactory {
                 // Update all inputs.
                 for (input in inputs) {
                     val property = inputProperties[input.name]!!
-                    property.set(instance, context[input])
+                    if (property.returnType.isSubtypeOf(typeOf<Array<LogicState>>())) {
+                        (property as KMutableProperty1<StateMachineTemplate, Array<LogicState>>).set(instance, context.vector(input))
+                    } else {
+                        (property as KMutableProperty1<StateMachineTemplate, LogicState>).set(instance, context[input])
+                    }
                 }
                 for (variable in variables) {
                     val property = variableProperties[variable.name]!! as KMutableProperty1<StateMachineTemplate, Any?>
@@ -204,7 +308,11 @@ class VireStateMachineFactory : StateMachineFactory {
                 // Update all outputs
                 for (output in outputs) {
                     val property = outputProperties[output.name]!!
-                    context[output] = property.get(instance)
+                    if (property.returnType.isSubtypeOf(typeOf<Array<LogicState>>())) {
+                        context.vector(output, (property as KProperty1<StateMachineTemplate, Array<LogicState>>).get(instance))
+                    } else {
+                        context[output] = (property as KProperty1<StateMachineTemplate, LogicState>).get(instance)
+                    }
                 }
                 for (variable in variables) {
                     val property = variableProperties[variable.name]!!

@@ -94,6 +94,17 @@ inline fun <reified T> parameter(
 }
 
 /**
+ * Creates a new unconstrained parameter with the given [name] and [initialValue].
+ */
+fun <T> parameter(
+    name: String,
+    type: KType,
+    initialValue: T,
+): StateMachineParameter.Unconstrained<T> {
+    return Vire.stateMachineFactory.get().createUnconstrainedParameter(name, type, initialValue)
+}
+
+/**
  * Creates a new parameter with the given [name], [initialValue] and [predicate].
  */
 inline fun <reified T> parameter(
@@ -102,6 +113,18 @@ inline fun <reified T> parameter(
     noinline predicate: (value: T) -> Boolean,
 ): StateMachineParameter.Predicate<T> {
     return Vire.stateMachineFactory.get().createPredicateParameter(name, typeOf<T>(), initialValue, predicate)
+}
+
+/**
+ * Creates a new parameter with the given [name], [initialValue] and [predicate].
+ */
+fun <T> parameter(
+    name: String,
+    type: KType,
+    initialValue: T,
+    predicate: (value: T) -> Boolean,
+): StateMachineParameter.Predicate<T> {
+    return Vire.stateMachineFactory.get().createPredicateParameter(name, type, initialValue, predicate)
 }
 
 /**
@@ -120,12 +143,38 @@ inline fun <reified T> parameter(
  * Creates a new selection parameter with the given [name] and [initialValue].
  * The value of the parameter must be one of [selection].
  */
+fun <T> parameter(
+    name: String,
+    type: KType,
+    initialValue: T,
+    selection: Collection<T>,
+): StateMachineParameter.Selection<T> {
+    return Vire.stateMachineFactory.get().createSelectionParameter(name, type, initialValue, selection)
+}
+
+/**
+ * Creates a new selection parameter with the given [name] and [initialValue].
+ * The value of the parameter must be one of [selection].
+ */
 inline fun <reified T> parameter(
     name: String,
     initialValue: T,
     vararg selection: T,
 ): StateMachineParameter.Selection<T> {
     return Vire.stateMachineFactory.get().createSelectionParameter(name, typeOf<T>(), initialValue, selection.toList())
+}
+
+/**
+ * Creates a new selection parameter with the given [name] and [initialValue].
+ * The value of the parameter must be one of [selection].
+ */
+fun <T> parameter(
+    name: String,
+    type: KType,
+    initialValue: T,
+    vararg selection: T,
+): StateMachineParameter.Selection<T> {
+    return Vire.stateMachineFactory.get().createSelectionParameter(name, type, initialValue, selection.toList())
 }
 
 /**

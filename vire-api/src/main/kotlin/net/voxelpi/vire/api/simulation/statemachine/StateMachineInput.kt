@@ -37,3 +37,13 @@ fun input(
 ): StateMachineInput {
     return Vire.stateMachineFactory.get().createInput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize))
 }
+
+/**
+ * Creates a new input.
+ */
+fun input(
+    name: String,
+    initialSize: StateMachineIOState.InitialSizeProvider,
+): StateMachineInput {
+    return Vire.stateMachineFactory.get().createInput(name, initialSize)
+}
