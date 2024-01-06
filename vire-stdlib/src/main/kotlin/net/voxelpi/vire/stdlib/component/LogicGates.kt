@@ -6,7 +6,7 @@ import net.voxelpi.vire.api.simulation.booleanStates
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.stdlib.VireStandardLibrary
 
-val BufferGate = StateMachine.create(Identifier(VireStandardLibrary.id, "not")) {
+val BufferGate = StateMachine.create(Identifier(VireStandardLibrary.id, "buffer")) {
 
     val input = declareInput("input")
     val output = declareOutput("output")
