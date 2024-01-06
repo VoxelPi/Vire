@@ -44,30 +44,30 @@ class VireStateMachineFactoryTest {
         }
 
         // Test initial values.
-        assertEquals(LogicState.value(LogicValue.TRUE, 1), stateMachineInstance1[stateMachine.outputs["active"]!!])
-        assertEquals(0, stateMachineInstance1[stateMachine.variables["counter"]!!])
+        assertEquals(LogicState.value(LogicValue.TRUE, 1), stateMachineInstance1["active"])
+        assertEquals(0, stateMachineInstance1["counter"])
 
         // Test modifying the state machine instance.
         val state1 = LogicState.value(LogicValue.TRUE, 2)
         val states1 = arrayOf(LogicState.value(false, 3), LogicState.value(true, 5), LogicState.value(null, 2))
-        stateMachineInstance1[stateMachine.inputs["input"]!!] = state1
-        stateMachineInstance1.vector(stateMachine.inputs["inputs"]!!, states1)
+        stateMachineInstance1["input"] = state1
+        stateMachineInstance1.vector("inputs", states1)
         stateMachineInstance1.update()
-        assertEquals(state1, stateMachineInstance1[stateMachine.outputs["output"]!!])
-        assertEquals(states1, stateMachineInstance1.vector(stateMachine.outputs["outputs"]!!))
-        assertEquals(1, stateMachineInstance1[stateMachine.variables["counter"]!!])
-        assertEquals(0, stateMachineInstance2[stateMachine.variables["counter"]!!])
+        assertEquals(state1, stateMachineInstance1["output"])
+        assertEquals(states1, stateMachineInstance1.vector("outputs"))
+        assertEquals(1, stateMachineInstance1["counter"])
+        assertEquals(0, stateMachineInstance2["counter"])
 
         // Test modifying the other state machine instance.
         val state2 = LogicState.value(LogicValue.FALSE, 3)
-        stateMachineInstance2[stateMachine.inputs["input"]!!] = state2
+        stateMachineInstance2["input"] = state2
         stateMachineInstance2.update()
-        assertEquals(state2, stateMachineInstance2[stateMachine.outputs["output"]!!])
-        assertEquals(2, stateMachineInstance2[stateMachine.variables["counter"]!!])
+        assertEquals(state2, stateMachineInstance2["output"])
+        assertEquals(2, stateMachineInstance2["counter"])
 
         // Check that the other instance did not change.
-        assertEquals(state1, stateMachineInstance1[stateMachine.outputs["output"]!!])
-        assertEquals(state2, stateMachineInstance2[stateMachine.outputs["output"]!!])
+        assertEquals(state1, stateMachineInstance1["output"])
+        assertEquals(state2, stateMachineInstance2["output"])
     }
 
     @StateMachineMeta("test", "buffer")

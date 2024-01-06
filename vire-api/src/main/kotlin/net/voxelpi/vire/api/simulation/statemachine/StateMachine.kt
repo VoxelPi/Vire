@@ -35,6 +35,11 @@ interface StateMachine {
     val outputs: Map<String, StateMachineOutput>
 
     /**
+     * A set containing the names of all state variables of the state machine.
+     */
+    val stateVariableNames: Set<String>
+
+    /**
      * The configuration action of the state machine.
      */
     val configure: (StateMachineConfigureContext) -> Unit

@@ -28,12 +28,21 @@ interface StateMachineParameter<T> : StateMachineState {
     /**
      * Returns if the variable accepts the given value.
      */
-    fun acceptsValue(value: Any?): Boolean
+    fun isValidType(value: Any?): Boolean
 
     /**
      * Returns if the given [value] is valid for this parameter.
      */
+
     fun isValid(value: T): Boolean
+
+    /**
+     * Returns if the given [value] is valid for this parameter.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun isValidTypeAndValue(value: Any?): Boolean {
+        return isValidType(value) && isValid(value as T)
+    }
 
     /**
      * An unconstrained parameter of a state machine.

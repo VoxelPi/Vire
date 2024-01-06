@@ -27,7 +27,7 @@ interface StateMachineVariable<T> : StateMachineState {
     /**
      * Returns if the variable accepts the given value.
      */
-    fun acceptsValue(value: Any?): Boolean
+    fun isValidType(value: Any?): Boolean
 }
 
 /**

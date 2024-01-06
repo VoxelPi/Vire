@@ -10,7 +10,7 @@ import kotlin.reflect.KType
  */
 interface VireStateMachineParameter<T> : StateMachineParameter<T> {
 
-    override fun acceptsValue(value: Any?): Boolean {
+    override fun isValidType(value: Any?): Boolean {
         return isInstanceOfType(value, type)
     }
 

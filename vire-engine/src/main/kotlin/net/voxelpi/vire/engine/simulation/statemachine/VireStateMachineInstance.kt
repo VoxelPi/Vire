@@ -11,6 +11,7 @@ import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import java.util.Arrays
+import kotlin.reflect.KType
 
 class VireStateMachineInstance(
     val simulation: VireSimulation,
@@ -31,7 +32,7 @@ class VireStateMachineInstance(
             initialParameterStates[parameter.name] = parameter.initialValue
         }
         VireInitialConfigurationContext(stateMachine, initialParameterStates).configuration()
-        check(stateMachine.parameters.values.all { it.acceptsValue(initialParameterStates[it.name]) })
+        check(stateMachine.parameters.values.all { it.isValidType(initialParameterStates[it.name]) })
         this.initialParameterStates = initialParameterStates
 
         reset(true)
@@ -116,6 +117,111 @@ class VireStateMachineInstance(
         return LogicState.merge(logicState, outputStates[output.name]!![index])
     }
 
+    override fun has(name: String): Boolean {
+        return name in stateMachine.stateVariableNames
+    }
+
+    override fun size(name: String): Int {
+        return when (name) {
+            in stateMachine.inputs -> {
+                inputStates[name]!!.size
+            }
+            in stateMachine.outputs -> {
+                outputStates[name]!!.size
+            }
+            else -> {
+                throw IllegalArgumentException("No input or output with the name \"$name\" exists on the state machine.")
+            }
+        }
+    }
+
+    fun resize(name: String, size: Int) {
+        when (name) {
+            in stateMachine.inputs -> {
+                resize(stateMachine.inputs[name]!!, size)
+            }
+            in stateMachine.outputs -> {
+                resize(stateMachine.outputs[name]!!, size)
+            }
+            else -> {
+                throw IllegalArgumentException("No input or output with the name \"$name\" exists on the state machine.")
+            }
+        }
+    }
+
+    override fun typeOf(name: String): KType {
+        return when (name) {
+            in stateMachine.parameters -> stateMachine.parameters[name]!!.type
+            in stateMachine.variables -> stateMachine.variables[name]!!.type
+            in stateMachine.inputs, in stateMachine.outputs -> kotlin.reflect.typeOf<LogicState>()
+            else -> throw IllegalArgumentException("No state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
+    override fun get(name: String): Any? {
+        return when (name) {
+            in stateMachine.parameters -> parameterStates[name]
+            in stateMachine.variables -> variableStates[name]
+            in stateMachine.inputs -> inputStates[name]!![0]
+            in stateMachine.outputs -> outputStates[name]!![0]
+            else -> throw IllegalArgumentException("No state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
+    override fun get(name: String, index: Int): LogicState {
+        return when (name) {
+            in stateMachine.inputs -> inputStates[name]!![index]
+            in stateMachine.outputs -> outputStates[name]!![index]
+            else -> throw IllegalArgumentException("No io state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
+    override fun vector(name: String): Array<LogicState> {
+        return when (name) {
+            in stateMachine.inputs -> inputStates[name]!!
+            in stateMachine.outputs -> outputStates[name]!!
+            else -> throw IllegalArgumentException("No io state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
+    operator fun set(name: String, value: Any?) {
+        when (name) {
+            in stateMachine.parameters -> {
+                require(stateMachine.parameters[name]!!.isValidTypeAndValue(value)) { "Invalid value $value for parameter \"$name\"." }
+                parameterStates[name] = value
+            }
+            in stateMachine.variables -> {
+                require(stateMachine.variables[name]!!.isValidType(value)) { "Invalid value $value for variable \"$name\"" }
+                variableStates[name] = value
+            }
+            in stateMachine.inputs -> {
+                require(value is LogicState)
+                inputStates[name]!![0] = value
+            }
+            in stateMachine.outputs -> {
+                require(value is LogicState)
+                outputStates[name]!![0] = value
+            }
+            else -> throw IllegalArgumentException("No state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
+    operator fun set(name: String, index: Int, value: LogicState) {
+        when (name) {
+            in stateMachine.inputs -> inputStates[name]!![index] = value
+            in stateMachine.outputs -> outputStates[name]!![index] = value
+            else -> throw IllegalArgumentException("No io state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
+    fun vector(name: String, value: Array<LogicState>) {
+        when (name) {
+            in stateMachine.inputs -> inputStates[name] = value
+            in stateMachine.outputs -> outputStates[name] = value
+            else -> throw IllegalArgumentException("No io state variable with the name \"$name\" exists on the state machine.")
+        }
+    }
+
     override fun size(input: StateMachineInput): Int {
         return inputStates[input.name]!!.size
     }
@@ -155,11 +261,7 @@ class VireStateMachineInstance(
         // Check that the parameter is valid.
         require(parameter.isValid(value))
 
-//        // Publish event. // TODO
-//        simulation.publish(ComponentModifyParameterEvent(component, parameter, value, this[parameter])) // TODO
-
         parameterStates[parameter.name] = value
-//        stateMachine.configure(this) // TODO
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -112,7 +112,7 @@ class VireSimulation(
                 val configurationValue = configuration[parameter.name]
 
                 // Check that the value is the right type.
-                require(parameter.acceptsValue(configurationValue))
+                require(parameter.isValidType(configurationValue))
 
                 // Set the parameter.
                 @Suppress("UNCHECKED_CAST")

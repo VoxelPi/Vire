@@ -16,7 +16,7 @@ data class VireStateMachineVariable<T>(
     override val initialValue: T,
 ) : StateMachineVariable<T> {
 
-    override fun acceptsValue(value: Any?): Boolean {
+    override fun isValidType(value: Any?): Boolean {
         return isInstanceOfType(value, type)
     }
 }
