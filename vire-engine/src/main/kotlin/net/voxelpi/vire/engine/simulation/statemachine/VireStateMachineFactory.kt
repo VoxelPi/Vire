@@ -52,7 +52,7 @@ class VireStateMachineFactory : StateMachineFactory {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun create(
+    override fun generate(
         type: KClass<out StateMachineTemplate>,
     ): StateMachine {
         // Get state machine meta.

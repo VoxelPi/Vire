@@ -30,7 +30,7 @@ class VireStateMachineFactoryTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun createAnnotatedStateMachine() {
-        val stateMachine = StateMachine.create<Buffer>()
+        val stateMachine = StateMachine.generate<Buffer>()
         assertEquals(setOf("counter_step", "size"), stateMachine.parameters.keys)
         assertEquals(setOf("counter"), stateMachine.variables.keys)
         assertEquals(setOf("input", "inputs"), stateMachine.inputs.keys)

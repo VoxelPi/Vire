@@ -408,17 +408,17 @@ interface StateMachine {
         }
 
         /**
-         * Creates a new state machine from the given template [type].
+         * Generates a new state machine from the given template [type].
          */
-        fun create(type: KClass<out StateMachineTemplate>): StateMachine {
-            return Vire.stateMachineFactory.get().create(type)
+        fun generate(type: KClass<out StateMachineTemplate>): StateMachine {
+            return Vire.stateMachineFactory.get().generate(type)
         }
 
         /**
-         * Creates a new state machine from the given template [type].
+         * Generates a new state machine from the given template [type].
          */
-        inline fun <reified T : StateMachineTemplate> create(): StateMachine {
-            return Vire.stateMachineFactory.get().create(T::class)
+        inline fun <reified T : StateMachineTemplate> generate(): StateMachine {
+            return Vire.stateMachineFactory.get().generate(T::class)
         }
     }
 }
