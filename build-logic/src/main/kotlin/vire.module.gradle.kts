@@ -20,9 +20,8 @@ dependencies {
     testImplementation(kotlin("stdlib"))
     testImplementation(libs.kotlin.reflect)
     testImplementation(kotlin("test"))
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testRuntimeOnly(libs.junit.jupiter.platform.launcher)
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
 
     testImplementation(libs.slf4j.api)
     testImplementation(libs.log4j.slf4j.impl)
