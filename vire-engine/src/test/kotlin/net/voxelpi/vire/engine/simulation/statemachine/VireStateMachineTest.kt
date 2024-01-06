@@ -76,6 +76,40 @@ class VireStateMachineTest {
     }
 
     @Test
+    fun testParameterSelection() {
+        val parameter = parameter("parameter", "one", "one", "two", "three")
+
+        // Check that initial value is checked
+        assertThrows<Exception> {
+            parameter("parameter", 5, "one", "two", "three")
+        }
+
+        // Create state machine.
+        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+            declare(parameter)
+        }
+
+        val instance1 = simulation.createStateMachineInstance(stateMachine) {
+            this[parameter] = "two"
+        }
+        assertEquals("two", instance1[parameter])
+
+        // Check that an exception is thrown for values smaller than the specified minimum.
+        assertThrows<Exception> {
+            simulation.createStateMachineInstance(stateMachine) {
+                this[parameter] = "four"
+            }
+        }
+
+        // Check that an exception is thrown for values greater than the specified maximum.
+        assertThrows<Exception> {
+            simulation.createStateMachineInstance(stateMachine) {
+                this[parameter] = "zero"
+            }
+        }
+    }
+
+    @Test
     fun testParameterRange() {
         val parameter = parameter("parameter", 5, 1, 10)
 
