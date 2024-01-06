@@ -8,4 +8,7 @@ dependencies {
 
     // Project
     compileOnly(projects.vireApi)
+
+    // Tests
+    testImplementation(projects.vireEngine)
 }
