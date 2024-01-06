@@ -22,6 +22,17 @@ class VireStateMachineTest {
     }
 
     @Test
+    fun duplicatedStateVariableNames() {
+        StateMachine.create(Identifier("test", "test")) {
+            declareVariable("name", 0)
+            assertThrows<Exception> { declareParameter("name", 0) }
+            assertThrows<Exception> { declareVariable("name", 0) }
+            assertThrows<Exception> { declareInput("name") }
+            assertThrows<Exception> { declareOutput("name") }
+        }
+    }
+
+    @Test
     fun testParameterInitialSizeProvider() {
         val inputSize = parameter("input_size", 2, 2)
         val outputSize = parameter("output_size", 3, 3)
