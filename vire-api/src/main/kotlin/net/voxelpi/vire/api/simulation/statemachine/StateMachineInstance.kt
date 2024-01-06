@@ -117,5 +117,15 @@ interface StateMachineInstance {
          * Sets the value of the given [parameter] to the given [value].
          */
         operator fun <T> set(parameter: StateMachineParameter<T>, value: T)
+
+        /**
+         * Returns the current value of the parameter with the given [parameterName].
+         */
+        operator fun get(parameterName: String): Any?
+
+        /**
+         * Sets the value of the parameter with the given [parameterName] to the given [value].
+         */
+        operator fun set(parameterName: String, value: Any?)
     }
 }

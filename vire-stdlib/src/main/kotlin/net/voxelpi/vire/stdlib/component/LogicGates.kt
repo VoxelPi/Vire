@@ -4,90 +4,132 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.BooleanState
 import net.voxelpi.vire.api.simulation.booleanStates
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
-import net.voxelpi.vire.stdlib.VireStandardLibrary
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineProvider
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.api.simulation.statemachine.parameter
+import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
-val BufferGate = StateMachine.create(Identifier(VireStandardLibrary.id, "buffer")) {
+object BufferGate : StateMachineProvider {
+    val input = input("input")
+    val output = output("output")
 
-    val input = declareInput("input")
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "buffer")) {
+        declare(input)
+        declare(output)
 
-    update = { context ->
-        context[output] = context[input].booleanState()
+        update = { context ->
+            context[output] = context[input].booleanState()
+        }
     }
 }
 
-val NotGate = StateMachine.create(Identifier(VireStandardLibrary.id, "not")) {
+object NotGate : StateMachineProvider {
+    val input = input("input")
+    val output = output("output")
 
-    val input = declareInput("input")
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "not")) {
+        declare(BufferGate.input)
+        declare(BufferGate.output)
 
-    update = { context ->
-        context[output] = !context[input].booleanState()
+        update = { context ->
+            context[output] = !context[input].booleanState()
+        }
     }
 }
 
-val AndGate = StateMachine.create(Identifier(VireStandardLibrary.id, "and")) {
+object AndGate : StateMachineProvider {
+    val inputSize = parameter("input_size", 2, min = 2)
+    val inputs = input("inputs", inputSize)
+    val output = output("output")
 
-    val inputSize = declareParameter("input_size", 2, min = 2)
-    val inputs = declareInput("inputs", inputSize)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "and")) {
+        declare(inputSize)
+        declare(inputs)
+        declare(output)
 
-    update = { context ->
-        context[output] = BooleanState.and(context.vector(inputs).booleanStates())
+        update = { context ->
+            context[output] = BooleanState.and(context.vector(inputs).booleanStates())
+        }
     }
 }
 
-val OrGate = StateMachine.create(Identifier(VireStandardLibrary.id, "or")) {
+object OrGate : StateMachineProvider {
+    val inputSize = parameter("input_size", 2, min = 2)
+    val inputs = input("inputs", inputSize)
+    val output = output("output")
 
-    val inputSize = declareParameter("input_size", 2, min = 2)
-    val inputs = declareInput("inputs", inputSize)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "or")) {
+        declare(inputSize)
+        declare(inputs)
+        declare(output)
 
-    update = { context ->
-        context[output] = BooleanState.or(context.vector(inputs).booleanStates())
+        update = { context ->
+            context[output] = BooleanState.or(context.vector(inputs).booleanStates())
+        }
     }
 }
 
-val XorGate = StateMachine.create(Identifier(VireStandardLibrary.id, "xor")) {
+object XorGate : StateMachineProvider {
+    val inputSize = parameter("input_size", 2, min = 2)
+    val inputs = input("inputs", inputSize)
+    val output = output("output")
 
-    val inputSize = declareParameter("input_size", 2, min = 2)
-    val inputs = declareInput("inputs", inputSize)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "xor")) {
+        declare(inputSize)
+        declare(inputs)
+        declare(output)
 
-    update = { context ->
-        context[output] = BooleanState.xor(context.vector(inputs).booleanStates())
+        update = { context ->
+            context[output] = BooleanState.xor(context.vector(inputs).booleanStates())
+        }
     }
 }
 
-val NandGate = StateMachine.create(Identifier(VireStandardLibrary.id, "nand")) {
+object NandGate : StateMachineProvider {
+    val inputSize = parameter("input_size", 2, min = 2)
+    val inputs = input("inputs", inputSize)
+    val output = output("output")
 
-    val inputSize = declareParameter("input_size", 2, min = 2)
-    val inputs = declareInput("inputs", inputSize)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "nand")) {
+        declare(inputSize)
+        declare(inputs)
+        declare(output)
 
-    update = { context ->
-        context[output] = BooleanState.nand(context.vector(inputs).booleanStates())
+        update = { context ->
+            context[output] = BooleanState.nand(context.vector(inputs).booleanStates())
+        }
     }
 }
 
-val NorGate = StateMachine.create(Identifier(VireStandardLibrary.id, "nor")) {
+object NorGate : StateMachineProvider {
+    val inputSize = parameter("input_size", 2, min = 2)
+    val inputs = input("inputs", inputSize)
+    val output = output("output")
 
-    val inputSize = declareParameter("input_size", 2, min = 2)
-    val inputs = declareInput("inputs", inputSize)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "nor")) {
+        declare(inputSize)
+        declare(inputs)
+        declare(output)
 
-    update = { context ->
-        context[output] = BooleanState.nor(context.vector(inputs).booleanStates())
+        update = { context ->
+            context[output] = BooleanState.nor(context.vector(inputs).booleanStates())
+        }
     }
 }
 
-val XnorGate = StateMachine.create(Identifier(VireStandardLibrary.id, "xnor")) {
+object XnorGate : StateMachineProvider {
+    val inputSize = parameter("input_size", 2, min = 2)
+    val inputs = input("inputs", inputSize)
+    val output = output("output")
 
-    val inputSize = declareParameter("input_size", 2, min = 2)
-    val inputs = declareInput("inputs", inputSize)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "xnor")) {
+        declare(inputSize)
+        declare(inputs)
+        declare(output)
 
-    update = { context ->
-        context[output] = BooleanState.xnor(context.vector(inputs).booleanStates())
+        update = { context ->
+            context[output] = BooleanState.xnor(context.vector(inputs).booleanStates())
+        }
     }
 }

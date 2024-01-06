@@ -2,6 +2,7 @@ package net.voxelpi.vire.api.simulation.library
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineProvider
 
 /**
  * A library that adds content to the simulation.
@@ -22,7 +23,7 @@ abstract class Library(
     protected val stateMachines: MutableMap<Identifier, StateMachine> = mutableMapOf()
 
     /**
-     * Registers a new state machine in the library.
+     * Registers the given [stateMachine] in the library.
      */
     protected fun register(stateMachine: StateMachine) {
         require(!stateMachines.containsKey(stateMachine.id)) {
@@ -30,6 +31,13 @@ abstract class Library(
         }
 
         stateMachines[stateMachine.id] = stateMachine
+    }
+
+    /**
+     * Registers the state machine provided by the given [stateMachineProvider] in the library.
+     */
+    protected fun register(stateMachineProvider: StateMachineProvider) {
+        register(stateMachineProvider.stateMachine)
     }
 
     /**

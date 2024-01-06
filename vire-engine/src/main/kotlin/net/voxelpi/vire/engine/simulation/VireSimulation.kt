@@ -32,6 +32,7 @@ import net.voxelpi.vire.api.simulation.network.NetworkNode
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineProvider
 import net.voxelpi.vire.engine.simulation.component.VireComponent
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
@@ -96,6 +97,13 @@ class VireSimulation(
     }
 
     override fun createStateMachineInstance(
+        stateMachineProvider: StateMachineProvider,
+        configuration: Map<String, Any?>,
+    ): VireStateMachineInstance {
+        return createStateMachineInstance(stateMachineProvider.stateMachine, configuration)
+    }
+
+    override fun createStateMachineInstance(
         stateMachine: StateMachine,
         configuration: Map<String, Any?>,
     ): VireStateMachineInstance {
@@ -119,6 +127,13 @@ class VireSimulation(
                 this[parameter as StateMachineParameter<Any?>] = configurationValue
             }
         }
+    }
+
+    override fun createStateMachineInstance(
+        stateMachineProvider: StateMachineProvider,
+        configuration: StateMachineInstance.ConfigurationContext.() -> Unit,
+    ): VireStateMachineInstance {
+        return createStateMachineInstance(stateMachineProvider.stateMachine, configuration)
     }
 
     override fun components(): List<VireComponent> {

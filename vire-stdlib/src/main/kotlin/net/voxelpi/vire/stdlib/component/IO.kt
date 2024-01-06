@@ -4,21 +4,32 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.LogicValue
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
-import net.voxelpi.vire.stdlib.VireStandardLibrary
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineProvider
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.api.simulation.statemachine.parameter
+import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
-val Input = StateMachine.create(Identifier(VireStandardLibrary.id, "input")) {
+object Input : StateMachineProvider {
+    val value = parameter("value", LogicValue.NONE)
+    val channels = parameter("channels", 1, min = 1)
+    val output = output("output")
 
-    val value = declareParameter("value", LogicValue.NONE)
-    val channels = declareParameter("channels", 1, min = 1)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "input")) {
+        declare(value)
+        declare(channels)
+        declare(output)
 
-    configure = { context ->
-        context[output] = LogicState.value(context[value], context[channels])
+        configure = { context ->
+            context[output] = LogicState.value(context[value], context[channels])
+        }
     }
 }
 
-val Output = StateMachine.create(Identifier(VireStandardLibrary.id, "output")) {
+object Output : StateMachineProvider {
+    val input = input("input")
 
-    @Suppress("UNUSED_VARIABLE")
-    val input = declareInput("input")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "output")) {
+        declare(input)
+    }
 }

@@ -17,7 +17,7 @@ import net.voxelpi.vire.stdlib.component.Unpackager
 import net.voxelpi.vire.stdlib.component.XnorGate
 import net.voxelpi.vire.stdlib.component.XorGate
 
-object VireStandardLibrary : Library("vire", "Vire", "The vire standard library", emptyList()) {
+object VireStandardLibrary : Library(VIRE_STDLIB_ID, "Vire", "The vire standard library", emptyList()) {
 
     init {
         // IO
@@ -38,7 +38,9 @@ object VireStandardLibrary : Library("vire", "Vire", "The vire standard library"
         register(FullAdder)
         register(HalfAdder)
         register(Clock)
-        register(Packager)
-        register(Unpackager)
+        register(Packager.stateMachine)
+        register(Unpackager.stateMachine)
     }
 }
+
+const val VIRE_STDLIB_ID = "vire"

@@ -3,30 +3,56 @@ package net.voxelpi.vire.stdlib.component
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
-import net.voxelpi.vire.stdlib.VireStandardLibrary
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineProvider
+import net.voxelpi.vire.api.simulation.statemachine.input
+import net.voxelpi.vire.api.simulation.statemachine.output
+import net.voxelpi.vire.api.simulation.statemachine.parameter
+import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
-val Packager = StateMachine.create(Identifier(VireStandardLibrary.id, "packager")) {
+object Packager : StateMachineProvider {
+    val blockCount = parameter("block_count", 2, min = 2)
+    val blockSize = parameter("block_size", 1, min = 1)
+    val input = input("input", blockCount)
+    val output = output("output")
 
-    val inputCount = declareParameter("input_count", 2, min = 2)
-    val input = declareInput("input", inputCount)
-    val output = declareOutput("output")
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "packager")) {
+        declare(blockCount)
+        declare(blockSize)
+        declare(input)
+        declare(output)
 
-    update = { context ->
-        context[output] = LogicState(context[inputCount]) { index ->
-            context[input, index][0]
+        update = { context ->
+            val count = context[blockCount]
+            val size = context[blockSize]
+            context[output] = LogicState(count * size) { index ->
+                val inputIndex = index / size
+                val inputChannel = index % size
+                context[input, inputIndex][inputChannel]
+            }
         }
     }
 }
 
-val Unpackager = StateMachine.create(Identifier(VireStandardLibrary.id, "unpackager")) {
+object Unpackager : StateMachineProvider {
+    val blockCount = parameter("block_count", 2, min = 2)
+    val blockSize = parameter("block_size", 1, min = 1)
+    val input = input("input")
+    val output = output("output", blockCount)
 
-    val outputCount = declareParameter("output_count", 2, min = 2)
-    val input = declareInput("input")
-    val output = declareOutput("output", outputCount)
+    override val stateMachine = StateMachine.create(Identifier(VIRE_STDLIB_ID, "unpackager")) {
+        declare(blockCount)
+        declare(blockSize)
+        declare(input)
+        declare(output)
 
-    update = { context ->
-        for (index in 0..<context[outputCount]) {
-            context[output, index] = LogicState.value(context[input].channelOrNone(0))
+        update = { context ->
+            val count = context[blockCount]
+            val size = context[blockSize]
+            for (index in 0..<(count * size)) {
+                val outputIndex = index / size
+                val outputChannel = index % size
+                context[output, outputIndex] = LogicState.value(context[input].channelOrNone(outputChannel))
+            }
         }
     }
 }
