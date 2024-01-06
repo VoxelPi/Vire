@@ -141,7 +141,7 @@ class VireStateMachineInstance(
             if (index < previous.size) {
                 previous[index]
             } else {
-                LogicState.EMPTY
+                output.initialValue
             }
         }
     }
