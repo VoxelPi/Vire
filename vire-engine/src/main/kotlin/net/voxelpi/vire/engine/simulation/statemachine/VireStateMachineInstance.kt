@@ -248,7 +248,7 @@ class VireStateMachineInstance(
 
         override fun <T> set(parameter: StateMachineParameter<T>, value: T) {
             // Check that the parameter is valid.
-            require(parameter.isValid(value))
+            require(parameter.isValid(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
 
             initialParameterStates[parameter.name] = value
         }

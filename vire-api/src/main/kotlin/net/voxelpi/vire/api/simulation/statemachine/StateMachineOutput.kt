@@ -46,3 +46,14 @@ fun output(
 ): StateMachineOutput {
     return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize), initialValue)
 }
+
+/**
+ * Creates a new output.
+ */
+fun output(
+    name: String,
+    initialSize: StateMachineIOState.InitialSizeProvider,
+    initialValue: LogicState = LogicState.value(LogicValue.NONE),
+): StateMachineOutput {
+    return Vire.stateMachineFactory.get().createOutput(name, initialSize, initialValue)
+}
