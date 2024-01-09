@@ -7,6 +7,7 @@ import net.voxelpi.vire.stdlib.component.Clock
 import net.voxelpi.vire.stdlib.component.FullAdder
 import net.voxelpi.vire.stdlib.component.HalfAdder
 import net.voxelpi.vire.stdlib.component.Input
+import net.voxelpi.vire.stdlib.component.Memory
 import net.voxelpi.vire.stdlib.component.NandGate
 import net.voxelpi.vire.stdlib.component.NorGate
 import net.voxelpi.vire.stdlib.component.NotGate
@@ -38,6 +39,7 @@ object VireStandardLibrary : Library(VIRE_STDLIB_ID, "Vire", "The vire standard 
         register(FullAdder)
         register(HalfAdder)
         register(Clock)
+        register(Memory)
         register(Packager.stateMachine)
         register(Unpackager.stateMachine)
     }
