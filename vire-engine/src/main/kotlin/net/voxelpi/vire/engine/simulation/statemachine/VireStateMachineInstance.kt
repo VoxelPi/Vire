@@ -1,7 +1,9 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
+import net.voxelpi.vire.api.simulation.BooleanState
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.event.simulation.statemachine.StateMachineConfigureEvent
+import net.voxelpi.vire.api.simulation.logicStates
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
@@ -285,9 +287,18 @@ class VireStateMachineInstance(
         inputStates[input.name]!![index] = value
     }
 
+    operator fun set(input: StateMachineInput, index: Int = 0, value: BooleanState) {
+        inputStates[input.name]!![index] = value.logicState()
+    }
+
     fun vector(input: StateMachineInput, value: Array<LogicState>) {
         require(value.size == size(input)) { "Invalid vector size." }
         inputStates[input.name] = value
+    }
+
+    fun vector(input: StateMachineInput, value: Array<BooleanState>) {
+        require(value.size == size(input)) { "Invalid vector size." }
+        inputStates[input.name] = value.logicStates()
     }
 
     override fun get(output: StateMachineOutput, index: Int): LogicState {
@@ -302,9 +313,18 @@ class VireStateMachineInstance(
         outputStates[output.name]!![index] = value
     }
 
+    operator fun set(output: StateMachineOutput, index: Int = 0, value: BooleanState) {
+        outputStates[output.name]!![index] = value.logicState()
+    }
+
     fun vector(output: StateMachineOutput, value: Array<LogicState>) {
         require(value.size == size(output)) { "Invalid vector size." }
         outputStates[output.name] = value
+    }
+
+    fun vector(output: StateMachineOutput, value: Array<BooleanState>) {
+        require(value.size == size(output)) { "Invalid vector size." }
+        outputStates[output.name] = value.logicStates()
     }
 
     override fun configureParameters(action: StateMachineInstance.ConfigurationContext.() -> Unit): Boolean {

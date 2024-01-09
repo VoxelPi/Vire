@@ -6,6 +6,14 @@ import org.junit.jupiter.api.Test
 class LogicStateTest {
 
     @Test
+    fun booleanStateConversion() {
+        val logicState = logicState(true, false, true, true)
+        assertEquals(booleanState(true, false, true, true), logicState.booleanState())
+        assertEquals(booleanState(true, false), logicState.booleanState(2))
+        assertEquals(booleanState(true, false, true, true, false, false), logicState.booleanState(6))
+    }
+
+    @Test
     fun mergeNoneNone() {
         val stateA = LogicState.EMPTY
         val stateB = LogicState.EMPTY

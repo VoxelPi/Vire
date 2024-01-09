@@ -13,11 +13,42 @@ data class BooleanState(val channels: BooleanArray) {
         get() = channels.size
 
     /**
+     * Creates a resized copy with the given [size].
+     * If [size] is greater than the current size, the remaining entries are filled with false.
+     */
+    fun resizedCopy(size: Int): BooleanState {
+        return BooleanState(size) { index ->
+            if (index < channels.size) channels[index] else false
+        }
+    }
+
+    /**
+     * Returns true if the state has at least one channel that is TRUE.
+     */
+    fun toBoolean(): Boolean {
+        return channels.isNotEmpty() && channels.any { it }
+    }
+
+    /**
      * Generates a [LogicState] from this logic state.
      */
     fun logicState(): LogicState {
         return LogicState(channels.size) { index ->
             if (channels[index]) LogicValue.TRUE else LogicValue.FALSE
+        }
+    }
+
+    /**
+     * Generates a [LogicState] from this logic state with the given [size].
+     * If [size] is greater than the size of this state, the remaining channels are filled with [fillValue].
+     */
+    fun logicState(size: Int, fillValue: LogicValue = LogicValue.NONE): LogicState {
+        return LogicState(size) { index ->
+            when {
+                index >= channels.size -> fillValue
+                channels[index] -> LogicValue.TRUE
+                else -> LogicValue.FALSE
+            }
         }
     }
 
@@ -64,13 +95,65 @@ data class BooleanState(val channels: BooleanArray) {
     }
 
     /**
-     * Creates an unsigned 64-bit integer using the first 64 values of the state as bits.
+     * Creates an unsigned 8-bit integer using the first 8 values of the state as bits.
      */
-    fun toULong(): ULong {
-        var result = 0UL
-        for (i in 0..<min(64, size)) {
+    fun toByte(): Byte {
+        var result = 0
+        for (i in 0..<min(8, size)) {
             if (channels[i]) {
-                result = result or 1U shl i
+                result = result or (1 shl i)
+            }
+        }
+        return result.toByte()
+    }
+
+    /**
+     * Creates an unsigned 8-bit integer using the first 8 values of the state as bits.
+     */
+    fun toUByte(): UByte {
+        var result = 0U
+        for (i in 0..<min(8, size)) {
+            if (channels[i]) {
+                result = result or (1U shl i)
+            }
+        }
+        return result.toUByte()
+    }
+
+    /**
+     * Creates an unsigned 16-bit integer using the first 16 values of the state as bits.
+     */
+    fun toShort(): Short {
+        var result = 0
+        for (i in 0..<min(16, size)) {
+            if (channels[i]) {
+                result = result or (1 shl i)
+            }
+        }
+        return result.toShort()
+    }
+
+    /**
+     * Creates an unsigned 16-bit integer using the first 16 values of the state as bits.
+     */
+    fun toUShort(): UShort {
+        var result = 0U
+        for (i in 0..<min(16, size)) {
+            if (channels[i]) {
+                result = result or (1U shl i)
+            }
+        }
+        return result.toUShort()
+    }
+
+    /**
+     * Creates an unsigned 32-bit integer using the first 32 values of the state as bits.
+     */
+    fun toInt(): Int {
+        var result = 0
+        for (i in 0..<min(32, size)) {
+            if (channels[i]) {
+                result = result or (1 shl i)
             }
         }
         return result
@@ -83,36 +166,36 @@ data class BooleanState(val channels: BooleanArray) {
         var result = 0U
         for (i in 0..<min(32, size)) {
             if (channels[i]) {
-                result = result or 1U shl i
+                result = result or (1U shl i)
             }
         }
         return result
     }
 
     /**
-     * Creates an unsigned 16-bit integer using the first 16 values of the state as bits.
+     * Creates an unsigned 64-bit integer using the first 64 values of the state as bits.
      */
-    fun toUShort(): UShort {
-        var result = 0U
-        for (i in 0..<min(16, size)) {
+    fun toLong(): Long {
+        var result = 0L
+        for (i in 0..<min(64, size)) {
             if (channels[i]) {
-                result = result or 1U shl i
+                result = result or (1L shl i)
             }
         }
-        return result.toUShort()
+        return result
     }
 
     /**
-     * Creates an unsigned 8-bit integer using the first 8 values of the state as bits.
+     * Creates an unsigned 64-bit integer using the first 64 values of the state as bits.
      */
-    fun toUByte(): UByte {
-        var result = 0U
-        for (i in 0..<min(8, size)) {
+    fun toULong(): ULong {
+        var result = 0UL
+        for (i in 0..<min(64, size)) {
             if (channels[i]) {
-                result = result or 1U shl i
+                result = result or (1UL shl i)
             }
         }
-        return result.toUByte()
+        return result
     }
 
     override fun equals(other: Any?): Boolean {
@@ -132,6 +215,86 @@ data class BooleanState(val channels: BooleanArray) {
 
         fun value(value: Boolean, size: Int = 1): BooleanState {
             return BooleanState(size) { value }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: Byte, size: Int = 8): BooleanState {
+            require(size in 0..8) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value.toInt() shr index) and 1 == 1
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: UByte, size: Int = 8): BooleanState {
+            require(size in 0..8) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value.toUInt() shr index) and 1U == 1U
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: Short, size: Int = 16): BooleanState {
+            require(size in 0..16) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value.toInt() shr index) and 1 == 1
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: UShort, size: Int = 16): BooleanState {
+            require(size in 0..16) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value.toUInt() shr index) and 1U == 1U
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: Int, size: Int = 32): BooleanState {
+            require(size in 0..32) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value shr index) and 1 == 1
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: UInt, size: Int = 32): BooleanState {
+            require(size in 0..32) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value shr index) and 1U == 1U
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: Long, size: Int = 64): BooleanState {
+            require(size in 0..64) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value shr index) and 1L == 1L
+            }
+        }
+
+        /**
+         * Returns a boolean state with the bits of the given number.
+         */
+        fun integer(value: ULong, size: Int = 64): BooleanState {
+            require(size in 0..64) { "Invalid size." }
+            return BooleanState(size) { index ->
+                (value shr index) and 1UL == 1UL
+            }
         }
 
         /**
@@ -226,6 +389,16 @@ fun Array<BooleanState>.logicStates(): Array<LogicState> {
     }
 }
 
-fun booleanState(value: Boolean, size: Int = 1): BooleanState {
+/**
+ * Generates a new boolean state with the given [size], where each channel is set to [value].
+ */
+fun booleanState(value: Boolean, size: Int): BooleanState {
     return BooleanState(size) { value }
+}
+
+/**
+ * Generates a new boolean state with the given [values].
+ */
+fun booleanState(vararg values: Boolean): BooleanState {
+    return BooleanState(values)
 }

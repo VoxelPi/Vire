@@ -46,11 +46,38 @@ data class LogicState(
     }
 
     /**
+     * Creates a resized copy with the given [size].
+     * If [size] is greater than the current size, the remaining entries are filled with NONE.
+     */
+    fun resizedCopy(size: Int): LogicState {
+        return LogicState(size) { index ->
+            if (index < channels.size) channels[index] else LogicValue.NONE
+        }
+    }
+
+    /**
+     * Returns true if the state has at least one channel that is TRUE.
+     */
+    fun toBoolean(): Boolean {
+        return channels.isNotEmpty() && channels.any { it == LogicValue.TRUE }
+    }
+
+    /**
      * Generates a [BooleanState] from this logic state.
      */
     fun booleanState(): BooleanState {
         return BooleanState(channels.size) { index ->
             channels[index] == LogicValue.TRUE
+        }
+    }
+
+    /**
+     * Generates a [BooleanState] from this logic state with the given [size].
+     * If [size] is greater than the size of this state, the remaining channels are filled with false.
+     */
+    fun booleanState(size: Int): BooleanState {
+        return BooleanState(size) { index ->
+            index < channels.size && channels[index] == LogicValue.TRUE
         }
     }
 
@@ -113,10 +140,30 @@ fun Array<LogicState>.booleanStates(): Array<BooleanState> {
     }
 }
 
-fun logicState(value: LogicValue, size: Int = 1): LogicState {
+/**
+ * Generates a new logic state with the given [size], where each channel is set to [value].
+ */
+fun logicState(value: LogicValue, size: Int): LogicState {
     return LogicState(size) { value }
 }
 
-fun logicState(value: Boolean?, size: Int = 1): LogicState {
+/**
+ * Generates a new logic state with the given [values].
+ */
+fun logicState(vararg values: LogicValue): LogicState {
+    return LogicState(arrayOf(*values))
+}
+
+/**
+ * Generates a new logic state with the given [size], where each channel is set to [value].
+ */
+fun logicState(value: Boolean?, size: Int): LogicState {
     return LogicState(size) { value.logicValue() }
+}
+
+/**
+ * Generates a new logic state with the given [values].
+ */
+fun logicState(vararg values: Boolean?): LogicState {
+    return LogicState(values.map { it.logicValue() }.toTypedArray())
 }
