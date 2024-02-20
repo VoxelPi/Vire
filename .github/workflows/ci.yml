@@ -41,7 +41,7 @@ jobs:
       uses: gradle/gradle-build-action@v2
       with:
         arguments: build
-    - name: Publish to GitHub Packages
+    - name: Publish to repositories
       if: "github.event_name == 'push' && github.ref == 'refs/heads/main'"
       run: ./gradlew publish
       env:

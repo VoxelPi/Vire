@@ -19,7 +19,7 @@ val sourcesJar by tasks.creating(Jar::class) {
 publishing {
     repositories {
         maven {
-            name = "VoxelPi-Repo"
+            name = "VoxelPiRepo"
             val releasesRepoUrl = "https://repo.voxelpi.net/repository/maven-releases/"
             val snapshotsRepoUrl = "https://repo.voxelpi.net/repository/maven-snapshots/"
             url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
@@ -28,14 +28,14 @@ publishing {
                 password = findProperty("vpr.key") as String? ?: System.getenv("VOXELPI_REPO_KEY")
             }
         }
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/voxelpi/vire")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
-            }
-        }
+//        maven {
+//            name = "GitHubPackages"
+//            url = uri("https://maven.pkg.github.com/voxelpi/vire")
+//            credentials {
+//                username = System.getenv("GITHUB_ACTOR")
+//                password = System.getenv("GITHUB_TOKEN")
+//            }
+//        }
     }
 
     publications {
