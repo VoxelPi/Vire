@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.bundles.kotlinx.coroutines)
     implementation(libs.kotlin.logging.jvm)
+    implementation(libs.event)
 }
 
 sourceSets {

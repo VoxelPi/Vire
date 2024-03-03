@@ -1,12 +1,12 @@
 package net.voxelpi.vire.engine.simulation.component
 
+import net.voxelpi.event.on
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
-import net.voxelpi.vire.api.simulation.on
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.input
 import net.voxelpi.vire.api.simulation.statemachine.output
@@ -193,11 +193,11 @@ class VireComponentTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.on<ComponentCreateEvent> {
+        simulation.eventScope.on<ComponentCreateEvent> {
             createCounter++
         }
 
-        simulation.on<ComponentDestroyEvent> {
+        simulation.eventScope.on<ComponentDestroyEvent> {
             destroyCounter++
         }
 
@@ -209,9 +209,8 @@ class VireComponentTest {
         // Wait for events to finish.
         simulation.shutdown()
 
-        // TODO: Ensure all event subscribers are done before checking event counter.
-//        assertEquals(1, createCounter)
-//        assertEquals(1, destroyCounter)
+        assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
     }
 
     @Test
@@ -219,11 +218,11 @@ class VireComponentTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.on<ComponentPortCreateEvent> {
+        simulation.eventScope.on<ComponentPortCreateEvent> {
             createCounter++
         }
 
-        simulation.on<ComponentPortDestroyEvent> {
+        simulation.eventScope.on<ComponentPortDestroyEvent> {
             destroyCounter++
         }
 
@@ -237,8 +236,7 @@ class VireComponentTest {
         // Wait for events to finish.
         simulation.shutdown()
 
-        // TODO: Ensure all event subscribers are done before checking event counter.
-//        assertEquals(1, createCounter)
-//        assertEquals(1, destroyCounter)
+        assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
     }
 }

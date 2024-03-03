@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.simulation.component
 
+import net.voxelpi.event.post
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
@@ -57,7 +58,7 @@ class VireComponent(
         ports[port.uniqueId] = port
 
         // Fire the event.
-        simulation.publish(ComponentPortCreateEvent(port))
+        simulation.eventScope.post(ComponentPortCreateEvent(port))
 
         // Return the created port.
         return port
@@ -67,7 +68,7 @@ class VireComponent(
         require(port is VireComponentPort)
 
         // Fire the event.
-        simulation.publish(ComponentPortDestroyEvent(port))
+        simulation.eventScope.post(ComponentPortDestroyEvent(port))
 
         // Destroy the port.
         ports.remove(port.uniqueId)

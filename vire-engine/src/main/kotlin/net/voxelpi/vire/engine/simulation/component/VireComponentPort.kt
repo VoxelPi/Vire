@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.simulation.component
 
+import net.voxelpi.event.post
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
@@ -20,7 +21,7 @@ class VireComponentPort(
 
     override var variable: ComponentPortVectorVariable? = variable
         set(value) {
-            simulation.publish(ComponentPortVariableSelectEvent(this, value, field))
+            simulation.eventScope.post(ComponentPortVariableSelectEvent(this, value, field))
             field = value
         }
 

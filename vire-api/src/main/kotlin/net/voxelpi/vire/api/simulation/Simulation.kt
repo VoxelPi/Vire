@@ -1,11 +1,9 @@
 package net.voxelpi.vire.api.simulation
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.SharedFlow
+import net.voxelpi.event.EventScope
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.component.Component
-import net.voxelpi.vire.api.simulation.event.SimulationEvent
 import net.voxelpi.vire.api.simulation.library.Library
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
@@ -13,7 +11,6 @@ import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineProvider
 import java.util.UUID
-import kotlin.reflect.KClass
 
 /**
  * The simulation that manages the state of all components and networks.
@@ -21,9 +18,9 @@ import kotlin.reflect.KClass
 interface Simulation {
 
     /**
-     * The event service of the simulation.
+     * The event scope of the simulation.
      */
-    val events: SharedFlow<SimulationEvent>
+    val eventScope: EventScope
 
     /**
      * The [CoroutineScope] of the simulation
@@ -187,19 +184,4 @@ interface Simulation {
      * Removes all registered components and networks.
      */
     fun clear()
-
-    /**
-     * Subscribes to the given event [T].
-     */
-    fun <T : SimulationEvent> subscribe(type: KClass<T>, scope: CoroutineScope = coroutineScope, consumer: suspend T.() -> Unit): Job
-}
-
-/**
- * Subscribes to the given event [T].
- */
-inline fun <reified T : SimulationEvent> Simulation.on(
-    scope: CoroutineScope = coroutineScope,
-    noinline consumer: suspend T.() -> Unit,
-): Job {
-    return subscribe(T::class, scope, consumer)
 }

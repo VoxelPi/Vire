@@ -10,6 +10,7 @@ dependencies {
     compileOnlyApi(libs.bundles.kotlinx.coroutines)
 
     // Libraries
+    compileOnlyApi(libs.event)
     compileOnlyApi(libs.slf4j.api)
     compileOnlyApi(libs.kotlin.logging.jvm)
 }

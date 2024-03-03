@@ -1,11 +1,11 @@
 package net.voxelpi.vire.engine.simulation.network
 
+import net.voxelpi.event.on
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkDestroyEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeDestroyEvent
-import net.voxelpi.vire.api.simulation.on
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.input
 import net.voxelpi.vire.api.simulation.statemachine.output
@@ -103,11 +103,11 @@ class VireNetworkTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.on<NetworkCreateEvent> {
+        simulation.eventScope.on<NetworkCreateEvent> {
             createCounter++
         }
 
-        simulation.on<NetworkDestroyEvent> {
+        simulation.eventScope.on<NetworkDestroyEvent> {
             destroyCounter++
         }
 
@@ -118,9 +118,8 @@ class VireNetworkTest {
         // Wait for events to finish.
         simulation.shutdown()
 
-        // TODO: Ensure all event subscribers are done before checking event counter.
-//        Assertions.assertEquals(1, createCounter)
-//        Assertions.assertEquals(1, destroyCounter)
+        assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
     }
 
     @Test
@@ -128,11 +127,11 @@ class VireNetworkTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.on<NetworkNodeCreateEvent> {
+        simulation.eventScope.on<NetworkNodeCreateEvent> {
             createCounter++
         }
 
-        simulation.on<NetworkNodeDestroyEvent> {
+        simulation.eventScope.on<NetworkNodeDestroyEvent> {
             destroyCounter++
         }
 
@@ -143,8 +142,7 @@ class VireNetworkTest {
         // Wait for events to finish.
         simulation.shutdown()
 
-        // TODO: Ensure all event subscribers are done before checking event counter.
-//        Assertions.assertEquals(1, createCounter)
-//        Assertions.assertEquals(1, destroyCounter)
+        assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
     }
 }

@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
+import net.voxelpi.event.post
 import net.voxelpi.vire.api.simulation.BooleanState
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.event.simulation.statemachine.StateMachineConfigureEvent
@@ -83,7 +84,7 @@ class VireStateMachineInstance(
 
         // Configure the state machine and publish configure event.
         stateMachine.configure(VireStateMachineConfigureContext(this))
-        simulation.publish(StateMachineConfigureEvent(simulation, this))
+        simulation.eventScope.post(StateMachineConfigureEvent(simulation, this))
     }
 
     fun initialSize(stateVariable: StateMachineIOState): Int {

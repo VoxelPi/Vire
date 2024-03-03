@@ -2,22 +2,15 @@ package net.voxelpi.vire.engine.simulation
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import net.voxelpi.event.EventScope
+import net.voxelpi.event.eventScope
+import net.voxelpi.event.post
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.Simulation
 import net.voxelpi.vire.api.simulation.component.Component
-import net.voxelpi.vire.api.simulation.event.SimulationEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
 import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
 import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
@@ -39,13 +32,14 @@ import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
 import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachineInstance
 import org.slf4j.LoggerFactory
 import java.util.UUID
-import kotlin.reflect.KClass
 
 class VireSimulation(
     libraries: List<Library>,
 ) : Simulation {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    override val eventScope: EventScope = eventScope()
 
     private val libraries: Map<String, Library>
     private val stateMachines: Map<Identifier, StateMachine>
@@ -54,12 +48,7 @@ class VireSimulation(
     private val networks: MutableMap<UUID, VireNetwork> = mutableMapOf()
     private val networkNodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
 
-    private val eventsFlow: MutableSharedFlow<SimulationEvent> = MutableSharedFlow()
-
     override val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    override val events: SharedFlow<SimulationEvent>
-        get() = eventsFlow.asSharedFlow()
 
     init {
         // Register libraries
@@ -150,7 +139,7 @@ class VireSimulation(
         components[component.uniqueId] = component
 
         // Fire the event.
-        publish(ComponentCreateEvent(component))
+        eventScope.post(ComponentCreateEvent(component))
 
         // Return the created component.
         return component
@@ -160,7 +149,7 @@ class VireSimulation(
         require(component is VireComponent)
 
         // Fire the event.
-        publish(ComponentDestroyEvent(component))
+        eventScope.post(ComponentDestroyEvent(component))
 
         // Destroy the port.
         components.remove(component.uniqueId)
@@ -181,7 +170,7 @@ class VireSimulation(
         registerNetwork(network)
 
         // Publish event.
-        publish(NetworkCreateEvent(network))
+        eventScope.post(NetworkCreateEvent(network))
 
         // Return the created network.
         return network
@@ -196,7 +185,7 @@ class VireSimulation(
         }
 
         // Publish event.
-        publish(NetworkDestroyEvent(network))
+        eventScope.post(NetworkDestroyEvent(network))
 
         // Remove all nodes.
         val nodes = network.nodes()
@@ -244,7 +233,7 @@ class VireSimulation(
         registerNetworkNode(node)
 
         // Publish event.
-        publish(NetworkNodeCreateEvent(node))
+        eventScope.post(NetworkNodeCreateEvent(node))
 
         // Return the created network node.
         return node
@@ -273,7 +262,7 @@ class VireSimulation(
         }
 
         // Publish event.
-        publish(NetworkNodeDestroyEvent(node))
+        eventScope.post(NetworkNodeDestroyEvent(node))
 
         // Remove node from its network.
         node.network.unregisterNode(node)
@@ -325,7 +314,7 @@ class VireSimulation(
             network.pushPortOutputs()
         }
 
-        publish(NetworkSplitEvent(node.network, networks))
+        eventScope.post(NetworkSplitEvent(node.network, networks))
     }
 
     override fun areNodesConnectedDirectly(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
@@ -389,7 +378,7 @@ class VireSimulation(
 
         // Publish event.
         if (networkA != networkB) {
-            publish(NetworkMergeEvent(nodeA.network, listOf(networkA, networkB)))
+            eventScope.post(NetworkMergeEvent(nodeA.network, listOf(networkA, networkB)))
         }
     }
 
@@ -435,7 +424,7 @@ class VireSimulation(
         networkB.pushPortOutputs()
 
         // Publish event.
-        publish(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
+        eventScope.post(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
     }
 
     private fun collectConnectedNodes(networkNode: VireNetworkNode, collected: MutableSet<UUID>) {
@@ -463,7 +452,7 @@ class VireSimulation(
             }
 
             // Publish event.
-            publish(NetworkMergeEvent(network, networks))
+            eventScope.post(NetworkMergeEvent(network, networks))
         }
 
         // Return the merged network.
@@ -524,32 +513,7 @@ class VireSimulation(
         networks.clear()
     }
 
-    override fun <T : SimulationEvent> subscribe(type: KClass<T>, scope: CoroutineScope, consumer: suspend T.() -> Unit): Job {
-        return events
-            .filterIsInstance(type)
-            .onEach { event ->
-                scope.launch { runCatching { consumer(event) }.onFailure { logger.error("Unable to process event", it) } }
-            }
-            .launchIn(scope)
-    }
-
-    fun publish(event: SimulationEvent) {
-        runBlocking {
-            eventsFlow.emit(event)
-        }
-    }
-
-    fun flushEvents() {
-        runBlocking {
-            eventsFlow.emit(object : SimulationEvent {
-                override val simulation: Simulation
-                    get() = this@VireSimulation
-            })
-        }
-    }
-
     fun shutdown() {
-        flushEvents()
         coroutineScope.cancel()
     }
 }

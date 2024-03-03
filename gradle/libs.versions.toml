@@ -1,5 +1,6 @@
 [versions]
 coroutine = "1.7.2"
+event = "0.6.0"
 junit = "5.10.1"
 log4j = "2.20.0"
 kotlinLogging = "5.1.0"
@@ -21,6 +22,8 @@ kotlinx-coroutines-reactive = { module = "org.jetbrains.kotlinx:kotlinx-coroutin
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", version.ref = "log4j" }
 kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlinLogging" }
+
+event = { module = "net.voxelpi.event:event", version.ref = "event" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
