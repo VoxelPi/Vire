@@ -65,7 +65,7 @@ interface VireStateMachineParameter<T> : StateMachineParameter<T> {
     ) : VireStateMachineParameter<T>, StateMachineParameter.Range<T> {
 
         init {
-            require(min <= max)
+            require(min <= max) { "Invalid specification, min ($min) must be less or equal max ($max)." }
             require(isValid(initialValue)) { "Invalid initial value $initialValue. Must be in [$min, $max]." }
         }
 

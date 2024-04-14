@@ -314,7 +314,7 @@ data class BooleanState(val channels: BooleanArray) {
         fun bitwiseNFunction(states: Array<BooleanState>, function: (Array<Boolean>) -> Boolean): BooleanState {
             // Calculate the number of channels.
             val size = states.first().size
-            require(!states.any { it.size != size })
+            require(!states.any { it.size != size }) { "States are of different size" }
 
             // Construct the new state.
             return BooleanState(size) { channel ->
@@ -325,7 +325,7 @@ data class BooleanState(val channels: BooleanArray) {
         fun bitwiseNFunction(states: List<BooleanState>, function: (Array<Boolean>) -> Boolean): BooleanState {
             // Calculate the number of channels.
             val size = states.first().size
-            require(!states.any { it.size != size })
+            require(!states.any { it.size != size }) { "States are of different size" }
 
             // Construct the new state.
             return BooleanState(size) { channel ->

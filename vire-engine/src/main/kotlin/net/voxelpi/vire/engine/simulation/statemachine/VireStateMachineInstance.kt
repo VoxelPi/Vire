@@ -198,11 +198,11 @@ class VireStateMachineInstance(
                 variableStates[name] = value
             }
             in stateMachine.inputs -> {
-                require(value is LogicState)
+                require(value is LogicState) { "Inputs can only be set to logic states. (specified: $value)" }
                 inputStates[name]!![0] = value
             }
             in stateMachine.outputs -> {
-                require(value is LogicState)
+                require(value is LogicState) { "Outputs can only be set to logic states. (specified: $value)" }
                 outputStates[name]!![0] = value
             }
             else -> throw IllegalArgumentException("No state variable with the name \"$name\" exists on the state machine.")
@@ -262,7 +262,7 @@ class VireStateMachineInstance(
 
     operator fun <T> set(parameter: StateMachineParameter<T>, value: T) {
         // Check that the parameter is valid.
-        require(parameter.isValid(value))
+        require(parameter.isValid(value)) { "Invalid value $value specified for parameter ${parameter.name}" }
 
         parameterStates[parameter.name] = value
     }
@@ -385,12 +385,12 @@ class VireStateMachineInstance(
         }
 
         override fun get(parameterName: String): Any? {
-            require(parameterName in stateMachine.parameters)
+            require(parameterName in stateMachine.parameters) { "Unknown parameter $parameterName" }
             return initialParameterStates[parameterName]
         }
 
         override fun set(parameterName: String, value: Any?) {
-            require(parameterName in stateMachine.parameters)
+            require(parameterName in stateMachine.parameters) { "Unknown parameter $parameterName" }
             val parameter = stateMachine.parameters[parameterName]!!
             require(parameter.isValidTypeAndValue(value)) { "Invalid value $value for parameter \"${parameter.name}\"" }
             initialParameterStates[parameterName] = value

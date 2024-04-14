@@ -98,7 +98,7 @@ class VireSimulation(
     ): VireStateMachineInstance {
         return VireStateMachineInstance(this, stateMachine) {
             // Check that only existing parameters are specified.
-            require(configuration.all { it.key in stateMachine.parameters.keys })
+            require(configuration.all { it.key in stateMachine.parameters.keys }) { "Unknown parameter specified" }
 
             // Apply configured values.
             for (parameter in stateMachine.parameters.values) {
@@ -109,7 +109,7 @@ class VireSimulation(
                 val configurationValue = configuration[parameter.name]
 
                 // Check that the value is the right type.
-                require(parameter.isValidType(configurationValue))
+                require(parameter.isValidType(configurationValue)) { "Invalid value specified for parameter '${parameter.name}'" }
 
                 // Set the parameter.
                 @Suppress("UNCHECKED_CAST")
@@ -442,7 +442,7 @@ class VireSimulation(
 
     private fun mergeNetworks(networks: List<VireNetwork>): VireNetwork {
         // Select the first network.
-        require(networks.isNotEmpty())
+        require(networks.isNotEmpty()) { "networks may not be empty" }
         var network = networks.first()
 
         // If more than one network is present merge them with the first network.
