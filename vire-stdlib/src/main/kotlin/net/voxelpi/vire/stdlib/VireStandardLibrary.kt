@@ -44,5 +44,3 @@ object VireStandardLibrary : Library(VIRE_STDLIB_ID, "Vire", "The vire standard 
         register(Unpackager.stateMachine)
     }
 }
-
-const val VIRE_STDLIB_ID = "vire"
