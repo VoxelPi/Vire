@@ -37,7 +37,7 @@ inline fun <reified T> variable(
     name: String,
     initialValue: T,
 ): StateMachineVariable<T> {
-    return Vire.stateMachineFactory.get().createVariable(
+    return Vire.get().stateMachineFactory.createVariable(
         name,
         typeOf<T>(),
         initialValue,
@@ -52,7 +52,7 @@ fun <T> variable(
     type: KType,
     initialValue: T,
 ): StateMachineVariable<T> {
-    return Vire.stateMachineFactory.get().createVariable(
+    return Vire.get().stateMachineFactory.createVariable(
         name,
         type,
         initialValue,

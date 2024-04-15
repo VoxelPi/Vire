@@ -1,16 +1,16 @@
 package net.voxelpi.vire.engine.simulation.network
 
 import net.voxelpi.vire.api.simulation.network.NetworkNode
-import net.voxelpi.vire.engine.simulation.VireSimulation
-import net.voxelpi.vire.engine.simulation.VireSimulationObject
+import net.voxelpi.vire.engine.simulation.VireCircuit
+import net.voxelpi.vire.engine.simulation.VireCircuitElement
 import java.util.UUID
 
 class VireNetworkNode(
-    override val simulation: VireSimulation,
-    network: VireNetwork = simulation.createNetwork(),
+    override val circuit: VireCircuit,
+    network: VireNetwork = circuit.createNetwork(),
     override val uniqueId: UUID = UUID.randomUUID(),
     var holder: VireNetworkNodeHolder? = null,
-) : VireSimulationObject(), NetworkNode {
+) : VireCircuitElement(), NetworkNode {
 
     init {
         network.registerNode(this)
@@ -34,7 +34,7 @@ class VireNetworkNode(
     }
 
     override fun connectedNodes(): Collection<VireNetworkNode> {
-        return connectedNodes.mapNotNull(simulation::networkNode)
+        return connectedNodes.mapNotNull(circuit::networkNode)
     }
 
     override fun isDirectlyConnectedTo(node: NetworkNode): Boolean {
@@ -42,7 +42,7 @@ class VireNetworkNode(
     }
 
     override fun isConnectedTo(node: NetworkNode): Boolean {
-        return simulation.areNodesConnected(this, node)
+        return circuit.areNodesConnected(this, node)
     }
 
     override fun remove() {

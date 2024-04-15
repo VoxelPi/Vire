@@ -1,9 +1,11 @@
 package net.voxelpi.vire.engine.simulation
 
-import net.voxelpi.vire.api.simulation.SimulationObject
+import net.voxelpi.vire.api.simulation.CircuitElement
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
 
-abstract class VireSimulationObject : SimulationObject {
+abstract class VireCircuitElement : CircuitElement {
+
+    abstract override val circuit: VireCircuit
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

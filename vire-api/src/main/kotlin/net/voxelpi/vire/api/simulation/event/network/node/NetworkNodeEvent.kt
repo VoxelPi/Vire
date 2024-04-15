@@ -1,6 +1,6 @@
-package net.voxelpi.vire.api.simulation.event.simulation.network.node
+package net.voxelpi.vire.api.simulation.event.network.node
 
-import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkEvent
+import net.voxelpi.vire.api.simulation.event.network.NetworkEvent
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
 

@@ -33,7 +33,7 @@ fun output(
     initialSize: Int = 1,
     initialValue: LogicState = LogicState.value(LogicValue.NONE),
 ): StateMachineOutput {
-    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize), initialValue)
+    return Vire.get().stateMachineFactory.createOutput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize), initialValue)
 }
 
 /**
@@ -44,7 +44,7 @@ fun output(
     initialSize: StateMachineParameter<out Number>,
     initialValue: LogicState = LogicState.value(LogicValue.NONE),
 ): StateMachineOutput {
-    return Vire.stateMachineFactory.get().createOutput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize), initialValue)
+    return Vire.get().stateMachineFactory.createOutput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize), initialValue)
 }
 
 /**
@@ -55,5 +55,5 @@ fun output(
     initialSize: StateMachineIOState.InitialSizeProvider,
     initialValue: LogicState = LogicState.value(LogicValue.NONE),
 ): StateMachineOutput {
-    return Vire.stateMachineFactory.get().createOutput(name, initialSize, initialValue)
+    return Vire.get().stateMachineFactory.createOutput(name, initialSize, initialValue)
 }

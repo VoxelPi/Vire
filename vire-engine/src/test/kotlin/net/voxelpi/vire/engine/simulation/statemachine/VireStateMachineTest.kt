@@ -40,7 +40,7 @@ class VireStateMachineTest {
         val output = output("output", outputSize)
 
         // Create state machine.
-        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+        val stateMachine = VireStateMachine.create(Identifier("test", "test")) {
             declare(inputSize)
             declare(outputSize)
             declare(input)
@@ -48,7 +48,7 @@ class VireStateMachineTest {
         }
 
         // Create state machine instance.
-        val instance = simulation.createStateMachineInstance(stateMachine) {
+        val instance = stateMachine.createInstance {
             this[inputSize] = 5
             this[outputSize] = 3
         }
@@ -63,16 +63,16 @@ class VireStateMachineTest {
         val parameter = parameter("parameter", 5, 1, 10)
 
         // Create state machine.
-        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+        val stateMachine = VireStateMachine.create(Identifier("test", "test")) {
             declare(parameter)
         }
 
         // Check that specified parameter is used.
-        val instance = simulation.createStateMachineInstance(stateMachine, mapOf("parameter" to 3))
+        val instance = stateMachine.createInstance(mapOf("parameter" to 3))
         assertEquals(3, instance[parameter])
 
         // Check that an exception is thrown for unknown parameters.
-        assertThrows<Exception> { simulation.createStateMachineInstance(stateMachine, mapOf("unknown" to "fail")) }
+        assertThrows<Exception> { stateMachine.createInstance(mapOf("unknown" to "fail")) }
     }
 
     @Test
@@ -85,25 +85,25 @@ class VireStateMachineTest {
         }
 
         // Create state machine.
-        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+        val stateMachine = VireStateMachine.create(Identifier("test", "test")) {
             declare(parameter)
         }
 
-        val instance1 = simulation.createStateMachineInstance(stateMachine) {
+        val instance1 = stateMachine.createInstance {
             this[parameter] = "two"
         }
         assertEquals("two", instance1[parameter])
 
         // Check that an exception is thrown for values smaller than the specified minimum.
         assertThrows<Exception> {
-            simulation.createStateMachineInstance(stateMachine) {
+            stateMachine.createInstance {
                 this[parameter] = "four"
             }
         }
 
         // Check that an exception is thrown for values greater than the specified maximum.
         assertThrows<Exception> {
-            simulation.createStateMachineInstance(stateMachine) {
+            stateMachine.createInstance {
                 this[parameter] = "zero"
             }
         }
@@ -114,20 +114,20 @@ class VireStateMachineTest {
         val parameter = parameter("parameter", 5, 1, 10)
 
         // Create state machine.
-        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+        val stateMachine = VireStateMachine.create(Identifier("test", "test")) {
             declare(parameter)
         }
 
         // Check that an exception is thrown for values smaller than the specified minimum.
         assertThrows<Exception> {
-            simulation.createStateMachineInstance(stateMachine) {
+            stateMachine.createInstance {
                 this[parameter] = 0
             }
         }
 
         // Check that an exception is thrown for values greater than the specified maximum.
         assertThrows<Exception> {
-            simulation.createStateMachineInstance(stateMachine) {
+            stateMachine.createInstance {
                 this[parameter] = 20
             }
         }
@@ -140,14 +140,14 @@ class VireStateMachineTest {
         val output = output("output", initialSize = parameter)
 
         // Create state machine.
-        val stateMachine = StateMachine.create(Identifier("test", "test")) {
+        val stateMachine = VireStateMachine.create(Identifier("test", "test")) {
             declare(parameter)
             declare(input)
             declare(output)
         }
 
         // Create an instance of the state machine.
-        val instance = simulation.createStateMachineInstance(stateMachine)
+        val instance = stateMachine.createInstance()
         assertEquals(5, instance[parameter])
         assertEquals(5, instance.size(input))
         assertEquals(5, instance.size(output))

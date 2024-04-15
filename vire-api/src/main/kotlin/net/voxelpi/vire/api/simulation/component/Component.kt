@@ -1,13 +1,13 @@
 package net.voxelpi.vire.api.simulation.component
 
-import net.voxelpi.vire.api.simulation.SimulationObject
+import net.voxelpi.vire.api.simulation.CircuitElement
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
 
 /**
  * A component in a logic circuit.
  */
-interface Component : SimulationObject {
+interface Component : CircuitElement {
 
     /**
      * The state machine of the component.

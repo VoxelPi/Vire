@@ -4,10 +4,14 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineConfigureContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
+import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineUpdateContext
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
+import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
+import net.voxelpi.vire.engine.VireImplementation
+import kotlin.reflect.KClass
 
 class VireStateMachine(
     override val id: Identifier,
@@ -19,6 +23,37 @@ class VireStateMachine(
     override val configure: (StateMachineConfigureContext) -> Unit,
     override val update: (StateMachineUpdateContext) -> Unit,
 ) : StateMachine {
+
+    override fun createInstance(
+        configuration: StateMachineInstance.ConfigurationContext.() -> Unit,
+    ): VireStateMachineInstance {
+        return VireStateMachineInstance(this, configuration)
+    }
+
+    override fun createInstance(
+        configuration: Map<String, Any?>,
+    ): VireStateMachineInstance {
+        return VireStateMachineInstance(this) {
+            // Check that only existing parameters are specified.
+            require(configuration.all { it.key in stateMachine.parameters.keys }) { "Unknown parameter specified" }
+
+            // Apply configured values.
+            for (parameter in stateMachine.parameters.values) {
+                // Skip if no value is specified for the parameter.
+                if (parameter.name !in configuration) {
+                    continue
+                }
+                val configurationValue = configuration[parameter.name]
+
+                // Check that the value is the right type.
+                require(parameter.isValidType(configurationValue)) { "Invalid value specified for parameter '${parameter.name}'" }
+
+                // Set the parameter.
+                @Suppress("UNCHECKED_CAST")
+                this[parameter as StateMachineParameter<Any?>] = configurationValue
+            }
+        }
+    }
 
     class Builder(
         override val id: Identifier,
@@ -73,6 +108,30 @@ class VireStateMachine(
                 configure,
                 update,
             )
+        }
+    }
+
+    companion object {
+
+        /**
+         * Creates a new state machine.
+         */
+        fun create(id: Identifier, init: StateMachine.Builder.() -> Unit): VireStateMachine {
+            return VireImplementation.stateMachineFactory.create(id, init)
+        }
+
+        /**
+         * Generates a new state machine from the given template [type].
+         */
+        fun generate(type: KClass<out StateMachineTemplate>): VireStateMachine {
+            return VireImplementation.stateMachineFactory.generate(type)
+        }
+
+        /**
+         * Generates a new state machine from the given template [T].
+         */
+        inline fun <reified T : StateMachineTemplate> generate(): VireStateMachine {
+            return VireImplementation.stateMachineFactory.generate(T::class)
         }
     }
 }

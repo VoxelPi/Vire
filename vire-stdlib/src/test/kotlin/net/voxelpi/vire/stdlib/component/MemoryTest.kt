@@ -5,6 +5,7 @@ import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.logicState
 import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.simulation.VireSimulation
+import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachineInstance
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -20,11 +21,11 @@ class MemoryTest {
 
     @Test
     fun readWriteMemory() {
-        val memory = simulation.createStateMachineInstance(Memory) {
+        val memory = Memory.createInstance {
             this[Memory.readOnly] = false
             this[Memory.wordSize] = 8 // Each address stores one byte
             this[Memory.addressBits] = 8 // 8 address bits (256 different addresses)
-        }
+        } as VireStateMachineInstance
 
         // Check that memory is only written when write active bit is set.
         memory[Memory.writeActive] = logicState(false)

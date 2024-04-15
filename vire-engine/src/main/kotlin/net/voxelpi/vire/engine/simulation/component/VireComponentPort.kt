@@ -4,10 +4,10 @@ import net.voxelpi.event.post
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
-import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortVariableSelectEvent
+import net.voxelpi.vire.api.simulation.event.component.port.ComponentPortVariableSelectEvent
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
-import net.voxelpi.vire.engine.simulation.VireSimulation
-import net.voxelpi.vire.engine.simulation.VireSimulationObject
+import net.voxelpi.vire.engine.simulation.VireCircuit
+import net.voxelpi.vire.engine.simulation.VireCircuitElement
 import net.voxelpi.vire.engine.simulation.network.VireNetwork
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNode
 import net.voxelpi.vire.engine.simulation.network.VireNetworkNodeHolder
@@ -17,16 +17,16 @@ class VireComponentPort(
     override val component: VireComponent,
     variable: ComponentPortVectorVariable?,
     override val uniqueId: UUID = UUID.randomUUID(),
-) : VireSimulationObject(), ComponentPort, VireNetworkNodeHolder {
+) : VireCircuitElement(), ComponentPort, VireNetworkNodeHolder {
 
     override var variable: ComponentPortVectorVariable? = variable
         set(value) {
-            simulation.eventScope.post(ComponentPortVariableSelectEvent(this, value, field))
+            circuit.eventScope.post(ComponentPortVariableSelectEvent(this, value, field))
             field = value
         }
 
-    override val simulation: VireSimulation
-        get() = component.simulation
+    override val circuit: VireCircuit
+        get() = component.circuit
 
     override val node: VireNetworkNode
 
@@ -37,8 +37,8 @@ class VireComponentPort(
         }
 
     init {
-        val network = simulation.createNetwork()
-        node = simulation.createNetworkNode(network, uniqueId)
+        val network = circuit.createNetwork()
+        node = circuit.createNetworkNode(network, uniqueId)
         node.holder = this
     }
 
@@ -60,6 +60,6 @@ class VireComponentPort(
     }
 
     fun destroy() {
-        simulation.removeNetworkNode(node)
+        circuit.removeNetworkNode(node)
     }
 }

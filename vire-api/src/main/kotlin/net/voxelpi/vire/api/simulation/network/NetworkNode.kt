@@ -1,11 +1,11 @@
 package net.voxelpi.vire.api.simulation.network
 
-import net.voxelpi.vire.api.simulation.SimulationObject
+import net.voxelpi.vire.api.simulation.CircuitElement
 
 /**
  * A node in a network.
  */
-interface NetworkNode : SimulationObject {
+interface NetworkNode : CircuitElement {
 
     /**
      * The network the node belongs to.

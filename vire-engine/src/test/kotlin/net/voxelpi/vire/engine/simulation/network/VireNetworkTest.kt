@@ -2,14 +2,15 @@ package net.voxelpi.vire.engine.simulation.network
 
 import net.voxelpi.event.on
 import net.voxelpi.vire.api.Identifier
-import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkCreateEvent
-import net.voxelpi.vire.api.simulation.event.simulation.network.NetworkDestroyEvent
-import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeCreateEvent
-import net.voxelpi.vire.api.simulation.event.simulation.network.node.NetworkNodeDestroyEvent
+import net.voxelpi.vire.api.simulation.event.network.NetworkCreateEvent
+import net.voxelpi.vire.api.simulation.event.network.NetworkDestroyEvent
+import net.voxelpi.vire.api.simulation.event.network.node.NetworkNodeCreateEvent
+import net.voxelpi.vire.api.simulation.event.network.node.NetworkNodeDestroyEvent
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.input
 import net.voxelpi.vire.api.simulation.statemachine.output
 import net.voxelpi.vire.engine.VireImplementation
+import net.voxelpi.vire.engine.simulation.VireCircuit
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,16 +21,18 @@ import kotlin.test.assertEquals
 class VireNetworkTest {
 
     private lateinit var simulation: VireSimulation
+    private lateinit var circuit: VireCircuit
 
     @BeforeEach
     fun setUp() {
         simulation = VireImplementation.createSimulation(emptyList())
+        circuit = simulation.circuit
     }
 
     @Test
     fun contains() {
-        val networkA = simulation.createNetwork()
-        val networkB = simulation.createNetwork()
+        val networkA = circuit.createNetwork()
+        val networkB = circuit.createNetwork()
 
         val node1 = networkA.createNode(emptyList())
         val node2 = networkA.createNode(listOf(node1))
@@ -45,8 +48,8 @@ class VireNetworkTest {
 
     @Test
     fun nodes() {
-        val networkA = simulation.createNetwork()
-        val networkB = simulation.createNetwork()
+        val networkA = circuit.createNetwork()
+        val networkB = circuit.createNetwork()
 
         networkA.createNode(emptyList())
         networkA.createNode(networkA.nodes())
@@ -58,8 +61,8 @@ class VireNetworkTest {
 
     @Test
     fun createNode() {
-        val networkA = simulation.createNetwork()
-        val networkB = simulation.createNetwork()
+        val networkA = circuit.createNetwork()
+        val networkB = circuit.createNetwork()
 
         val uniqueId = UUID.randomUUID()
         val node = networkA.createNode(emptyList(), uniqueId)
@@ -87,15 +90,15 @@ class VireNetworkTest {
             }
         }
 
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
         val inputPort = component.createPort(inputVariable.variable())
         val outputPort = component.createPort(outputVariable.variable())
 
         assertEquals(1, inputPort.network.ports().size)
         assertEquals(1, outputPort.network.ports().size)
 
-        simulation.createNetworkNodeConnection(inputPort.node, outputPort.node)
-        assertEquals(2, simulation.networks().first().ports().size)
+        circuit.createNetworkNodeConnection(inputPort.node, outputPort.node)
+        assertEquals(2, circuit.networks().first().ports().size)
     }
 
     @Test
@@ -111,12 +114,9 @@ class VireNetworkTest {
             destroyCounter++
         }
 
-        val network = simulation.createNetwork()
+        val network = circuit.createNetwork()
         network.remove()
         network.remove() // Try removing the network twice.
-
-        // Wait for events to finish.
-        simulation.shutdown()
 
         assertEquals(1, createCounter)
         assertEquals(1, destroyCounter)
@@ -135,12 +135,9 @@ class VireNetworkTest {
             destroyCounter++
         }
 
-        val node = simulation.createNetworkNode()
+        val node = circuit.createNetworkNode()
         node.remove()
         node.remove() // Try removing the network node twice.
-
-        // Wait for events to finish.
-        simulation.shutdown()
 
         assertEquals(1, createCounter)
         assertEquals(1, destroyCounter)

@@ -54,7 +54,7 @@ class VireStateMachineFactory : StateMachineFactory {
     @Suppress("UNCHECKED_CAST")
     override fun generate(
         type: KClass<out StateMachineTemplate>,
-    ): StateMachine {
+    ): VireStateMachine {
         // Get state machine meta.
         val meta = type.findAnnotation<StateMachineMeta>()
         require(meta != null) { "State machine template must be annotated with the StateMachineMeta annotation." }

@@ -2,7 +2,6 @@ package net.voxelpi.vire.engine.simulation.statemachine
 
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.LogicValue
-import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.annotation.InitialParameterSize
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Input
@@ -30,16 +29,16 @@ class VireStateMachineFactoryTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun createAnnotatedStateMachine() {
-        val stateMachine = StateMachine.generate<Buffer>()
+        val stateMachine = VireStateMachine.generate<Buffer>()
         assertEquals(setOf("counter_step", "size"), stateMachine.parameters.keys)
         assertEquals(setOf("counter"), stateMachine.variables.keys)
         assertEquals(setOf("input", "inputs"), stateMachine.inputs.keys)
         assertEquals(setOf("output", "active", "outputs"), stateMachine.outputs.keys)
 
-        val stateMachineInstance1 = simulation.createStateMachineInstance(stateMachine) {
+        val stateMachineInstance1 = stateMachine.createInstance {
             this[stateMachine.parameters["size"]!! as StateMachineParameter<Int>] = 3
         }
-        val stateMachineInstance2 = simulation.createStateMachineInstance(stateMachine) {
+        val stateMachineInstance2 = stateMachine.createInstance {
             this[stateMachine.parameters["counter_step"]!! as StateMachineParameter<Int>] = 2
         }
 

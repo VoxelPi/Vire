@@ -1,9 +1,7 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
-import net.voxelpi.event.post
 import net.voxelpi.vire.api.simulation.BooleanState
 import net.voxelpi.vire.api.simulation.LogicState
-import net.voxelpi.vire.api.simulation.event.simulation.statemachine.StateMachineConfigureEvent
 import net.voxelpi.vire.api.simulation.logicStates
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineIOState
@@ -12,15 +10,15 @@ import net.voxelpi.vire.api.simulation.statemachine.StateMachineInstance
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineVariable
-import net.voxelpi.vire.engine.simulation.VireSimulation
 import java.util.Arrays
 import kotlin.reflect.KType
 
 class VireStateMachineInstance(
-    val simulation: VireSimulation,
     override val stateMachine: StateMachine,
     configuration: StateMachineInstance.ConfigurationContext.() -> Unit,
 ) : StateMachineInstance {
+
+    var configurationCallback: () -> Unit = {}
 
     private val initialParameterStates: Map<String, Any?>
 
@@ -84,7 +82,7 @@ class VireStateMachineInstance(
 
         // Configure the state machine and publish configure event.
         stateMachine.configure(VireStateMachineConfigureContext(this))
-        simulation.eventScope.post(StateMachineConfigureEvent(simulation, this))
+        configurationCallback.invoke()
     }
 
     fun initialSize(stateVariable: StateMachineIOState): Int {

@@ -4,25 +4,32 @@ import net.voxelpi.event.post
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import net.voxelpi.vire.api.simulation.component.ComponentPortVectorVariable
-import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
-import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
-import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.simulation.event.component.ComponentConfigureEvent
+import net.voxelpi.vire.api.simulation.event.component.port.ComponentPortCreateEvent
+import net.voxelpi.vire.api.simulation.event.component.port.ComponentPortDestroyEvent
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineInput
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineOutput
-import net.voxelpi.vire.engine.simulation.VireSimulation
-import net.voxelpi.vire.engine.simulation.VireSimulationObject
+import net.voxelpi.vire.engine.simulation.VireCircuit
+import net.voxelpi.vire.engine.simulation.VireCircuitElement
+import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachine
 import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachineInstance
 import java.util.UUID
 
 class VireComponent(
-    override val simulation: VireSimulation,
-    override val stateMachine: StateMachine,
+    override val circuit: VireCircuit,
+    override val stateMachine: VireStateMachine,
     override val uniqueId: UUID = UUID.randomUUID(),
-) : VireSimulationObject(), Component {
+) : VireCircuitElement(), Component {
 
-    override val stateMachineInstance: VireStateMachineInstance = simulation.createStateMachineInstance(stateMachine) {}
+    override val stateMachineInstance: VireStateMachineInstance = stateMachine.createInstance {}
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
+
+    init {
+        stateMachineInstance.configurationCallback = {
+            circuit.eventScope.post(ComponentConfigureEvent(this))
+        }
+    }
 
     override fun ports(): List<VireComponentPort> {
         return ports.values.toList()
@@ -58,7 +65,7 @@ class VireComponent(
         ports[port.uniqueId] = port
 
         // Fire the event.
-        simulation.eventScope.post(ComponentPortCreateEvent(port))
+        circuit.eventScope.post(ComponentPortCreateEvent(port))
 
         // Return the created port.
         return port
@@ -68,7 +75,7 @@ class VireComponent(
         require(port is VireComponentPort)
 
         // Fire the event.
-        simulation.eventScope.post(ComponentPortDestroyEvent(port))
+        circuit.eventScope.post(ComponentPortDestroyEvent(port))
 
         // Destroy the port.
         ports.remove(port.uniqueId)
@@ -76,7 +83,7 @@ class VireComponent(
     }
 
     override fun remove() {
-        simulation.removeComponent(this)
+        circuit.removeComponent(this)
     }
 
     fun destroy() {

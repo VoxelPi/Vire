@@ -99,7 +99,7 @@ inline fun <reified T> parameter(
     name: String,
     initialValue: T,
 ): StateMachineParameter.Unconstrained<T> {
-    return Vire.stateMachineFactory.get().createUnconstrainedParameter(name, typeOf<T>(), initialValue)
+    return Vire.get().stateMachineFactory.createUnconstrainedParameter(name, typeOf<T>(), initialValue)
 }
 
 /**
@@ -110,7 +110,7 @@ fun <T> parameter(
     type: KType,
     initialValue: T,
 ): StateMachineParameter.Unconstrained<T> {
-    return Vire.stateMachineFactory.get().createUnconstrainedParameter(name, type, initialValue)
+    return Vire.get().stateMachineFactory.createUnconstrainedParameter(name, type, initialValue)
 }
 
 /**
@@ -121,7 +121,7 @@ inline fun <reified T> parameter(
     initialValue: T,
     noinline predicate: (value: T) -> Boolean,
 ): StateMachineParameter.Predicate<T> {
-    return Vire.stateMachineFactory.get().createPredicateParameter(name, typeOf<T>(), initialValue, predicate)
+    return Vire.get().stateMachineFactory.createPredicateParameter(name, typeOf<T>(), initialValue, predicate)
 }
 
 /**
@@ -133,7 +133,7 @@ fun <T> parameter(
     initialValue: T,
     predicate: (value: T) -> Boolean,
 ): StateMachineParameter.Predicate<T> {
-    return Vire.stateMachineFactory.get().createPredicateParameter(name, type, initialValue, predicate)
+    return Vire.get().stateMachineFactory.createPredicateParameter(name, type, initialValue, predicate)
 }
 
 /**
@@ -145,7 +145,7 @@ inline fun <reified T> parameter(
     initialValue: T,
     selection: Collection<T>,
 ): StateMachineParameter.Selection<T> {
-    return Vire.stateMachineFactory.get().createSelectionParameter(name, typeOf<T>(), initialValue, selection)
+    return Vire.get().stateMachineFactory.createSelectionParameter(name, typeOf<T>(), initialValue, selection)
 }
 
 /**
@@ -158,7 +158,7 @@ fun <T> parameter(
     initialValue: T,
     selection: Collection<T>,
 ): StateMachineParameter.Selection<T> {
-    return Vire.stateMachineFactory.get().createSelectionParameter(name, type, initialValue, selection)
+    return Vire.get().stateMachineFactory.createSelectionParameter(name, type, initialValue, selection)
 }
 
 /**
@@ -170,7 +170,7 @@ inline fun <reified T> parameter(
     initialValue: T,
     vararg selection: T,
 ): StateMachineParameter.Selection<T> {
-    return Vire.stateMachineFactory.get().createSelectionParameter(name, typeOf<T>(), initialValue, selection.toList())
+    return Vire.get().stateMachineFactory.createSelectionParameter(name, typeOf<T>(), initialValue, selection.toList())
 }
 
 /**
@@ -183,7 +183,7 @@ fun <T> parameter(
     initialValue: T,
     vararg selection: T,
 ): StateMachineParameter.Selection<T> {
-    return Vire.stateMachineFactory.get().createSelectionParameter(name, type, initialValue, selection.toList())
+    return Vire.get().stateMachineFactory.createSelectionParameter(name, type, initialValue, selection.toList())
 }
 
 /**
@@ -196,7 +196,7 @@ fun parameter(
     min: Byte = Byte.MIN_VALUE,
     max: Byte = Byte.MAX_VALUE,
 ): StateMachineParameter.Range<Byte> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Byte>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Byte>(), initialValue, min, max)
 }
 
 /**
@@ -209,7 +209,7 @@ fun parameter(
     min: Short = Short.MIN_VALUE,
     max: Short = Short.MAX_VALUE,
 ): StateMachineParameter.Range<Short> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Short>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Short>(), initialValue, min, max)
 }
 
 /**
@@ -222,7 +222,7 @@ fun parameter(
     min: Int = Int.MIN_VALUE,
     max: Int = Int.MAX_VALUE,
 ): StateMachineParameter.Range<Int> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Int>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Int>(), initialValue, min, max)
 }
 
 /**
@@ -234,7 +234,7 @@ fun parameter(
     initialValue: Int,
     range: IntRange,
 ): StateMachineParameter.Range<Int> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Int>(), initialValue, range.first, range.last)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Int>(), initialValue, range.first, range.last)
 }
 
 /**
@@ -247,7 +247,7 @@ fun parameter(
     min: Long = Long.MIN_VALUE,
     max: Long = Long.MAX_VALUE,
 ): StateMachineParameter.Range<Long> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Long>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Long>(), initialValue, min, max)
 }
 
 /**
@@ -259,7 +259,7 @@ fun parameter(
     initialValue: Long,
     range: LongRange,
 ): StateMachineParameter.Range<Long> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Long>(), initialValue, range.first, range.last)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Long>(), initialValue, range.first, range.last)
 }
 
 /**
@@ -272,7 +272,7 @@ fun parameter(
     min: UByte = UByte.MIN_VALUE,
     max: UByte = UByte.MAX_VALUE,
 ): StateMachineParameter.Range<UByte> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<UByte>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<UByte>(), initialValue, min, max)
 }
 
 /**
@@ -285,7 +285,7 @@ fun parameter(
     min: UShort = UShort.MIN_VALUE,
     max: UShort = UShort.MAX_VALUE,
 ): StateMachineParameter.Range<UShort> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<UShort>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<UShort>(), initialValue, min, max)
 }
 
 /**
@@ -298,7 +298,7 @@ fun parameter(
     min: UInt = UInt.MIN_VALUE,
     max: UInt = UInt.MAX_VALUE,
 ): StateMachineParameter.Range<UInt> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<UInt>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<UInt>(), initialValue, min, max)
 }
 
 /**
@@ -310,7 +310,7 @@ fun parameter(
     initialValue: UInt,
     range: UIntRange,
 ): StateMachineParameter.Range<UInt> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<UInt>(), initialValue, range.first, range.last)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<UInt>(), initialValue, range.first, range.last)
 }
 
 /**
@@ -323,7 +323,7 @@ fun parameter(
     min: ULong = ULong.MIN_VALUE,
     max: ULong = ULong.MAX_VALUE,
 ): StateMachineParameter.Range<ULong> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<ULong>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<ULong>(), initialValue, min, max)
 }
 
 /**
@@ -335,7 +335,7 @@ fun parameter(
     initialValue: ULong,
     range: ULongRange,
 ): StateMachineParameter.Range<ULong> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<ULong>(), initialValue, range.first, range.last)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<ULong>(), initialValue, range.first, range.last)
 }
 
 /**
@@ -348,7 +348,7 @@ fun parameter(
     min: Float = Float.NEGATIVE_INFINITY,
     max: Float = Float.POSITIVE_INFINITY,
 ): StateMachineParameter.Range<Float> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Float>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Float>(), initialValue, min, max)
 }
 
 /**
@@ -360,7 +360,7 @@ fun parameter(
     initialValue: Float,
     range: ClosedFloatingPointRange<Float>,
 ): StateMachineParameter.Range<Float> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Float>(), initialValue, range.start, range.endInclusive)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Float>(), initialValue, range.start, range.endInclusive)
 }
 
 /**
@@ -373,7 +373,7 @@ fun parameter(
     min: Double = Double.NEGATIVE_INFINITY,
     max: Double = Double.POSITIVE_INFINITY,
 ): StateMachineParameter.Range<Double> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Double>(), initialValue, min, max)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Double>(), initialValue, min, max)
 }
 
 /**
@@ -385,5 +385,5 @@ fun parameter(
     initialValue: Double,
     range: ClosedFloatingPointRange<Double>,
 ): StateMachineParameter.Range<Double> {
-    return Vire.stateMachineFactory.get().createRangeParameter(name, typeOf<Double>(), initialValue, range.start, range.endInclusive)
+    return Vire.get().stateMachineFactory.createRangeParameter(name, typeOf<Double>(), initialValue, range.start, range.endInclusive)
 }

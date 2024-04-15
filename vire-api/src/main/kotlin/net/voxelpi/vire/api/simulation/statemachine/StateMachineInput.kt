@@ -25,7 +25,7 @@ fun input(
     name: String,
     initialSize: Int = 1,
 ): StateMachineInput {
-    return Vire.stateMachineFactory.get().createInput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize))
+    return Vire.get().stateMachineFactory.createInput(name, StateMachineIOState.InitialSizeProvider.Value(initialSize))
 }
 
 /**
@@ -35,7 +35,7 @@ fun input(
     name: String,
     initialSize: StateMachineParameter<out Number>,
 ): StateMachineInput {
-    return Vire.stateMachineFactory.get().createInput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize))
+    return Vire.get().stateMachineFactory.createInput(name, StateMachineIOState.InitialSizeProvider.Parameter(initialSize))
 }
 
 /**
@@ -45,5 +45,5 @@ fun input(
     name: String,
     initialSize: StateMachineIOState.InitialSizeProvider,
 ): StateMachineInput {
-    return Vire.stateMachineFactory.get().createInput(name, initialSize)
+    return Vire.get().stateMachineFactory.createInput(name, initialSize)
 }

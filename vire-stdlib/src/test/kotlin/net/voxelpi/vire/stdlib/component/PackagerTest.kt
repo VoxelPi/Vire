@@ -4,6 +4,7 @@ import net.voxelpi.vire.api.simulation.BooleanState
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.simulation.VireSimulation
+import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachineInstance
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -21,14 +22,14 @@ class PackagerTest {
     fun simplePackager() {
         // Create instances
         val blockCount = 4
-        val packager = simulation.createStateMachineInstance(Packager) {
+        val packager = Packager.createInstance {
             this[Packager.blockCount] = blockCount
             this[Packager.blockSize] = 1
-        }
-        val unpackager = simulation.createStateMachineInstance(Unpackager) {
+        } as VireStateMachineInstance
+        val unpackager = Unpackager.createInstance {
             this[Unpackager.blockCount] = blockCount
             this[Unpackager.blockSize] = 1
-        }
+        } as VireStateMachineInstance
 
         val state = BooleanState(booleanArrayOf(false, true, true, true)).logicState()
 

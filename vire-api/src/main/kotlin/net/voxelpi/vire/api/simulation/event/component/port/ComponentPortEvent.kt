@@ -1,8 +1,8 @@
-package net.voxelpi.vire.api.simulation.event.simulation.component.port
+package net.voxelpi.vire.api.simulation.event.component.port
 
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.component.ComponentPort
-import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentEvent
+import net.voxelpi.vire.api.simulation.event.component.ComponentEvent
 
 /**
  * An event that affect a component port.

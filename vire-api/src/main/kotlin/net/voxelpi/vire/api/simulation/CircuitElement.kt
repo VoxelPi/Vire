@@ -5,12 +5,12 @@ import java.util.UUID
 /**
  * An object of a simulation.
  */
-interface SimulationObject {
+interface CircuitElement {
 
     /**
-     * The simulation to which the simulation object belongs to.
+     * The circuit to which the element belongs to.
      */
-    val simulation: Simulation
+    val circuit: Circuit
 
     /**
      * The unique id of the simulation object.

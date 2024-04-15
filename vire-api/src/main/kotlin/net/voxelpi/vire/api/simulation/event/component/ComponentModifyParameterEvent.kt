@@ -1,4 +1,4 @@
-package net.voxelpi.vire.api.simulation.event.simulation.component
+package net.voxelpi.vire.api.simulation.event.component
 
 import net.voxelpi.vire.api.simulation.component.Component
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter

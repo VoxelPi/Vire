@@ -1,4 +1,4 @@
-package net.voxelpi.vire.api.simulation.event.simulation.component.port
+package net.voxelpi.vire.api.simulation.event.component.port
 
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 

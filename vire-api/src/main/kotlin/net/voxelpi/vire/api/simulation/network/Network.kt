@@ -1,14 +1,14 @@
 package net.voxelpi.vire.api.simulation.network
 
+import net.voxelpi.vire.api.simulation.CircuitElement
 import net.voxelpi.vire.api.simulation.LogicState
-import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.component.ComponentPort
 import java.util.UUID
 
 /**
  * A network of the logic simulation.
  */
-interface Network : SimulationObject {
+interface Network : CircuitElement {
 
     /**
      * The state of the network.

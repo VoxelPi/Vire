@@ -1,4 +1,4 @@
-package net.voxelpi.vire.api.simulation.event.simulation.network
+package net.voxelpi.vire.api.simulation.event.network
 
 import net.voxelpi.vire.api.simulation.network.Network
 

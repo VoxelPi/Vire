@@ -50,6 +50,23 @@ interface StateMachine {
     val update: (StateMachineUpdateContext) -> Unit
 
     /**
+     * Creates a new instance of this state machine.
+     * The parameters of the instance are configured using the specified [configuration].
+     */
+    fun createInstance(
+        configuration: StateMachineInstance.ConfigurationContext.() -> Unit = {},
+    ): StateMachineInstance
+
+    /**
+     * Creates a new instance of this state machine.
+     * The parameters of the instance are configured using the specified [configuration].
+     * Whilst Not all parameters must be specified, only existing parameters may be specified.
+     */
+    fun createInstance(
+        configuration: Map<String, Any?>,
+    ): StateMachineInstance
+
+    /**
      * Builder for a state machine.
      */
     abstract class Builder {
@@ -404,21 +421,21 @@ interface StateMachine {
          * Creates a new state machine.
          */
         fun create(id: Identifier, init: Builder.() -> Unit): StateMachine {
-            return Vire.stateMachineFactory.get().create(id, init)
+            return Vire.get().stateMachineFactory.create(id, init)
         }
 
         /**
          * Generates a new state machine from the given template [type].
          */
         fun generate(type: KClass<out StateMachineTemplate>): StateMachine {
-            return Vire.stateMachineFactory.get().generate(type)
+            return Vire.get().stateMachineFactory.generate(type)
         }
 
         /**
-         * Generates a new state machine from the given template [type].
+         * Generates a new state machine from the given template [T].
          */
         inline fun <reified T : StateMachineTemplate> generate(): StateMachine {
-            return Vire.stateMachineFactory.get().generate(T::class)
+            return Vire.get().stateMachineFactory.generate(T::class)
         }
     }
 }

@@ -1,7 +1,7 @@
 package net.voxelpi.vire.api.simulation.component
 
+import net.voxelpi.vire.api.simulation.CircuitElement
 import net.voxelpi.vire.api.simulation.LogicState
-import net.voxelpi.vire.api.simulation.SimulationObject
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNodeHolder
 
@@ -9,7 +9,7 @@ import net.voxelpi.vire.api.simulation.network.NetworkNodeHolder
  * A port of a component.
  * Interfaces the specified state machine input or output to connected network.
  */
-interface ComponentPort : SimulationObject, NetworkNodeHolder {
+interface ComponentPort : CircuitElement, NetworkNodeHolder {
 
     /**
      * The component the port belongs to.

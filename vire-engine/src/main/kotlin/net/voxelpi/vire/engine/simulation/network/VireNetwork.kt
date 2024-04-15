@@ -3,16 +3,16 @@ package net.voxelpi.vire.engine.simulation.network
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.network.Network
 import net.voxelpi.vire.api.simulation.network.NetworkNode
-import net.voxelpi.vire.engine.simulation.VireSimulation
-import net.voxelpi.vire.engine.simulation.VireSimulationObject
+import net.voxelpi.vire.engine.simulation.VireCircuit
+import net.voxelpi.vire.engine.simulation.VireCircuitElement
 import net.voxelpi.vire.engine.simulation.component.VireComponentPort
 import java.util.UUID
 
 class VireNetwork(
-    override val simulation: VireSimulation,
+    override val circuit: VireCircuit,
     override val uniqueId: UUID = UUID.randomUUID(),
     override var state: LogicState = LogicState.EMPTY,
-) : VireSimulationObject(), Network {
+) : VireCircuitElement(), Network {
 
     private val nodes: MutableMap<UUID, VireNetworkNode> = mutableMapOf()
 
@@ -50,7 +50,7 @@ class VireNetwork(
         }
 
         // Create the node.
-        val node = simulation.createNetworkNode(this, uniqueId)
+        val node = circuit.createNetworkNode(this, uniqueId)
 
         // Register a connection to every connected node in the created node.
         for (connectedNode in connectedTo) {
@@ -64,7 +64,7 @@ class VireNetwork(
     }
 
     override fun removeNode(node: NetworkNode) {
-        simulation.removeNetworkNode(node)
+        circuit.removeNetworkNode(node)
     }
 
     override fun ports(): Collection<VireComponentPort> {
@@ -83,7 +83,7 @@ class VireNetwork(
     }
 
     override fun remove() {
-        simulation.removeNetwork(this)
+        circuit.removeNetwork(this)
     }
 
     fun destroy() {

@@ -3,15 +3,16 @@ package net.voxelpi.vire.engine.simulation.component
 import net.voxelpi.event.on
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.LogicState
-import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentCreateEvent
-import net.voxelpi.vire.api.simulation.event.simulation.component.ComponentDestroyEvent
-import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortCreateEvent
-import net.voxelpi.vire.api.simulation.event.simulation.component.port.ComponentPortDestroyEvent
+import net.voxelpi.vire.api.simulation.event.component.ComponentCreateEvent
+import net.voxelpi.vire.api.simulation.event.component.ComponentDestroyEvent
+import net.voxelpi.vire.api.simulation.event.component.port.ComponentPortCreateEvent
+import net.voxelpi.vire.api.simulation.event.component.port.ComponentPortDestroyEvent
 import net.voxelpi.vire.api.simulation.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.statemachine.input
 import net.voxelpi.vire.api.simulation.statemachine.output
 import net.voxelpi.vire.api.simulation.statemachine.parameter
 import net.voxelpi.vire.engine.VireImplementation
+import net.voxelpi.vire.engine.simulation.VireCircuit
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -20,10 +21,12 @@ import org.junit.jupiter.api.Test
 class VireComponentTest {
 
     private lateinit var simulation: VireSimulation
+    private lateinit var circuit: VireCircuit
 
     @BeforeEach
     fun setUp() {
         simulation = VireImplementation.createSimulation(emptyList())
+        circuit = simulation.circuit
     }
 
     @Test
@@ -34,7 +37,7 @@ class VireComponentTest {
             declare(inputVariable)
         }
 
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
         val inputPort = component.createPort(inputVariable.variable())
 
         inputPort.network.state = LogicState.value(true)
@@ -54,7 +57,7 @@ class VireComponentTest {
             }
         }
 
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
         val outputPort = component.createPort(outputVariable.variable())
 
         component.tick()
@@ -76,7 +79,7 @@ class VireComponentTest {
             }
         }
 
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
         val inputPort = component.createPort(inputVariable.variable())
         val outputPort = component.createPort(outputVariable.variable())
 
@@ -101,13 +104,13 @@ class VireComponentTest {
             }
         }
 
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
         val inputPort = component.createPort(inputVariable.variable())
         val outputPort = component.createPort(outputVariable.variable())
         val node1 = inputPort.network.createNode(listOf(inputPort.node))
         val node2 = inputPort.network.createNode(listOf(node1))
         val node3 = inputPort.network.createNode(listOf(node2))
-        simulation.createNetworkNodeConnection(node3, outputPort.node)
+        circuit.createNetworkNodeConnection(node3, outputPort.node)
 
         component.remove()
         component.remove() // Try removing the already removed component.
@@ -127,10 +130,10 @@ class VireComponentTest {
             }
         }
 
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
         val inputPort = component.createPort(inputVariable.variable())
         val outputPort = component.createPort(outputVariable.variable())
-        simulation.createNetworkNodeConnection(inputPort.node, outputPort.node)
+        circuit.createNetworkNodeConnection(inputPort.node, outputPort.node)
 
         inputPort.remove()
         inputPort.remove() // Try removing the already removed component port.
@@ -154,7 +157,7 @@ class VireComponentTest {
                 tickCounter++
             }
         }
-        val component = simulation.createComponent(stateMachine)
+        val component = circuit.createComponent(stateMachine)
 
         assertEquals(1, configureCounter) { "The state machine was not initialized" }
         assertEquals(0, tickCounter) { "The state machine tick() function was called during the initialization" }
@@ -201,13 +204,10 @@ class VireComponentTest {
             destroyCounter++
         }
 
-        val component = simulation.createComponent(
+        val component = circuit.createComponent(
             StateMachine.create(Identifier("vire-test", "unit")) {}
         )
         component.remove()
-
-        // Wait for events to finish.
-        simulation.shutdown()
 
         assertEquals(1, createCounter)
         assertEquals(1, destroyCounter)
@@ -226,15 +226,12 @@ class VireComponentTest {
             destroyCounter++
         }
 
-        val component = simulation.createComponent(
+        val component = circuit.createComponent(
             StateMachine.create(Identifier("vire-test", "unit")) {}
         )
         val port = component.createPort(null)
         port.remove()
         component.remove()
-
-        // Wait for events to finish.
-        simulation.shutdown()
 
         assertEquals(1, createCounter)
         assertEquals(1, destroyCounter)
