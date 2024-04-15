@@ -2,8 +2,9 @@ package net.voxelpi.vire.api.simulation
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.vire.api.Identifier
-import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.api.circuit.Circuit
+import net.voxelpi.vire.api.circuit.library.Library
+import net.voxelpi.vire.api.circuit.statemachine.StateMachine
 
 /**
  * The simulation that manages the state of all components and networks.

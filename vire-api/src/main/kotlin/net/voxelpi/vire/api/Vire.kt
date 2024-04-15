@@ -1,8 +1,8 @@
 package net.voxelpi.vire.api
 
+import net.voxelpi.vire.api.circuit.library.Library
+import net.voxelpi.vire.api.circuit.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.simulation.Simulation
-import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
 import org.jetbrains.annotations.ApiStatus.Internal
 
 interface Vire {

@@ -3,9 +3,10 @@ package net.voxelpi.vire.engine.simulation
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.vire.api.Identifier
+import net.voxelpi.vire.api.circuit.library.Library
+import net.voxelpi.vire.api.circuit.statemachine.StateMachine
 import net.voxelpi.vire.api.simulation.Simulation
-import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.api.simulation.statemachine.StateMachine
+import net.voxelpi.vire.engine.circuit.VireCircuit
 import org.slf4j.LoggerFactory
 
 class VireSimulation(
