@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.simulation.statemachine
 
+import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.simulation.LogicState
 import net.voxelpi.vire.api.simulation.LogicValue
 import net.voxelpi.vire.api.simulation.statemachine.StateMachineParameter
@@ -10,12 +11,14 @@ import net.voxelpi.vire.api.simulation.statemachine.annotation.Output
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Parameter
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineMeta
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Tagged
 import net.voxelpi.vire.api.simulation.statemachine.annotation.Variable
 import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class VireStateMachineFactoryTest {
 
@@ -34,6 +37,13 @@ class VireStateMachineFactoryTest {
         assertEquals(setOf("counter"), stateMachine.variables.keys)
         assertEquals(setOf("input", "inputs"), stateMachine.inputs.keys)
         assertEquals(setOf("output", "active", "outputs"), stateMachine.outputs.keys)
+
+        // Check tags.
+        assertTrue(Identifier.parse("vire:test1") in stateMachine.tags)
+        assertTrue(Identifier.parse("vire:test2") !in stateMachine.tags)
+        assertTrue(Identifier.parse("vire:test3") in stateMachine.tags)
+        assertTrue(Identifier.parse("vire:test4") in stateMachine.tags)
+        assertEquals(3, stateMachine.tags.size)
 
         val stateMachineInstance1 = stateMachine.createInstance {
             this[stateMachine.parameters["size"]!! as StateMachineParameter<Int>] = 3
@@ -70,6 +80,8 @@ class VireStateMachineFactoryTest {
     }
 
     @StateMachineMeta("test", "buffer")
+    @Tagged("vire:test1", "vire:test3")
+    @Tagged("vire:test3", "vire:test4")
     class Buffer : StateMachineTemplate {
 
         @Parameter("counter_step")

@@ -15,6 +15,7 @@ import kotlin.reflect.KClass
 
 class VireStateMachine(
     override val id: Identifier,
+    override val tags: Set<Identifier>,
     override val stateVariableNames: Set<String>,
     override val parameters: Map<String, StateMachineParameter<*>>,
     override val variables: Map<String, StateMachineVariable<*>>,
@@ -59,6 +60,7 @@ class VireStateMachine(
         override val id: Identifier,
     ) : StateMachine.Builder() {
 
+        override val tags: MutableSet<Identifier> = mutableSetOf()
         private val names: MutableSet<String> = mutableSetOf()
         private val parameters: MutableMap<String, StateMachineParameter<*>> = mutableMapOf()
         private val variables: MutableMap<String, StateMachineVariable<*>> = mutableMapOf()
@@ -100,6 +102,7 @@ class VireStateMachine(
         override fun create(): VireStateMachine {
             return VireStateMachine(
                 id,
+                tags,
                 names,
                 parameters,
                 variables,

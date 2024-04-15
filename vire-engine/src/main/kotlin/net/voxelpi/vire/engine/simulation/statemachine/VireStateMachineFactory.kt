@@ -20,6 +20,7 @@ import net.voxelpi.vire.api.simulation.statemachine.annotation.ShortLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineMeta
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StateMachineTemplate
 import net.voxelpi.vire.api.simulation.statemachine.annotation.StringSelection
+import net.voxelpi.vire.api.simulation.statemachine.annotation.Tagged
 import net.voxelpi.vire.api.simulation.statemachine.annotation.UByteLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.UIntLimits
 import net.voxelpi.vire.api.simulation.statemachine.annotation.ULongLimits
@@ -35,6 +36,7 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.KType
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.findAnnotations
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.jvmErasure
@@ -59,6 +61,7 @@ class VireStateMachineFactory : StateMachineFactory {
         val meta = type.findAnnotation<StateMachineMeta>()
         require(meta != null) { "State machine template must be annotated with the StateMachineMeta annotation." }
         val id = Identifier(meta.namespace, meta.id)
+        val tags = type.findAnnotations<Tagged>().map { it.tags.toList().map(Identifier::parse) }.flatten()
 
         // Get all annotated properties.
         val inputProperties = type.memberProperties
@@ -247,6 +250,9 @@ class VireStateMachineFactory : StateMachineFactory {
             variables.forEach(this::declare)
             inputs.forEach(this::declare)
             outputs.forEach(this::declare)
+
+            // Add all declared tags.
+            this.tags.addAll(tags)
 
             configure = { context ->
                 val instance = type.createInstance()

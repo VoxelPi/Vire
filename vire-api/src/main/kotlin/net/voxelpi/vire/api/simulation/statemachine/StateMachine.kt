@@ -15,6 +15,11 @@ interface StateMachine {
     val id: Identifier
 
     /**
+     * A set of tags the state machine is annotated with.
+     */
+    val tags: Set<Identifier>
+
+    /**
      * All registered parameters of the state machine.
      */
     val parameters: Map<String, StateMachineParameter<*>>
@@ -75,6 +80,11 @@ interface StateMachine {
          * The id of the state machine.
          */
         abstract val id: Identifier
+
+        /**
+         * A set of tags the state machine is annotated with.
+         */
+        abstract val tags: MutableSet<Identifier>
 
         /**
          * The configuration action of the state machine.

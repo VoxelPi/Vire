@@ -11,6 +11,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class VireStateMachineTest {
 
@@ -30,6 +32,17 @@ class VireStateMachineTest {
             assertThrows<Exception> { declareInput("name") }
             assertThrows<Exception> { declareOutput("name") }
         }
+    }
+
+    @Test
+    fun testTags() {
+        val stateMachine = VireStateMachine.create(Identifier("test", "test")) {
+            tags.add(Identifier.parse("test:test2"))
+        }
+
+        // Check that the tag was added.
+        assertTrue(Identifier.parse("test:test2") in stateMachine.tags)
+        assertFalse(Identifier.parse("test:test1") in stateMachine.tags)
     }
 
     @Test
