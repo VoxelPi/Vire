@@ -7,6 +7,8 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.circuit.Circuit
 import net.voxelpi.vire.api.circuit.library.Library
 import net.voxelpi.vire.api.circuit.statemachine.StateMachine
+import net.voxelpi.vire.api.circuit.statemachine.circuit.Input
+import net.voxelpi.vire.api.circuit.statemachine.circuit.Output
 import net.voxelpi.vire.api.environment.Environment
 import net.voxelpi.vire.engine.circuit.VireCircuit
 import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachine
@@ -28,13 +30,19 @@ class VireEnvironment(
         this.libraries = libraries.associateBy { it.id }
         logger.info { "Loaded ${libraries.size} libraries: ${libraries.joinToString(", ", "[", "]") { it.name }}" }
 
-        // Register state machines
-        val stateMachines = mutableMapOf<Identifier, VireStateMachine>()
+        // Register internal state machines.
+        val stateMachines = mutableMapOf<Identifier, VireStateMachine>(
+            Input.stateMachine.id to Input.stateMachine as VireStateMachine,
+            Output.stateMachine.id to Output.stateMachine as VireStateMachine,
+        )
+
+        // Register library state machines.
         for (library in libraries) {
             stateMachines += library.stateMachines()
                 .map { it as VireStateMachine }
                 .associateBy(StateMachine::id)
         }
+
         this.stateMachines = stateMachines
         logger.info { "Registered ${stateMachines.size} state machines" }
     }
