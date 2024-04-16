@@ -2,6 +2,7 @@ package net.voxelpi.vire.api.circuit.statemachine
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.LogicState
+import net.voxelpi.vire.api.circuit.Circuit
 import net.voxelpi.vire.api.circuit.statemachine.annotation.StateMachineTemplate
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -20,6 +21,13 @@ interface StateMachineFactory {
      * Generates a new state machine from the given [type].
      */
     fun generate(type: KClass<out StateMachineTemplate>): StateMachine
+
+    /**
+     * Generates a new state machine from the given circuit.
+     * For every component that is tagged with the [CircuitStateMachine.CIRCUIT_INPUT_TAG] an input variable is generated,
+     * and for every component that is tagged with the [CircuitStateMachine.CIRCUIT_OUTPUT_TAG] an output variable is generated.
+     */
+    fun createFromCircuit(id: Identifier, circuit: Circuit): StateMachine
 
     /**
      * Creates a new input.

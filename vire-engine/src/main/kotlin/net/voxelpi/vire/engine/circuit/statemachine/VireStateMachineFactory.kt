@@ -2,9 +2,12 @@ package net.voxelpi.vire.engine.circuit.statemachine
 
 import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.LogicState
+import net.voxelpi.vire.api.circuit.Circuit
 import net.voxelpi.vire.api.circuit.statemachine.StateMachine
 import net.voxelpi.vire.api.circuit.statemachine.StateMachineFactory
 import net.voxelpi.vire.api.circuit.statemachine.StateMachineIOState
+import net.voxelpi.vire.api.circuit.statemachine.StateMachineInput
+import net.voxelpi.vire.api.circuit.statemachine.StateMachineOutput
 import net.voxelpi.vire.api.circuit.statemachine.StateMachineParameter
 import net.voxelpi.vire.api.circuit.statemachine.annotation.ByteLimits
 import net.voxelpi.vire.api.circuit.statemachine.annotation.DoubleLimits
@@ -30,6 +33,8 @@ import net.voxelpi.vire.api.circuit.statemachine.input
 import net.voxelpi.vire.api.circuit.statemachine.output
 import net.voxelpi.vire.api.circuit.statemachine.parameter
 import net.voxelpi.vire.api.circuit.statemachine.variable
+import net.voxelpi.vire.engine.VireImplementation
+import net.voxelpi.vire.engine.circuit.VireCircuit
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty1
@@ -327,6 +332,61 @@ class VireStateMachineFactory : StateMachineFactory {
             }
         }
 
+        return stateMachine
+    }
+
+    override fun createFromCircuit(id: Identifier, circuit: Circuit): StateMachine {
+        require(circuit is VireCircuit)
+        val inputComponents = circuit.components()
+            .filter { it.stateMachine == net.voxelpi.vire.api.circuit.statemachine.circuit.Input.stateMachine }
+            .associateBy { it.stateMachineInstance[net.voxelpi.vire.api.circuit.statemachine.circuit.Input.name] }
+        val outputComponents = circuit.components()
+            .filter { it.stateMachine == net.voxelpi.vire.api.circuit.statemachine.circuit.Output.stateMachine }
+            .associateBy { it.stateMachineInstance[net.voxelpi.vire.api.circuit.statemachine.circuit.Input.name] }
+
+        val inputs: MutableMap<String, StateMachineInput> = mutableMapOf()
+        for ((name, _) in inputComponents) {
+            inputs[name] = input(name)
+        }
+        val outputs: MutableMap<String, StateMachineOutput> = mutableMapOf()
+        for ((name, _) in outputComponents) {
+            outputs[name] = output(name)
+        }
+
+        val stateMachine = VireImplementation.stateMachineFactory.create(id) {
+            for (input in inputs.values) {
+                declare(input)
+            }
+            for (output in outputs.values) {
+                declare(output)
+            }
+
+            val simulation = variable("simulation", circuit.environment.createSimulation(circuit))
+
+            configure = { context ->
+                // Create a new simulation.
+                context[simulation] = circuit.environment.createSimulation(circuit)
+            }
+
+            update = { context ->
+                // Copy the state of all input variables to the corresponding input components in the internal circuit.
+                for ((name, input) in inputs) {
+                    val component = inputComponents[name]!!
+                    val value = context[input]
+                    component.stateMachineInstance[net.voxelpi.vire.api.circuit.statemachine.circuit.Input.value] = value
+                }
+
+                // Simulate the circuit.
+                context[simulation].simulateSteps(1)
+
+                // Copy the state of all output components in the internal circuit to the corresponding output variables.
+                for ((name, output) in outputs) {
+                    val component = outputComponents[name]!!
+                    val value = component.stateMachineInstance[net.voxelpi.vire.api.circuit.statemachine.circuit.Output.value]
+                    context[output] = value
+                }
+            }
+        }
         return stateMachine
     }
 
