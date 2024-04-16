@@ -1,22 +1,22 @@
 package net.voxelpi.vire.stdlib
 
-import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.stdlib.component.AndGate
-import net.voxelpi.vire.stdlib.component.BufferGate
-import net.voxelpi.vire.stdlib.component.Clock
-import net.voxelpi.vire.stdlib.component.FullAdder
-import net.voxelpi.vire.stdlib.component.HalfAdder
-import net.voxelpi.vire.stdlib.component.Input
-import net.voxelpi.vire.stdlib.component.Memory
-import net.voxelpi.vire.stdlib.component.NandGate
-import net.voxelpi.vire.stdlib.component.NorGate
-import net.voxelpi.vire.stdlib.component.NotGate
-import net.voxelpi.vire.stdlib.component.OrGate
-import net.voxelpi.vire.stdlib.component.Output
-import net.voxelpi.vire.stdlib.component.Packager
-import net.voxelpi.vire.stdlib.component.Unpackager
-import net.voxelpi.vire.stdlib.component.XnorGate
-import net.voxelpi.vire.stdlib.component.XorGate
+import net.voxelpi.vire.api.circuit.library.Library
+import net.voxelpi.vire.stdlib.statemachine.AndGate
+import net.voxelpi.vire.stdlib.statemachine.BufferGate
+import net.voxelpi.vire.stdlib.statemachine.Clock
+import net.voxelpi.vire.stdlib.statemachine.FullAdder
+import net.voxelpi.vire.stdlib.statemachine.HalfAdder
+import net.voxelpi.vire.stdlib.statemachine.Input
+import net.voxelpi.vire.stdlib.statemachine.Memory
+import net.voxelpi.vire.stdlib.statemachine.NandGate
+import net.voxelpi.vire.stdlib.statemachine.NorGate
+import net.voxelpi.vire.stdlib.statemachine.NotGate
+import net.voxelpi.vire.stdlib.statemachine.OrGate
+import net.voxelpi.vire.stdlib.statemachine.Output
+import net.voxelpi.vire.stdlib.statemachine.Packager
+import net.voxelpi.vire.stdlib.statemachine.Unpackager
+import net.voxelpi.vire.stdlib.statemachine.XnorGate
+import net.voxelpi.vire.stdlib.statemachine.XorGate
 
 object VireStandardLibrary : Library(VIRE_STDLIB_ID, "Vire", "The vire standard library", emptyList()) {
 

@@ -1,14 +1,14 @@
 package net.voxelpi.vire.engine
 
 import net.voxelpi.vire.api.Vire
-import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.engine.simulation.VireSimulation
-import net.voxelpi.vire.engine.simulation.statemachine.VireStateMachineFactory
+import net.voxelpi.vire.api.circuit.library.Library
+import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachineFactory
+import net.voxelpi.vire.engine.environment.VireEnvironment
 
 object VireImplementation : Vire {
 
     init {
-        Vire.stateMachineFactory.register(VireStateMachineFactory())
+        Vire.register(this)
     }
 
     override val brand: String = "Vire Engine"
@@ -19,7 +19,9 @@ object VireImplementation : Vire {
     override val longVersion: String
         get() = "${VireBuildParameters.VERSION}-${VireBuildParameters.GIT_COMMIT}"
 
-    override fun createSimulation(libraries: List<Library>): VireSimulation {
-        return VireSimulation(libraries)
+    override val stateMachineFactory: VireStateMachineFactory = VireStateMachineFactory()
+
+    override fun createEnvironment(libraries: List<Library>): VireEnvironment {
+        return VireEnvironment(libraries)
     }
 }

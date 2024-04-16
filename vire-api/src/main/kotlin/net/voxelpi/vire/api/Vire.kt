@@ -1,9 +1,9 @@
 package net.voxelpi.vire.api
 
-import net.voxelpi.vire.api.simulation.Simulation
-import net.voxelpi.vire.api.simulation.library.Library
-import net.voxelpi.vire.api.simulation.statemachine.StateMachineFactory
-import net.voxelpi.vire.api.util.ServiceProvider
+import net.voxelpi.vire.api.circuit.library.Library
+import net.voxelpi.vire.api.circuit.statemachine.StateMachineFactory
+import net.voxelpi.vire.api.environment.Environment
+import org.jetbrains.annotations.ApiStatus.Internal
 
 interface Vire {
 
@@ -23,15 +23,35 @@ interface Vire {
     val longVersion: String
 
     /**
-     * Creates a new simulation with the given [libraries].
+     * The state machine factory.
      */
-    fun createSimulation(libraries: List<Library>): Simulation
+    val stateMachineFactory: StateMachineFactory
+
+    /**
+     * Creates a new environment with the given [libraries].
+     */
+    fun createEnvironment(libraries: List<Library>): Environment
 
     companion object {
 
+        @Internal
+        private var instance: Vire? = null
+
         /**
-         * The state machine factory.
+         * Gets the singleton instance.
          */
-        val stateMachineFactory = ServiceProvider<StateMachineFactory>()
+        fun get(): Vire {
+            return instance ?: throw IllegalStateException("No implementation of the Vire Simulation Engine is loaded")
+        }
+
+        @Internal
+        fun register(instance: Vire) {
+            this.instance = instance
+        }
+
+        @Internal
+        fun unregister() {
+            this.instance = null
+        }
     }
 }
