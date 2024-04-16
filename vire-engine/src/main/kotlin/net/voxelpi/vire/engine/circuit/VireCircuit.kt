@@ -17,10 +17,12 @@ import net.voxelpi.vire.api.circuit.event.network.node.NetworkNodeDestroyEvent
 import net.voxelpi.vire.api.circuit.network.Network
 import net.voxelpi.vire.api.circuit.network.NetworkNode
 import net.voxelpi.vire.api.circuit.statemachine.StateMachine
+import net.voxelpi.vire.api.circuit.statemachine.StateMachineInstance
 import net.voxelpi.vire.engine.circuit.component.VireComponent
 import net.voxelpi.vire.engine.circuit.network.VireNetwork
 import net.voxelpi.vire.engine.circuit.network.VireNetworkNode
 import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachine
+import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachineInstance
 import net.voxelpi.vire.engine.environment.VireEnvironment
 import java.util.UUID
 
@@ -44,11 +46,22 @@ class VireCircuit(
         return components[uniqueId]
     }
 
-    override fun createComponent(stateMachine: StateMachine): VireComponent {
+    override fun createComponent(
+        stateMachine: StateMachine,
+        configuration: StateMachineInstance.ConfigurationContext.() -> Unit,
+    ): VireComponent {
         require(stateMachine is VireStateMachine)
+        return createComponent(stateMachine.createInstance(configuration))
+    }
 
+    override fun createComponent(stateMachine: StateMachine, configuration: Map<String, Any?>): VireComponent {
+        require(stateMachine is VireStateMachine)
+        return createComponent(stateMachine.createInstance(configuration))
+    }
+
+    private fun createComponent(stateMachineInstance: VireStateMachineInstance): VireComponent {
         // Create the component.
-        val component = VireComponent(this, stateMachine)
+        val component = VireComponent(this, stateMachineInstance)
         components[component.uniqueId] = component
 
         // Fire the event.

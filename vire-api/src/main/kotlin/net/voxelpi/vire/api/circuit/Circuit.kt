@@ -6,6 +6,7 @@ import net.voxelpi.vire.api.circuit.component.Component
 import net.voxelpi.vire.api.circuit.network.Network
 import net.voxelpi.vire.api.circuit.network.NetworkNode
 import net.voxelpi.vire.api.circuit.statemachine.StateMachine
+import net.voxelpi.vire.api.circuit.statemachine.StateMachineInstance
 import net.voxelpi.vire.api.environment.Environment
 import java.util.UUID
 
@@ -37,8 +38,22 @@ interface Circuit {
 
     /**
      * Creates a new component with the given [stateMachine].
+     * The parameters of the state machine instance are configured using the specified [configuration].
      */
-    fun createComponent(stateMachine: StateMachine): Component
+    fun createComponent(
+        stateMachine: StateMachine,
+        configuration: StateMachineInstance.ConfigurationContext.() -> Unit = {},
+    ): Component
+
+    /**
+     * Creates a new component with the given [stateMachine].
+     * The parameters of the state machine instance are configured using the specified [configuration].
+     * Whilst Not all parameters must be specified, only existing parameters may be specified.
+     */
+    fun createComponent(
+        stateMachine: StateMachine,
+        configuration: Map<String, Any?>,
+    ): Component
 
     /**
      * Removes the given [component] from the simulation.

@@ -4,6 +4,7 @@ import net.voxelpi.vire.api.Identifier
 import net.voxelpi.vire.api.LogicState
 import net.voxelpi.vire.api.LogicValue
 import net.voxelpi.vire.api.Vire
+import net.voxelpi.vire.api.circuit.Circuit
 import net.voxelpi.vire.api.circuit.statemachine.annotation.StateMachineTemplate
 import kotlin.reflect.KClass
 
@@ -439,6 +440,13 @@ interface StateMachine {
          */
         fun generate(type: KClass<out StateMachineTemplate>): StateMachine {
             return Vire.get().stateMachineFactory.generate(type)
+        }
+
+        /**
+         * Generates a new state machine from the given circuit.
+         */
+        fun createFromCircuit(id: Identifier, circuit: Circuit): StateMachine {
+            return Vire.get().stateMachineFactory.createFromCircuit(id, circuit)
         }
 
         /**
