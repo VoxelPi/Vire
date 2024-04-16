@@ -20,9 +20,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/build-logic" />
-            <option value="$PROJECT_DIR$/vire-api" />
             <option value="$PROJECT_DIR$/vire-engine" />
-            <option value="$PROJECT_DIR$/vire-stdlib" />
           </set>
         </option>
       </GradleProjectSettings>

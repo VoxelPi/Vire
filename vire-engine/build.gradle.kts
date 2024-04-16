@@ -6,14 +6,12 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    // Project
-    api(projects.vireApi)
-
     // Libraries
+    api(libs.event)
     implementation(libs.kotlin.reflect)
     implementation(libs.bundles.kotlinx.coroutines)
+    implementation(libs.slf4j.api)
     implementation(libs.kotlin.logging.jvm)
-    implementation(libs.event)
 }
 
 sourceSets {
