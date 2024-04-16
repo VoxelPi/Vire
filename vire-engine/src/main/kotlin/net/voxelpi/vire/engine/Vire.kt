@@ -1,5 +1,11 @@
 package net.voxelpi.vire.engine
 
+import net.voxelpi.vire.engine.environment.Environment
+import net.voxelpi.vire.engine.environment.EnvironmentImpl
+
+/**
+ * The vire engine.
+ */
 public object Vire {
 
     /**
@@ -13,4 +19,11 @@ public object Vire {
      */
     public val exactVersion: String
         get() = "${VireBuildParameters.VERSION}-${VireBuildParameters.GIT_COMMIT}"
+
+    /**
+     * Creates a new environment.
+     */
+    public fun createEnvironment(): Environment {
+        return EnvironmentImpl()
+    }
 }
