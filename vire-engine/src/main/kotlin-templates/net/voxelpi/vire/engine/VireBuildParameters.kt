@@ -1,6 +1,6 @@
 package net.voxelpi.vire.engine
 
-object VireBuildParameters {
+internal object VireBuildParameters {
 
     /**
      * The current version.
