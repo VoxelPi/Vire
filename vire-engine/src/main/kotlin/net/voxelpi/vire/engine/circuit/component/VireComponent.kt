@@ -7,21 +7,22 @@ import net.voxelpi.vire.api.circuit.component.ComponentPortVectorVariable
 import net.voxelpi.vire.api.circuit.event.component.ComponentConfigureEvent
 import net.voxelpi.vire.api.circuit.event.component.port.ComponentPortCreateEvent
 import net.voxelpi.vire.api.circuit.event.component.port.ComponentPortDestroyEvent
+import net.voxelpi.vire.api.circuit.statemachine.StateMachine
 import net.voxelpi.vire.api.circuit.statemachine.StateMachineInput
 import net.voxelpi.vire.api.circuit.statemachine.StateMachineOutput
 import net.voxelpi.vire.engine.circuit.VireCircuit
 import net.voxelpi.vire.engine.circuit.VireCircuitElement
-import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachine
 import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachineInstance
 import java.util.UUID
 
 class VireComponent(
     override val circuit: VireCircuit,
-    override val stateMachine: VireStateMachine,
+    override val stateMachineInstance: VireStateMachineInstance,
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : VireCircuitElement(), Component {
 
-    override val stateMachineInstance: VireStateMachineInstance = stateMachine.createInstance {}
+    override val stateMachine: StateMachine
+        get() = stateMachineInstance.stateMachine
 
     private val ports: MutableMap<UUID, VireComponentPort> = mutableMapOf()
 
