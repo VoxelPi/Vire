@@ -71,19 +71,7 @@ class VireCircuitStateMachineTest {
 
         instance[input] = LogicState.value(true, 2)
         instance.initializeOutputs()
-
-        // Component has a delay of 3:
-        // 1. Write the input to the internal network.
-        // 2. Read and Write the value in the internal buffer.
-        // 3. Read the input from the internal network.
-        for (i in 0..<3) {
-            instance.update()
-            println("Step $i:")
-            println(integratedInputComponent.stateMachineInstance[Input.value])
-            println(internalComponent.stateMachineInstance[internalInputVariable])
-            println(internalComponent.stateMachineInstance[internalOutputVariable])
-            println(integratedOutputComponent.stateMachineInstance[Output.value])
-        }
+        instance.update()
 
         val result = instance[output]
         assertEquals(LogicState.value(true, 2), result)

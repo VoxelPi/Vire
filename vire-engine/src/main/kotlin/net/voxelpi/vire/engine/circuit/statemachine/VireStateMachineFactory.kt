@@ -374,6 +374,10 @@ class VireStateMachineFactory : StateMachineFactory {
                     val component = inputComponents[name]!!
                     val value = context[input]
                     component.stateMachineInstance[net.voxelpi.vire.api.circuit.statemachine.circuit.Input.value] = value
+
+                    // Push the output to reduce delay by 1 tick.
+                    component.tick()
+                    component.pushOutputs()
                 }
 
                 // Simulate the circuit.
@@ -382,6 +386,10 @@ class VireStateMachineFactory : StateMachineFactory {
                 // Copy the state of all output components in the internal circuit to the corresponding output variables.
                 for ((name, output) in outputs) {
                     val component = outputComponents[name]!!
+
+                    // Pull the input to reduce delay by 1 tick.
+                    component.pullInputs()
+                    component.tick()
                     val value = component.stateMachineInstance[net.voxelpi.vire.api.circuit.statemachine.circuit.Output.value]
                     context[output] = value
                 }
