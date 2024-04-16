@@ -1,18 +1,19 @@
 package net.voxelpi.vire.api.circuit.event
 
 import net.voxelpi.vire.api.circuit.Circuit
-import net.voxelpi.vire.api.simulation.Simulation
+import net.voxelpi.vire.api.environment.Environment
+import net.voxelpi.vire.api.environment.event.EnvironmentEvent
 
 /**
  * An event in a circuit.
  */
-interface CircuitEvent : SimulationEvent {
+interface CircuitEvent : EnvironmentEvent {
 
     /**
      * The affected circuit.
      */
     val circuit: Circuit
 
-    override val simulation: Simulation
-        get() = circuit.simulation
+    override val environment: Environment
+        get() = circuit.environment
 }

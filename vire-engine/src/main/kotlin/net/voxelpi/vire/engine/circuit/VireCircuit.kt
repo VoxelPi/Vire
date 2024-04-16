@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.circuit
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.post
 import net.voxelpi.vire.api.LogicState
@@ -20,17 +21,16 @@ import net.voxelpi.vire.engine.circuit.component.VireComponent
 import net.voxelpi.vire.engine.circuit.network.VireNetwork
 import net.voxelpi.vire.engine.circuit.network.VireNetworkNode
 import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachine
-import net.voxelpi.vire.engine.simulation.VireSimulation
-import org.slf4j.LoggerFactory
+import net.voxelpi.vire.engine.environment.VireEnvironment
 import java.util.UUID
 
 class VireCircuit(
-    override val simulation: VireSimulation,
+    override val environment: VireEnvironment,
 ) : Circuit {
 
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = KotlinLogging.logger {}
 
-    override val eventScope: EventScope = simulation.eventScope.createSubScope()
+    override val eventScope: EventScope = environment.eventScope.createSubScope()
 
     private val components: MutableMap<UUID, VireComponent> = mutableMapOf()
     private val networks: MutableMap<UUID, VireNetwork> = mutableMapOf()

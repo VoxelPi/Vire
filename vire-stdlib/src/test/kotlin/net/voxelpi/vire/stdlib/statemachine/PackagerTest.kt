@@ -3,7 +3,9 @@ package net.voxelpi.vire.stdlib.statemachine
 import net.voxelpi.vire.api.BooleanState
 import net.voxelpi.vire.api.LogicState
 import net.voxelpi.vire.engine.VireImplementation
+import net.voxelpi.vire.engine.circuit.VireCircuit
 import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachineInstance
+import net.voxelpi.vire.engine.environment.VireEnvironment
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -11,11 +13,15 @@ import kotlin.test.assertEquals
 
 class PackagerTest {
 
+    private lateinit var environment: VireEnvironment
+    private lateinit var circuit: VireCircuit
     private lateinit var simulation: VireSimulation
 
     @BeforeEach
     fun setUp() {
-        simulation = VireImplementation.createSimulation(emptyList())
+        environment = VireImplementation.createEnvironment(emptyList())
+        circuit = environment.createCircuit()
+        simulation = environment.createSimulation(circuit)
     }
 
     @Test

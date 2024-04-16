@@ -6,6 +6,8 @@ import net.voxelpi.vire.api.circuit.statemachine.input
 import net.voxelpi.vire.api.circuit.statemachine.output
 import net.voxelpi.vire.api.circuit.statemachine.parameter
 import net.voxelpi.vire.engine.VireImplementation
+import net.voxelpi.vire.engine.circuit.VireCircuit
+import net.voxelpi.vire.engine.environment.VireEnvironment
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,11 +18,15 @@ import kotlin.test.assertTrue
 
 class VireStateMachineTest {
 
+    private lateinit var environment: VireEnvironment
+    private lateinit var circuit: VireCircuit
     private lateinit var simulation: VireSimulation
 
     @BeforeEach
     fun setUp() {
-        simulation = VireImplementation.createSimulation(emptyList())
+        environment = VireImplementation.createEnvironment(emptyList())
+        circuit = environment.createCircuit()
+        simulation = environment.createSimulation(circuit)
     }
 
     @Test

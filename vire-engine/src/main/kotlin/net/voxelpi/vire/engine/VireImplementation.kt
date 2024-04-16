@@ -3,7 +3,7 @@ package net.voxelpi.vire.engine
 import net.voxelpi.vire.api.Vire
 import net.voxelpi.vire.api.circuit.library.Library
 import net.voxelpi.vire.engine.circuit.statemachine.VireStateMachineFactory
-import net.voxelpi.vire.engine.simulation.VireSimulation
+import net.voxelpi.vire.engine.environment.VireEnvironment
 
 object VireImplementation : Vire {
 
@@ -21,7 +21,7 @@ object VireImplementation : Vire {
 
     override val stateMachineFactory: VireStateMachineFactory = VireStateMachineFactory()
 
-    override fun createSimulation(libraries: List<Library>): VireSimulation {
-        return VireSimulation(libraries)
+    override fun createEnvironment(libraries: List<Library>): VireEnvironment {
+        return VireEnvironment(libraries)
     }
 }

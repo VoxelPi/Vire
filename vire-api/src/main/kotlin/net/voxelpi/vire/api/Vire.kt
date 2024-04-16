@@ -2,7 +2,7 @@ package net.voxelpi.vire.api
 
 import net.voxelpi.vire.api.circuit.library.Library
 import net.voxelpi.vire.api.circuit.statemachine.StateMachineFactory
-import net.voxelpi.vire.api.simulation.Simulation
+import net.voxelpi.vire.api.environment.Environment
 import org.jetbrains.annotations.ApiStatus.Internal
 
 interface Vire {
@@ -28,9 +28,9 @@ interface Vire {
     val stateMachineFactory: StateMachineFactory
 
     /**
-     * Creates a new simulation with the given [libraries].
+     * Creates a new environment with the given [libraries].
      */
-    fun createSimulation(libraries: List<Library>): Simulation
+    fun createEnvironment(libraries: List<Library>): Environment
 
     companion object {
 

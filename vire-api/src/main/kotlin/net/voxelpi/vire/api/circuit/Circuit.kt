@@ -6,7 +6,7 @@ import net.voxelpi.vire.api.circuit.component.Component
 import net.voxelpi.vire.api.circuit.network.Network
 import net.voxelpi.vire.api.circuit.network.NetworkNode
 import net.voxelpi.vire.api.circuit.statemachine.StateMachine
-import net.voxelpi.vire.api.simulation.Simulation
+import net.voxelpi.vire.api.environment.Environment
 import java.util.UUID
 
 /**
@@ -15,9 +15,9 @@ import java.util.UUID
 interface Circuit {
 
     /**
-     * The simulation of the circuit.
+     * The environment of the circuit.
      */
-    val simulation: Simulation
+    val environment: Environment
 
     /**
      * The event scope of the simulation.

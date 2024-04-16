@@ -11,6 +11,7 @@ import net.voxelpi.vire.api.circuit.statemachine.input
 import net.voxelpi.vire.api.circuit.statemachine.output
 import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.circuit.VireCircuit
+import net.voxelpi.vire.engine.environment.VireEnvironment
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,13 +21,15 @@ import kotlin.test.assertEquals
 
 class VireNetworkTest {
 
-    private lateinit var simulation: VireSimulation
+    private lateinit var environment: VireEnvironment
     private lateinit var circuit: VireCircuit
+    private lateinit var simulation: VireSimulation
 
     @BeforeEach
     fun setUp() {
-        simulation = VireImplementation.createSimulation(emptyList())
-        circuit = simulation.circuit
+        environment = VireImplementation.createEnvironment(emptyList())
+        circuit = environment.createCircuit()
+        simulation = environment.createSimulation(circuit)
     }
 
     @Test
@@ -106,11 +109,11 @@ class VireNetworkTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.eventScope.on<NetworkCreateEvent> {
+        environment.eventScope.on<NetworkCreateEvent> {
             createCounter++
         }
 
-        simulation.eventScope.on<NetworkDestroyEvent> {
+        environment.eventScope.on<NetworkDestroyEvent> {
             destroyCounter++
         }
 
@@ -127,11 +130,11 @@ class VireNetworkTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.eventScope.on<NetworkNodeCreateEvent> {
+        environment.eventScope.on<NetworkNodeCreateEvent> {
             createCounter++
         }
 
-        simulation.eventScope.on<NetworkNodeDestroyEvent> {
+        environment.eventScope.on<NetworkNodeDestroyEvent> {
             destroyCounter++
         }
 

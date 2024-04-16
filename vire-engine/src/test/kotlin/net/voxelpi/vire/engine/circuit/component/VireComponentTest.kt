@@ -13,6 +13,7 @@ import net.voxelpi.vire.api.circuit.statemachine.output
 import net.voxelpi.vire.api.circuit.statemachine.parameter
 import net.voxelpi.vire.engine.VireImplementation
 import net.voxelpi.vire.engine.circuit.VireCircuit
+import net.voxelpi.vire.engine.environment.VireEnvironment
 import net.voxelpi.vire.engine.simulation.VireSimulation
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -20,13 +21,15 @@ import org.junit.jupiter.api.Test
 
 class VireComponentTest {
 
-    private lateinit var simulation: VireSimulation
+    private lateinit var environment: VireEnvironment
     private lateinit var circuit: VireCircuit
+    private lateinit var simulation: VireSimulation
 
     @BeforeEach
     fun setUp() {
-        simulation = VireImplementation.createSimulation(emptyList())
-        circuit = simulation.circuit
+        environment = VireImplementation.createEnvironment(emptyList())
+        circuit = environment.createCircuit()
+        simulation = environment.createSimulation(circuit)
     }
 
     @Test
@@ -196,11 +199,11 @@ class VireComponentTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.eventScope.on<ComponentCreateEvent> {
+        environment.eventScope.on<ComponentCreateEvent> {
             createCounter++
         }
 
-        simulation.eventScope.on<ComponentDestroyEvent> {
+        environment.eventScope.on<ComponentDestroyEvent> {
             destroyCounter++
         }
 
@@ -218,11 +221,11 @@ class VireComponentTest {
         var createCounter = 0
         var destroyCounter = 0
 
-        simulation.eventScope.on<ComponentPortCreateEvent> {
+        environment.eventScope.on<ComponentPortCreateEvent> {
             createCounter++
         }
 
-        simulation.eventScope.on<ComponentPortDestroyEvent> {
+        environment.eventScope.on<ComponentPortDestroyEvent> {
             destroyCounter++
         }
 
