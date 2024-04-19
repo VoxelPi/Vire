@@ -1,14 +1,13 @@
 package net.voxelpi.vire.engine.circuit
 
 import net.voxelpi.event.EventScope
-import net.voxelpi.vire.engine.circuit.kernel.Kernel
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.simulation.Simulation
 
 /**
  * A logic circuit created by linking different components together.
  */
-public interface Circuit : Kernel {
+public interface Circuit {
 
     /**
      * The environment of the circuit.

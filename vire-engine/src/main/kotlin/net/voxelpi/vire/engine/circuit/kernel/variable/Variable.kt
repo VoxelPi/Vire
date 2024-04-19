@@ -1,12 +1,12 @@
 package net.voxelpi.vire.engine.circuit.kernel.variable
 
 /**
- * An abstract variable.
+ * An abstract kernel variable.
  */
 public sealed interface Variable {
 
     /**
-     * The name of the state variable.
+     * The name of the kernel variable.
      */
     public val name: String
 }
