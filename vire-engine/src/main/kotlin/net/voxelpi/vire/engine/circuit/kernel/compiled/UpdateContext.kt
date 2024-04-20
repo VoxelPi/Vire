@@ -1,4 +1,3 @@
 package net.voxelpi.vire.engine.circuit.kernel.compiled
 
-public interface UpdateContext {
-}
+public interface UpdateContext

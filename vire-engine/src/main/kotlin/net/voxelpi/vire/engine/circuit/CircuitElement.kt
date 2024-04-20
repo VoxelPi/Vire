@@ -16,4 +16,27 @@ public interface CircuitElement {
      * The unique id of the simulation object.
      */
     public val uniqueId: UUID
+
+    /**
+     * Removes the element from the circuit.
+     */
+    public fun remove()
+}
+
+internal abstract class CircuitElementImpl : CircuitElement {
+
+    abstract override val circuit: CircuitImpl
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CircuitElementImpl
+
+        return uniqueId == other.uniqueId
+    }
+
+    override fun hashCode(): Int {
+        return uniqueId.hashCode()
+    }
 }

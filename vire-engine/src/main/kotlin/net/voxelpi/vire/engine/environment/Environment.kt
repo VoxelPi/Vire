@@ -3,7 +3,7 @@ package net.voxelpi.vire.engine.environment
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.eventScope
 import net.voxelpi.vire.engine.circuit.Circuit
-import net.voxelpi.vire.engine.circuit.MutableCircuitImpl
+import net.voxelpi.vire.engine.circuit.CircuitImpl
 
 /**
  * A vire environment.
@@ -26,6 +26,6 @@ internal class EnvironmentImpl : Environment {
     override val eventScope: EventScope = eventScope()
 
     override fun createCircuit(): Circuit {
-        return MutableCircuitImpl(this)
+        return CircuitImpl(this)
     }
 }

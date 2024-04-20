@@ -2,7 +2,7 @@ package net.voxelpi.vire.engine.simulation
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.vire.engine.circuit.Circuit
-import net.voxelpi.vire.engine.circuit.MutableCircuitImpl
+import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 
@@ -28,7 +28,7 @@ public interface Simulation {
 }
 
 internal class SimulationImpl(
-    override val circuit: MutableCircuitImpl,
+    override val circuit: CircuitImpl,
 ) : Simulation {
 
     override val environment: EnvironmentImpl

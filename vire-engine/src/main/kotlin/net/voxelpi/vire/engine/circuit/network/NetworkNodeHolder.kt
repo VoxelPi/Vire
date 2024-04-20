@@ -16,3 +16,8 @@ public interface NetworkNodeHolder {
     public val network: Network
         get() = node.network
 }
+
+internal interface NetworkNodeHolderImpl : NetworkNodeHolder {
+
+    override val node: NetworkNodeImpl
+}
