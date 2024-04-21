@@ -10,12 +10,12 @@ import java.util.UUID
 /**
  * Terminal allow circuits to exchange data with the outside.
  */
-public interface Terminal : CircuitElement, NetworkNodeHolder
+public interface Terminal : CircuitElement
 
 internal class TerminalImpl(
     override val circuit: CircuitImpl,
     override val uniqueId: UUID = UUID.randomUUID(),
-) : CircuitElementImpl(), Terminal {
+) : CircuitElementImpl(), Terminal, NetworkNodeHolder {
 
     override val node: NetworkNodeImpl
 

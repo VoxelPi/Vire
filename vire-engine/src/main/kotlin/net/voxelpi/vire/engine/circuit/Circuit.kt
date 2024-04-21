@@ -443,7 +443,6 @@ internal class CircuitImpl(
         eventScope.post(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
     }
 
-    @Deprecated("TEMP")
     override fun areNodesConnected(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
         return networkConnectionIndex(nodeA, nodeB) in networkConnections
     }

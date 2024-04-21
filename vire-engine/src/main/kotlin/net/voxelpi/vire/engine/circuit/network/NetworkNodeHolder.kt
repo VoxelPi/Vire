@@ -3,21 +3,16 @@ package net.voxelpi.vire.engine.circuit.network
 /**
  * The holder of a network node.
  */
-public interface NetworkNodeHolder {
+internal interface NetworkNodeHolder {
 
     /**
      * The network node of the holder.
      */
-    public val node: NetworkNode
+    val node: NetworkNodeImpl
 
     /**
      * The network of the node.
      */
-    public val network: Network
+    val network: NetworkImpl
         get() = node.network
-}
-
-internal interface NetworkNodeHolderImpl : NetworkNodeHolder {
-
-    override val node: NetworkNodeImpl
 }

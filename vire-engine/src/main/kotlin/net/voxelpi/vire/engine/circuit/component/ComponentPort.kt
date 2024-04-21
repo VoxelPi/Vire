@@ -4,11 +4,10 @@ import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeHolder
-import net.voxelpi.vire.engine.circuit.network.NetworkNodeHolderImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeImpl
 import java.util.UUID
 
-public interface ComponentPort : NetworkNodeHolder {
+public interface ComponentPort {
 
     public val circuit: Circuit
 
@@ -20,7 +19,7 @@ public interface ComponentPort : NetworkNodeHolder {
 internal class ComponentPortImpl(
     override val component: ComponentImpl,
     val uniqueId: UUID = UUID.randomUUID(),
-) : ComponentPort, NetworkNodeHolderImpl {
+) : ComponentPort, NetworkNodeHolder {
 
     override val node: NetworkNodeImpl
 
