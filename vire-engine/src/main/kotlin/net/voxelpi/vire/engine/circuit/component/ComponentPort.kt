@@ -27,7 +27,7 @@ public interface ComponentPort : CircuitElement {
     /**
      * The variable that should be bound to the port.
      */
-    public var variable: IOVectorElement
+    public var variable: IOVectorElement?
 
     /**
      * The network the port is part of.
@@ -42,11 +42,11 @@ public interface ComponentPort : CircuitElement {
 
 internal class ComponentPortImpl(
     override val component: ComponentImpl,
-    variable: IOVectorElement,
+    variable: IOVectorElement?,
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : CircuitElementImpl(), ComponentPort, NetworkNodeHolder {
 
-    override var variable: IOVectorElement = variable
+    override var variable: IOVectorElement? = variable
         set(value) {
             circuit.eventScope.post(ComponentPortSelectVariableEvent(this, value, field))
             field = value

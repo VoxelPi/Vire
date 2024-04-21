@@ -21,7 +21,7 @@ public interface Terminal : CircuitElement {
     /**
      * The variable that should be bound to the terminal.
      */
-    public var variable: IOVectorElement
+    public var variable: IOVectorElement?
 
     /**
      * The network the terminal is part of.
@@ -36,11 +36,11 @@ public interface Terminal : CircuitElement {
 
 internal class TerminalImpl(
     override val circuit: CircuitImpl,
-    variable: IOVectorElement,
+    variable: IOVectorElement?,
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : CircuitElementImpl(), Terminal, NetworkNodeHolder {
 
-    override var variable: IOVectorElement = variable
+    override var variable: IOVectorElement? = variable
         set(value) {
             circuit.eventScope.post(TerminalSelectVariableEvent(this, value, field))
             field = value

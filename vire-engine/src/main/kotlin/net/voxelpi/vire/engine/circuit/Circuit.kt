@@ -5,6 +5,8 @@ import net.voxelpi.event.post
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.component.Component
 import net.voxelpi.vire.engine.circuit.component.ComponentImpl
+import net.voxelpi.vire.engine.circuit.event.component.ComponentCreateEvent
+import net.voxelpi.vire.engine.circuit.event.component.ComponentDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkConnectionCreateEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkConnectionDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkCreateEvent
@@ -15,9 +17,9 @@ import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkSplitEvent
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalCreateEvent
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalDestroyEvent
-import net.voxelpi.vire.engine.circuit.kernel.Kernel
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import net.voxelpi.vire.engine.circuit.kernel.variable.KernelConfiguration
+import net.voxelpi.vire.engine.circuit.kernel.variable.KernelConfigurationImpl
 import net.voxelpi.vire.engine.circuit.network.Network
 import net.voxelpi.vire.engine.circuit.network.NetworkConnection
 import net.voxelpi.vire.engine.circuit.network.NetworkConnectionImpl
@@ -66,7 +68,7 @@ public interface Circuit {
     /**
      * Creates a new component in the circuit.
      */
-    public fun createComponent(kernel: Kernel, configuration: KernelConfiguration): Component
+    public fun createComponent(configuration: KernelConfiguration, uniqueId: UUID = UUID.randomUUID()): Component
 
     /**
      * Removes the given [component] from the circuit.
@@ -86,7 +88,7 @@ public interface Circuit {
     /**
      * Creates a new terminal with the given [uniqueId] in the circuit for the given [variable].
      */
-    public fun createTerminal(variable: IOVectorElement, uniqueId: UUID = UUID.randomUUID()): Terminal
+    public fun createTerminal(variable: IOVectorElement?, uniqueId: UUID = UUID.randomUUID()): Terminal
 
     /**
      * Removes the given [terminal] from the circuit.
@@ -204,12 +206,37 @@ internal class CircuitImpl(
         return components[uniqueId]
     }
 
-    override fun createComponent(kernel: Kernel, configuration: KernelConfiguration): ComponentImpl {
-        TODO("Not yet implemented")
+    override fun createComponent(configuration: KernelConfiguration, uniqueId: UUID): ComponentImpl {
+        require(configuration is KernelConfigurationImpl)
+
+        // Create the component.
+        val component = ComponentImpl(this, configuration, uniqueId)
+        registerComponent(component)
+
+        // Post event.
+        eventScope.post(ComponentCreateEvent(component))
+
+        // Return the created event.
+        return component
     }
 
     override fun removeComponent(component: Component) {
-        TODO("Not yet implemented")
+        require(component is ComponentImpl)
+
+        // Post event.
+        eventScope.post(ComponentDestroyEvent(component))
+
+        // Remove the component.
+        component.destroy()
+        unregisterComponent(component)
+    }
+
+    private fun registerComponent(component: ComponentImpl) {
+        components[component.uniqueId] = component
+    }
+
+    private fun unregisterComponent(component: ComponentImpl) {
+        components.remove(component.uniqueId)
     }
 
     override fun terminals(): Collection<Terminal> {
@@ -220,7 +247,7 @@ internal class CircuitImpl(
         return terminals[uniqueId]
     }
 
-    override fun createTerminal(variable: IOVectorElement, uniqueId: UUID): Terminal {
+    override fun createTerminal(variable: IOVectorElement?, uniqueId: UUID): Terminal {
         // Create the terminal.
         val terminal = TerminalImpl(this, variable, uniqueId)
         registerTerminal(terminal)
