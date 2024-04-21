@@ -110,6 +110,14 @@ public interface Circuit {
     public fun createNetworkNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID = UUID.randomUUID()): NetworkNode
 
     /**
+     * Creates a new network node with the given [uniqueId] that is connected to all the nodes in [connectedTo].
+     * If the nodes in connected to are in different networks, these networks will be merged.
+     */
+    public fun createNetworkNode(vararg connectedTo: NetworkNode, uniqueId: UUID = UUID.randomUUID()): NetworkNode {
+        return createNetworkNode(connectedTo.toList(), uniqueId)
+    }
+
+    /**
      * Removes the given [node] from the simulation.
      */
     public fun removeNetworkNode(node: NetworkNode)
@@ -278,10 +286,9 @@ internal class CircuitImpl(
     override fun removeNetworkNode(node: NetworkNode) {
         require(node is NetworkNodeImpl)
 
-        // Skip if the node already has been removed.
-        if (node !in node.network) {
-            return
-        }
+        // Check that the node is part of the circuit
+        require(node.uniqueId in networkNodes) { "The network node is not part of this circuit." }
+        check(node in node.network) { "The network node is not part of its own network." }
 
         // Publish event.
         eventScope.post(NetworkNodeDestroyEvent(node))

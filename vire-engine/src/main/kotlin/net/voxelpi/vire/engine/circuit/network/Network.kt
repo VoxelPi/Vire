@@ -97,7 +97,7 @@ internal class NetworkImpl(
     }
 
     override fun contains(node: NetworkNode): Boolean {
-        return node.network == this
+        return node in nodes
     }
 
     override fun connections(): Collection<NetworkConnectionImpl> {

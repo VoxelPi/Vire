@@ -24,6 +24,10 @@ public object Vire {
      * Creates a new environment.
      */
     public fun createEnvironment(): Environment {
+        return createEnvironmentImpl()
+    }
+
+    internal fun createEnvironmentImpl(): EnvironmentImpl {
         return EnvironmentImpl()
     }
 }
