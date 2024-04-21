@@ -13,7 +13,10 @@ import net.voxelpi.vire.engine.circuit.event.network.NetworkMergeEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeCreateEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkSplitEvent
+import net.voxelpi.vire.engine.circuit.event.terminal.TerminalCreateEvent
+import net.voxelpi.vire.engine.circuit.event.terminal.TerminalDestroyEvent
 import net.voxelpi.vire.engine.circuit.kernel.Kernel
+import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import net.voxelpi.vire.engine.circuit.kernel.variable.KernelConfiguration
 import net.voxelpi.vire.engine.circuit.network.Network
 import net.voxelpi.vire.engine.circuit.network.NetworkConnection
@@ -21,6 +24,8 @@ import net.voxelpi.vire.engine.circuit.network.NetworkConnectionImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNode
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeImpl
+import net.voxelpi.vire.engine.circuit.terminal.Terminal
+import net.voxelpi.vire.engine.circuit.terminal.TerminalImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 import net.voxelpi.vire.engine.simulation.Simulation
@@ -48,7 +53,7 @@ public interface Circuit {
     public fun createSimulation(): Simulation
 
     /**
-     * Returns a collection of all registered components.
+     * Returns all registered components.
      */
     public fun components(): Collection<Component>
 
@@ -69,7 +74,27 @@ public interface Circuit {
     public fun removeComponent(component: Component)
 
     /**
-     * Returns a collection of all registered networks.
+     * Returns all registered terminals.
+     */
+    public fun terminals(): Collection<Terminal>
+
+    /**
+     * Returns the terminal with the given [uniqueId]
+     */
+    public fun terminal(uniqueId: UUID): Terminal?
+
+    /**
+     * Creates a new terminal with the given [uniqueId] in the circuit for the given [variable].
+     */
+    public fun createTerminal(variable: IOVectorElement, uniqueId: UUID = UUID.randomUUID()): Terminal
+
+    /**
+     * Removes the given [terminal] from the circuit.
+     */
+    public fun removeTerminal(terminal: Terminal)
+
+    /**
+     * Returns all registered networks.
      */
     public fun networks(): Collection<Network>
 
@@ -162,6 +187,7 @@ internal class CircuitImpl(
     override val eventScope: EventScope = environment.eventScope.createSubScope()
 
     private val components: MutableMap<UUID, ComponentImpl> = mutableMapOf()
+    private val terminals: MutableMap<UUID, TerminalImpl> = mutableMapOf()
     private val networks: MutableMap<UUID, NetworkImpl> = mutableMapOf()
     private val networkNodes: MutableMap<UUID, NetworkNodeImpl> = mutableMapOf()
     private val networkConnections: MutableMap<Pair<UUID, UUID>, NetworkConnectionImpl> = mutableMapOf()
@@ -184,6 +210,45 @@ internal class CircuitImpl(
 
     override fun removeComponent(component: Component) {
         TODO("Not yet implemented")
+    }
+
+    override fun terminals(): Collection<Terminal> {
+        return terminals.values
+    }
+
+    override fun terminal(uniqueId: UUID): Terminal? {
+        return terminals[uniqueId]
+    }
+
+    override fun createTerminal(variable: IOVectorElement, uniqueId: UUID): Terminal {
+        // Create the terminal.
+        val terminal = TerminalImpl(this, variable, uniqueId)
+        registerTerminal(terminal)
+
+        // Post event.
+        eventScope.post(TerminalCreateEvent(terminal))
+
+        // Return the created terminal.
+        return terminal
+    }
+
+    override fun removeTerminal(terminal: Terminal) {
+        require(terminal is TerminalImpl)
+
+        // Post event.
+        eventScope.post(TerminalDestroyEvent(terminal))
+
+        // Remove the terminal.
+        terminal.destroy()
+        unregisterTerminal(terminal)
+    }
+
+    private fun registerTerminal(terminal: TerminalImpl) {
+        terminals[terminal.uniqueId] = terminal
+    }
+
+    private fun unregisterTerminal(terminal: TerminalImpl) {
+        terminals.remove(terminal.uniqueId)
     }
 
     override fun networks(): Collection<NetworkImpl> {
