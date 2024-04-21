@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.circuit
 
 import net.voxelpi.vire.api.circuit.CircuitElement
-import net.voxelpi.vire.engine.circuit.network.VireNetwork
 
 abstract class VireCircuitElement : CircuitElement {
 
@@ -11,7 +10,7 @@ abstract class VireCircuitElement : CircuitElement {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as VireNetwork
+        other as VireCircuitElement
 
         return uniqueId == other.uniqueId
     }
