@@ -1,9 +1,18 @@
 package net.voxelpi.vire.engine.circuit
 
 import net.voxelpi.event.EventScope
+import net.voxelpi.event.post
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.component.Component
 import net.voxelpi.vire.engine.circuit.component.ComponentImpl
+import net.voxelpi.vire.engine.circuit.event.network.NetworkConnectionCreateEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkConnectionDestroyEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkCreateEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkDestroyEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkMergeEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeCreateEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeDestroyEvent
+import net.voxelpi.vire.engine.circuit.event.network.NetworkSplitEvent
 import net.voxelpi.vire.engine.circuit.kernel.Kernel
 import net.voxelpi.vire.engine.circuit.kernel.variable.KernelConfiguration
 import net.voxelpi.vire.engine.circuit.network.Network
@@ -77,7 +86,7 @@ public interface Circuit {
     /**
      * Removes the given [network] and all its nodes from the simulation.
      */
-    public fun removeNetwork(network: Network) {}
+    public fun removeNetwork(network: Network)
 
     /**
      * Returns a collection of all registered network nodes.
@@ -119,6 +128,23 @@ public interface Circuit {
      * Returns the network connection between the nodes with UUIDs [nodeAUniqueId] and [nodeBUniqueId].
      */
     public fun networkConnection(nodeAUniqueId: UUID, nodeBUniqueId: UUID): NetworkConnection?
+
+    /**
+     * Creates a new connection between the given nodes [nodeA] and [nodeB].
+     * If the two nodes are in different networks, the two networks get merged into a new one.
+     */
+    public fun createNetworkConnection(nodeA: NetworkNode, nodeB: NetworkNode): NetworkConnection
+
+    /**
+     * Removes the connection between the given nodes [nodeA] and [nodeB].
+     * If the connection was a bridge, the network is split into the two remaining partitions.
+     */
+    public fun removeNetworkConnection(nodeA: NetworkNode, nodeB: NetworkNode)
+
+    /**
+     * Checks if there exists a connection between the two nodes [nodeA] and [nodeB].
+     */
+    public fun areNodesConnected(nodeA: NetworkNode, nodeB: NetworkNode): Boolean
 }
 
 internal class CircuitImpl(
@@ -161,7 +187,48 @@ internal class CircuitImpl(
     }
 
     override fun createNetwork(initialization: LogicState, uniqueId: UUID): NetworkImpl {
-        TODO("Not yet implemented")
+        // Create the network
+        val network = NetworkImpl(this, uniqueId, initialization)
+        registerNetwork(network)
+
+        // Publish event.
+        eventScope.post(NetworkCreateEvent(network))
+
+        // Return the created network.
+        return network
+    }
+
+    override fun removeNetwork(network: Network) {
+        require(network is NetworkImpl)
+
+        // Check if the network has already been removed.
+        require(network.uniqueId in networks) { "The network is not part of this circuit." }
+
+        // Publish event.
+        eventScope.post(NetworkDestroyEvent(network))
+
+        // Remove all nodes of the network or create a new network if the node has a holder.
+        val nodes = network.nodes()
+        for (node in nodes) {
+            if (node.holder != null) {
+                node.network = createNetwork()
+                // TODO: Originally, here the output of the port was pushed onto the network.
+            } else {
+                unregisterNetworkNode(node)
+            }
+        }
+
+        // Remove the network.
+        network.destroy()
+        unregisterNetwork(network)
+    }
+
+    private fun registerNetwork(network: NetworkImpl) {
+        networks[network.uniqueId] = network
+    }
+
+    private fun unregisterNetwork(network: NetworkImpl) {
+        networks.remove(network.uniqueId)
     }
 
     override fun networkNodes(): Collection<NetworkNodeImpl> {
@@ -173,15 +240,112 @@ internal class CircuitImpl(
     }
 
     override fun createNetworkNode(network: Network, uniqueId: UUID): NetworkNodeImpl {
-        TODO("Not yet implemented")
+        require(network is NetworkImpl)
+
+        // Create the network node.
+        val node = NetworkNodeImpl(this, network, uniqueId)
+        registerNetworkNode(node)
+
+        // Publish event
+        eventScope.post(NetworkNodeCreateEvent(node))
+
+        // Return the created node.
+        return node
     }
 
     override fun createNetworkNode(connectedTo: Collection<NetworkNode>, uniqueId: UUID): NetworkNodeImpl {
-        TODO("Not yet implemented")
+        // Check if the created node should connect to any node. If not, create the node in a new network instead.
+        if (connectedTo.isEmpty()) {
+            return createNetworkNode(createNetwork(), uniqueId)
+        }
+
+        // Get all networks that this node should connect to and merge them together.
+        val networks = connectedTo.distinctBy { it.network.uniqueId }.map { it.network }.filterIsInstance<NetworkImpl>()
+        val network = mergeNetworks(networks)
+
+        // Create the node.
+        val node = createNetworkNode(network, uniqueId)
+
+        // Create connections from the node to all connected nodes.
+        for (connectedNode in connectedTo) {
+            createNetworkConnection(node, connectedNode)
+        }
+
+        // Return the created network node.
+        return node
     }
 
     override fun removeNetworkNode(node: NetworkNode) {
-        TODO("Not yet implemented")
+        require(node is NetworkNodeImpl)
+
+        // Skip if the node already has been removed.
+        if (node !in node.network) {
+            return
+        }
+
+        // Publish event.
+        eventScope.post(NetworkNodeDestroyEvent(node))
+
+        // Remove the node from its network.
+        unregisterNetworkNode(node)
+
+        // If the block was the last node of the network, remove the network.
+        if (node.network.nodes().isEmpty()) {
+            unregisterNetwork(node.network)
+            return
+        }
+
+        // Query all connected network nodes.
+        val connections = node.connections()
+        val connectedNodes = node.connectedNodes()
+
+        // Remove all connections to the node.
+        for (connection in connections) {
+            unregisterNetworkConnection(connection)
+        }
+
+        // Generate new node partitions.
+        val partitions = mutableListOf<MutableSet<UUID>>()
+        for (connectedNode in connectedNodes) {
+            // Skip if the node is already counted.
+            if (partitions.any { it.contains(connectedNode.uniqueId) }) {
+                continue
+            }
+
+            // Create a new group.
+            val collected = mutableSetOf(connectedNode.uniqueId)
+            collectConnectedNodes(connectedNode, collected)
+            partitions.add(collected)
+        }
+
+        // Return if all connected nodes are still connected via another path.
+        if (partitions.size == 1) {
+            return
+        }
+
+        // Reassign networks.
+        val networks = partitions.map { createNetwork(initialization = node.network.initialization) }
+        for (networkNode in node.network.nodes().toList()) {
+            networkNode.network = networks[partitions.indexOfFirst { it.contains(networkNode.uniqueId) }]
+        }
+        unregisterNetwork(node.network)
+
+        // Update network states
+        for (network in networks) {
+            // TODO: pushOutputs
+        }
+
+        eventScope.post(NetworkSplitEvent(node.network, networks))
+    }
+
+    private fun registerNetworkNode(node: NetworkNodeImpl) {
+        node.network.registerNode(node)
+        networkNodes[node.uniqueId] = node
+    }
+
+    private fun unregisterNetworkNode(node: NetworkNodeImpl) {
+        node.network.unregisterNode(node)
+        networkNodes.remove(node.uniqueId)
     }
 
     override fun networkConnections(): Collection<NetworkConnectionImpl> {
@@ -196,6 +360,99 @@ internal class CircuitImpl(
         return networkConnections[networkConnectionIndex(nodeAUniqueId, nodeBUniqueId)]
     }
 
+    override fun createNetworkConnection(nodeA: NetworkNode, nodeB: NetworkNode): NetworkConnection {
+        require(nodeA is NetworkNodeImpl)
+        require(nodeB is NetworkNodeImpl)
+
+        // Check if the two nodes are already connected.
+        networkConnection(nodeA, nodeB)?.let { return it }
+
+        // Check if the two nodes are in the same network. If not, merge the two networks.
+        val networkA = nodeA.network
+        val networkB = nodeB.network
+        val requiresMerge = nodeA.network != nodeB.network
+        val network = if (requiresMerge) {
+            mergeNetworks(nodeA.network, nodeB.network)
+        } else {
+            nodeA.network
+        }
+
+        // Connect the nodes with each other.
+        val connection = NetworkConnectionImpl(nodeA, nodeB)
+        registerNetworkConnection(connection)
+
+        // Publish the event.
+        if (requiresMerge) {
+            eventScope.post(NetworkMergeEvent(network, listOf(networkA, networkB)))
+        }
+        eventScope.post(NetworkConnectionCreateEvent(connection))
+
+        // Return the created connection.
+        return connection
+    }
+
+    override fun removeNetworkConnection(nodeA: NetworkNode, nodeB: NetworkNode) {
+        require(nodeA is NetworkNodeImpl)
+        require(nodeB is NetworkNodeImpl)
+
+        // Check if the two nodes are not connected.
+        val connection = networkConnection(nodeA, nodeB) ?: return
+
+        // Remove connection
+        unregisterNetworkConnection(connection)
+        eventScope.post(NetworkConnectionDestroyEvent(connection))
+
+        // Return if the nodes are still connected, otherwise the network has to be split.
+        if (existsPathBetweenNodes(nodeA, nodeB)) {
+            return
+        }
+
+        val oldNetwork = nodeA.network
+
+        // Create a new group.
+        val networkANodes = mutableSetOf(nodeA.uniqueId)
+        val networkBNodes = mutableSetOf(nodeB.uniqueId)
+        collectConnectedNodes(nodeA, networkANodes)
+        collectConnectedNodes(nodeB, networkBNodes)
+
+        // Reassign networks.
+        val networkA = createNetwork(initialization = oldNetwork.initialization)
+        val networkB = createNetwork(initialization = oldNetwork.initialization)
+        for (networkNode in oldNetwork.nodes().toList()) {
+            networkNode.network = when (networkNode.uniqueId) {
+                in networkANodes -> networkA
+                in networkBNodes -> networkB
+                else -> throw IllegalStateException("Connected node is in no node pool")
+            }
+        }
+        unregisterNetwork(oldNetwork)
+
+        // Update network states
+        // TODO: push Outputs.
+//        networkA.pushPortOutputs()
+//        networkB.pushPortOutputs()
+
+        // Publish event.
+        eventScope.post(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
+    }
+
+    @Deprecated("TEMP")
+    override fun areNodesConnected(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
+        return networkConnectionIndex(nodeA, nodeB) in networkConnections
+    }
+
+    private fun registerNetworkConnection(connection: NetworkConnectionImpl) {
+        networkConnections[connection.index()] = connection
+        connection.node1.registerConnection(connection.node2)
+        connection.node2.registerConnection(connection.node1)
+    }
+
+    private fun unregisterNetworkConnection(connection: NetworkConnectionImpl) {
+        networkConnections.remove(connection.index())
+        connection.node1.unregisterConnection(connection.node2)
+        connection.node2.unregisterConnection(connection.node1)
+    }
+
     private fun networkConnectionIndex(uniqueIdA: UUID, uniqueIdB: UUID): Pair<UUID, UUID> {
         require(uniqueIdA != uniqueIdB) { "Reflective connections are not allowed." }
 
@@ -208,5 +465,99 @@ internal class CircuitImpl(
 
     private fun networkConnectionIndex(nodeA: NetworkNode, nodeB: NetworkNode): Pair<UUID, UUID> {
         return networkConnectionIndex(nodeA.uniqueId, nodeB.uniqueId)
+    }
+
+    fun existsPathBetweenNodes(nodeA: NetworkNode, nodeB: NetworkNode): Boolean {
+        require(nodeA is NetworkNodeImpl)
+        require(nodeB is NetworkNodeImpl)
+
+        // Check if the two nodes are connected.
+        if (areNodesConnected(nodeA, nodeB)) {
+            return true
+        }
+
+        val visitedNodes = mutableSetOf<UUID>()
+        val nodesToVisit = nodeA.connectedNodes().toMutableList()
+        val nodesToVisitNext = mutableListOf<NetworkNodeImpl>()
+        while (nodesToVisit.isNotEmpty()) {
+            for (node in nodesToVisit) {
+                // Loop over all nodes that are connected to an already visited node but have not yet been visited themselves.
+                for (connectedNode in node.connectedNodes().filter { it.uniqueId !in visitedNodes }) {
+                    // Check if the node is the target node.
+                    if (node == nodeB) {
+                        return true
+                    }
+
+                    // Visit all connected nodes in the next iteration
+                    nodesToVisitNext += connectedNode
+                }
+            }
+
+            // Update visited nodes.
+            visitedNodes += nodesToVisit.map(NetworkNodeImpl::uniqueId)
+            nodesToVisit.clear()
+            nodesToVisit += nodesToVisitNext
+            nodesToVisitNext.clear()
+        }
+
+        // The node has not been reached, therefore no path exists between the two nodes.
+        return false
+    }
+
+    private fun collectConnectedNodes(networkNode: NetworkNodeImpl, collected: MutableSet<UUID>) {
+        for (connectedNode in networkNode.connectedNodes()) {
+            // Skip, if the node has already been counted.
+            if (connectedNode.uniqueId in collected) {
+                continue
+            }
+
+            // Add node and its connections to the set.
+            collected.add(connectedNode.uniqueId)
+            collectConnectedNodes(connectedNode, collected)
+        }
+    }
+
+    private fun mergeNetworks(networks: List<NetworkImpl>): NetworkImpl {
+        // Select the first network.
+        require(networks.isNotEmpty()) { "networks may not be empty" }
+        var network = networks.first()
+
+        // If more than one network is present merge them with the first network.
+        if (networks.size > 1) {
+            for (other in networks.drop(1)) {
+                network = mergeNetworks(network, other)
+            }
+
+            // Publish event.
+            eventScope.post(NetworkMergeEvent(network, networks))
+        }
+
+        // Return the merged network.
+        return network
+    }
+
+    private fun mergeNetworks(network1: NetworkImpl, network2: NetworkImpl): NetworkImpl {
+        // Check if the two networks are the same.
+        if (network1 == network2) {
+            return network1
+        }
+
+        // Create a new network.
+        val network = createNetwork(initialization = LogicState.merge(network1.initialization, network2.initialization))
+
+        // Add all nodes of the previous two networks to the new network.
+        network1.nodes().forEach(network::registerNode)
+        network2.nodes().forEach(network::registerNode)
+        // TODO: Register existing connections
+
+        // Unregister old networks.
+        unregisterNetwork(network1)
+        unregisterNetwork(network2)
+
+        // Update network states
+        // TODO: pushOutputs()
+        // network.pushPortOutputs()
+
+        return network
     }
 }

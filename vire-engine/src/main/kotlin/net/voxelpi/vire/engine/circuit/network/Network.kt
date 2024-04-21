@@ -18,7 +18,7 @@ public interface Network : CircuitElement {
     /**
      * The initial state of the network when a new simulation is initialized.
      */
-    public val initialState: LogicState
+    public val initialization: LogicState
 
     /**
      * Returns all nodes that are part of the network.
@@ -69,8 +69,11 @@ public interface Network : CircuitElement {
 internal class NetworkImpl(
     override val circuit: CircuitImpl,
     override val uniqueId: UUID,
-    override val initialState: LogicState,
+    override val initialization: LogicState,
 ) : CircuitElementImpl(), Network {
+
+    private val nodes: MutableSet<NetworkNode> = mutableSetOf()
+    private val connections: MutableSet<NetworkConnection> = mutableSetOf()
 
     override fun nodes(): Collection<NetworkNodeImpl> {
         return circuit.networkNodes().filter { it.network == this }
@@ -82,6 +85,15 @@ internal class NetworkImpl(
             return null
         }
         return node
+    }
+
+    fun registerNode(node: NetworkNodeImpl) {
+        node.network = this
+        nodes += node
+    }
+
+    fun unregisterNode(node: NetworkNodeImpl) {
+        nodes -= node
     }
 
     override fun contains(node: NetworkNode): Boolean {
@@ -121,5 +133,10 @@ internal class NetworkImpl(
 
     override fun remove() {
         circuit.removeNetwork(this)
+    }
+
+    fun destroy() {
+        nodes.clear()
+        connections.clear()
     }
 }

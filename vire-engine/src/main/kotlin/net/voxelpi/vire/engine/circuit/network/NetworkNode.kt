@@ -21,6 +21,11 @@ public interface NetworkNode : CircuitElement {
     public fun connectedNodes(): Collection<NetworkNode>
 
     /**
+     * Returns all connections that this node is part of.
+     */
+    public fun connections(): Collection<NetworkConnection>
+
+    /**
      * Checks if this node is directly connected to the given [node]
      */
     public fun isConnectedTo(node: NetworkNode): Boolean
@@ -35,16 +40,14 @@ internal class NetworkNodeImpl(
 
     private val connectedNodes: MutableSet<UUID> = mutableSetOf()
 
-    fun registerConnection(node: NetworkNode) {
-        connectedNodes.add(node.uniqueId)
-    }
-
-    fun unregisterConnection(node: NetworkNode) {
-        connectedNodes.remove(node.uniqueId)
-    }
-
-    override fun connectedNodes(): Collection<NetworkNode> {
+    override fun connectedNodes(): Collection<NetworkNodeImpl> {
         return connectedNodes.mapNotNull(circuit::networkNode)
+    }
+
+    override fun connections(): Collection<NetworkConnectionImpl> {
+        return connectedNodes
+            .mapNotNull(circuit::networkNode)
+            .mapNotNull { circuit.networkConnection(this, it) }
     }
 
     override fun isConnectedTo(node: NetworkNode): Boolean {
@@ -52,6 +55,18 @@ internal class NetworkNodeImpl(
     }
 
     override fun remove() {
-        TODO("Not yet implemented")
+        circuit.removeNetworkNode(this)
+    }
+
+    fun destroy() {
+        connectedNodes.clear()
+    }
+
+    fun registerConnection(node: NetworkNodeImpl) {
+        connectedNodes.add(node.uniqueId)
+    }
+
+    fun unregisterConnection(node: NetworkNodeImpl) {
+        connectedNodes.remove(node.uniqueId)
     }
 }
