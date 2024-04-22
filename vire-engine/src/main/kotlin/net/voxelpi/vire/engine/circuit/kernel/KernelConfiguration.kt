@@ -104,5 +104,5 @@ internal class KernelConfigurationImpl(
 
 internal data class KernelConfigurationResults(
     val kernelConfiguration: KernelConfiguration,
-    val ioVectorSizes: MutableMap<String, Int>,
+    val ioVectorSizes: Map<String, Int>,
 )

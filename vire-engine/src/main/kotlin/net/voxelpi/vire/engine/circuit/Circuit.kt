@@ -20,6 +20,10 @@ import net.voxelpi.vire.engine.circuit.event.terminal.TerminalDestroyEvent
 import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
 import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.circuit.kernel.variable.Input
+import net.voxelpi.vire.engine.circuit.kernel.variable.Output
+import net.voxelpi.vire.engine.circuit.kernel.variable.Setting
+import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
 import net.voxelpi.vire.engine.circuit.network.Network
 import net.voxelpi.vire.engine.circuit.network.NetworkConnection
 import net.voxelpi.vire.engine.circuit.network.NetworkConnectionImpl
@@ -48,6 +52,66 @@ public interface Circuit {
      * The event scope of the environment.
      */
     public val eventScope: EventScope
+
+    /**
+     * Returns all variables that are registered on the circuit.
+     */
+    public fun variables(): Collection<Variable<*>>
+
+    /**
+     * Returns the variable with the given [name].
+     */
+    public fun variable(name: String): Variable<*>?
+
+    /**
+     * Checks if the circuit has a variable with the given [name].
+     */
+    public fun hasVariable(name: String): Boolean = variable(name) != null
+
+    /**
+     * Returns all settings that are registered on the circuit.
+     */
+    public fun settings(): Collection<Setting<*>>
+
+    /**
+     * Returns the setting with the given [name].
+     */
+    public fun setting(name: String): Setting<*>?
+
+    /**
+     * Checks if the circuit has a setting with the given [name].
+     */
+    public fun hasSetting(name: String): Boolean = setting(name) != null
+
+    /**
+     * Returns all inputs that are registered on the circuit.
+     */
+    public fun inputs(): Collection<Input>
+
+    /**
+     * Returns the input with the given [name].
+     */
+    public fun input(name: String): Input?
+
+    /**
+     * Checks if the circuit has an input with the given [name].
+     */
+    public fun hasInput(name: String): Boolean = input(name) != null
+
+    /**
+     * Returns all outputs that are registered on the kernel.
+     */
+    public fun outputs(): Collection<Output>
+
+    /**
+     * Returns the output with the given [name].
+     */
+    public fun output(name: String): Output?
+
+    /**
+     * Checks if the kernel has an output with the given [name].
+     */
+    public fun hasOutput(name: String): Boolean = output(name) != null
 
     /**
      * Creates a new simulation of this circuit.
@@ -193,6 +257,45 @@ internal class CircuitImpl(
     private val networks: MutableMap<UUID, NetworkImpl> = mutableMapOf()
     private val networkNodes: MutableMap<UUID, NetworkNodeImpl> = mutableMapOf()
     private val networkConnections: MutableMap<Pair<UUID, UUID>, NetworkConnectionImpl> = mutableMapOf()
+
+    private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
+
+    override fun variables(): Collection<Variable<*>> {
+        return variables.values
+    }
+
+    override fun variable(name: String): Variable<*>? {
+        return variables[name]
+    }
+
+    override fun settings(): Collection<Setting<*>> {
+        return variables.values.filterIsInstance<Setting<*>>()
+    }
+
+    override fun setting(name: String): Setting<*>? {
+        return variableOfKind<Setting<*>>(name)
+    }
+
+    override fun inputs(): Collection<Input> {
+        return variables.values.filterIsInstance<Input>()
+    }
+
+    override fun input(name: String): Input? {
+        return variableOfKind<Input>(name)
+    }
+
+    override fun outputs(): Collection<Output> {
+        return variables.values.filterIsInstance<Output>()
+    }
+
+    override fun output(name: String): Output? {
+        return variableOfKind<Output>(name)
+    }
+
+    private inline fun <reified T : Variable<*>> variableOfKind(name: String): T? {
+        val variable = variables[name] ?: return null
+        return if (variable is T) variable else null
+    }
 
     override fun createSimulation(): Simulation {
         return SimulationImpl(environment, TODO())

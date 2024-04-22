@@ -29,7 +29,7 @@ public interface Kernel {
     public val properties: Map<Identifier, String>
 
     /**
-     * Returns all registered variables.
+     * Returns all variables that are registered on the kernel.
      */
     public fun variables(): Collection<Variable<*>>
 
@@ -121,11 +121,11 @@ public interface Kernel {
 
 internal abstract class KernelImpl(
     override val id: Identifier,
+    override val tags: Set<Identifier>,
+    override val properties: Map<Identifier, String>,
 ) : Kernel {
 
-    override val tags: MutableSet<Identifier> = mutableSetOf()
-    override val properties: MutableMap<Identifier, String> = mutableMapOf()
-    protected val variables: MutableMap<String, Variable<*>> = mutableMapOf()
+    protected abstract val variables: Map<String, Variable<*>>
 
     override fun variables(): Collection<Variable<*>> {
         return variables.values
@@ -140,7 +140,7 @@ internal abstract class KernelImpl(
     }
 
     override fun parameter(name: String): Parameter<*>? {
-        return variableWithSpecies<Parameter<*>>(name)
+        return variableOfKind<Parameter<*>>(name)
     }
 
     override fun settings(): Collection<Setting<*>> {
@@ -148,7 +148,7 @@ internal abstract class KernelImpl(
     }
 
     override fun setting(name: String): Setting<*>? {
-        return variableWithSpecies<Setting<*>>(name)
+        return variableOfKind<Setting<*>>(name)
     }
 
     override fun fields(): Collection<Field<*>> {
@@ -156,7 +156,7 @@ internal abstract class KernelImpl(
     }
 
     override fun field(name: String): Field<*>? {
-        return variableWithSpecies<Field<*>>(name)
+        return variableOfKind<Field<*>>(name)
     }
 
     override fun inputs(): Collection<Input> {
@@ -164,7 +164,7 @@ internal abstract class KernelImpl(
     }
 
     override fun input(name: String): Input? {
-        return variableWithSpecies<Input>(name)
+        return variableOfKind<Input>(name)
     }
 
     override fun outputs(): Collection<Output> {
@@ -172,10 +172,10 @@ internal abstract class KernelImpl(
     }
 
     override fun output(name: String): Output? {
-        return variableWithSpecies<Output>(name)
+        return variableOfKind<Output>(name)
     }
 
-    private inline fun <reified T : Variable<*>> variableWithSpecies(name: String): T? {
+    private inline fun <reified T : Variable<*>> variableOfKind(name: String): T? {
         val variable = variables[name] ?: return null
         return if (variable is T) variable else null
     }

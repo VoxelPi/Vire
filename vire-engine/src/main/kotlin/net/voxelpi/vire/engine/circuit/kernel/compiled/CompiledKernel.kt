@@ -8,6 +8,7 @@ import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationImpl
 import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationResults
 import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
 import net.voxelpi.vire.engine.circuit.kernel.KernelState
+import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
 
 public interface CompiledKernel : Kernel {
 
@@ -29,14 +30,13 @@ public interface CompiledKernel : Kernel {
 
 internal class CompiledKernelImpl(
     id: Identifier,
-) : KernelImpl(id), CompiledKernel {
-
-    override val configure: (ConfigurationContext) -> Unit
-        get() = TODO("Not yet implemented")
-    override val initialize: (InitializationContext) -> Unit
-        get() = TODO("Not yet implemented")
-    override val update: (UpdateContext) -> Unit
-        get() = TODO("Not yet implemented")
+    tags: Set<Identifier>,
+    properties: Map<Identifier, String>,
+    override val variables: Map<String, Variable<*>>,
+    override val configure: (ConfigurationContext) -> Unit,
+    override val initialize: (InitializationContext) -> Unit,
+    override val update: (UpdateContext) -> Unit,
+) : KernelImpl(id, tags, properties), CompiledKernel {
 
     override fun configureKernel(configuration: KernelConfiguration): Result<KernelConfigurationResults> {
         require(configuration is KernelConfigurationImpl)

@@ -129,7 +129,7 @@ internal class KernelInstanceImpl(
 
         // Update the instance state.
         parameterStates = configuration.parameterStates
-        ioVectorSizes = results.ioVectorSizes
+        ioVectorSizes = results.ioVectorSizes.toMutableMap()
         return Result.success(Unit)
     }
 
