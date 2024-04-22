@@ -1,7 +1,8 @@
 package net.voxelpi.vire.engine.circuit.kernel.compiled
 
-import net.voxelpi.vire.engine.circuit.kernel.InvalidKernelConfigurationException
 import net.voxelpi.vire.engine.circuit.kernel.Kernel
+import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationException
+import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationImpl
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVector
 import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
 
@@ -51,6 +52,71 @@ public interface ConfigurationContext {
      * This is intended to allow the kernel to signal an invalid parameter state.
      */
     public fun signalInvalidConfiguration(message: String = ""): Nothing {
-        throw InvalidKernelConfigurationException(message)
+        throw KernelConfigurationException(message)
+    }
+}
+
+internal class ConfigurationContextImpl(
+    val configuration: KernelConfigurationImpl,
+) : ConfigurationContext {
+
+    override val kernel: Kernel
+        get() = configuration.kernel
+
+    val ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
+
+    init {
+        for (input in kernel.inputs()) {
+            ioVectorSizes[input.name] = input.initialSize.provideValue()
+        }
+        for (output in kernel.outputs()) {
+            ioVectorSizes[output.name] = output.initialSize.provideValue()
+        }
+    }
+
+    override fun <T> get(parameter: Parameter<T>): T {
+        return configuration[parameter]
+    }
+
+    override fun get(parameterName: String): Any? {
+        return configuration[parameterName]
+    }
+
+    override fun size(ioVector: IOVector): Int {
+        // Check that the io vector is defined on the kernel.
+        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name)) { "Unknown IO Vector ${ioVector.name}" }
+
+        // Return the size.
+        return ioVectorSizes[ioVector.name]!!
+    }
+
+    override fun size(variableName: String): Int {
+        // Check that the io vector is defined on the kernel.
+        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName)) { "Unknown IO Vector $variableName" }
+
+        // Return the size.
+        return ioVectorSizes[variableName]!!
+    }
+
+    override fun resize(ioVector: IOVector, size: Int) {
+        // Check that the io vector is defined on the kernel.
+        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name)) { "Unknown IO Vector ${ioVector.name}" }
+
+        // Check that the size of the variable is greater than 0.
+        require(size >= 0) { "IO Vector size must be greater than or equal to zero" }
+
+        // Return the size.
+        ioVectorSizes[ioVector.name] = size
+    }
+
+    override fun resize(variableName: String, size: Int) {
+        // Check that the io vector is defined on the kernel.
+        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName)) { "Unknown IO Vector $variableName" }
+
+        // Check that the size of the variable is greater than 0.
+        require(size >= 0) { "IO Vector size must be greater than or equal to zero" }
+
+        // Return the size.
+        ioVectorSizes[variableName] = size
     }
 }

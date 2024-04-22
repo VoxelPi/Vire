@@ -2,7 +2,7 @@ package net.voxelpi.vire.engine.circuit.kernel.variable
 
 import kotlin.reflect.KType
 
-public interface Parameter<T> : Variable<T> {
+public interface Setting<T> : Variable<T> {
 
     override val name: String
 

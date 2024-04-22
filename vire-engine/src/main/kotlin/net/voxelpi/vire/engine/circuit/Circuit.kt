@@ -195,7 +195,7 @@ internal class CircuitImpl(
     private val networkConnections: MutableMap<Pair<UUID, UUID>, NetworkConnectionImpl> = mutableMapOf()
 
     override fun createSimulation(): Simulation {
-        return SimulationImpl(this)
+        return SimulationImpl(environment, TODO())
     }
 
     override fun components(): Collection<ComponentImpl> {

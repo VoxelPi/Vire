@@ -109,8 +109,8 @@ internal class KernelInstanceImpl(
         val configuration = KernelConfigurationImpl(kernel, parameterStates.toMutableMap())
         for ((parameterName, parameterValue) in values) {
             // Check that only existing parameters are specified.
-            require(parameterName in kernel.parameters) { "Specified value for unknown parameter '$parameterName'" }
-            val parameter = kernel.parameters[parameterName]!!
+            val parameter = kernel.parameter(parameterName)
+                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
             // Check that the value is valid for the parameter.
             require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
@@ -123,7 +123,7 @@ internal class KernelInstanceImpl(
 
     private fun configure(configuration: KernelConfigurationImpl): Result<Unit> {
         // Let the kernel process the configuration.
-        val results = kernel.processConfiguration(configuration).getOrElse {
+        val results = kernel.configureKernel(configuration).getOrElse {
             return Result.failure(it)
         }
 
@@ -136,7 +136,7 @@ internal class KernelInstanceImpl(
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: Parameter<T>): T {
         // Check that a parameter with the given name exists.
-        require(parameter.name in kernel.parameters) { "Unknown parameter ${parameter.name}" }
+        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
 
         // Return the value of the parameter.
         return parameterStates[parameter.name] as T
@@ -144,7 +144,7 @@ internal class KernelInstanceImpl(
 
     operator fun <T> set(parameter: Parameter<T>, value: T) {
         // Check that a parameter with the given name exists.
-        require(parameter.name in kernel.parameters) { "Unknown parameter ${parameter.name}" }
+        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
 
         // Check that the value is valid for the specified parameter.
         require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
@@ -155,7 +155,7 @@ internal class KernelInstanceImpl(
 
     override fun get(parameterName: String): Any? {
         // Check that a parameter with the given name exists.
-        require(parameterName in kernel.parameters) { "Unknown parameter $parameterName" }
+        require(kernel.hasParameter(parameterName)) { "Unknown parameter $parameterName" }
 
         // Return the value of the parameter.
         return parameterStates[parameterName]
@@ -163,8 +163,8 @@ internal class KernelInstanceImpl(
 
     operator fun set(parameterName: String, value: Any?) {
         // Check that a parameter with the given name exists.
-        require(parameterName in kernel.parameters) { "Unknown parameter $parameterName" }
-        val parameter = kernel.parameters[parameterName]!!
+        val parameter = kernel.parameter(parameterName)
+            ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
         // Check that the value is valid for the specified parameter.
         require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
@@ -175,7 +175,7 @@ internal class KernelInstanceImpl(
 
     override fun size(ioVector: IOVector): Int {
         // Check that the io vector is defined on the kernel.
-        require(ioVector.name in kernel.inputs || ioVector.name in kernel.outputs)
+        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name))
 
         // Return the size.
         return ioVectorSizes[ioVector.name]!!
@@ -183,7 +183,7 @@ internal class KernelInstanceImpl(
 
     override fun size(variableName: String): Int {
         // Check that the io vector is defined on the kernel.
-        require(variableName in kernel.inputs || variableName in kernel.outputs)
+        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName))
 
         // Return the size.
         return ioVectorSizes[variableName]!!
@@ -194,7 +194,7 @@ internal class KernelInstanceImpl(
      */
     fun resize(ioVector: IOVector, size: Int) {
         // Check that the io vector is defined on the kernel.
-        require(ioVector.name in kernel.inputs || ioVector.name in kernel.outputs)
+        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name))
 
         // Modify the size of the io vector.
         ioVectorSizes[ioVector.name] = size
@@ -205,7 +205,7 @@ internal class KernelInstanceImpl(
      */
     fun resize(variableName: String, size: Int) {
         // Check that the io vector is defined on the kernel.
-        require(variableName in kernel.inputs || variableName in kernel.outputs)
+        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName))
 
         // Modify the size of the io vector.
         ioVectorSizes[variableName] = size
@@ -227,8 +227,8 @@ internal class KernelInstanceImpl(
             val config = kernel.generateDefaultConfiguration()
             for ((parameterName, parameterValue) in values) {
                 // Check that only existing parameters are specified.
-                require(parameterName in kernel.parameters) { "Specified value for unknown parameter '$parameterName'" }
-                val parameter = kernel.parameters[parameterName]!!
+                val parameter = kernel.parameter(parameterName)
+                    ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
                 // Check that the value is valid for the parameter.
                 require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }

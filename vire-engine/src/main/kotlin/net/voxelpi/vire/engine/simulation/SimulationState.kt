@@ -7,9 +7,9 @@ import java.util.UUID
 
 public interface SimulationState
 
-internal class SimulationStateImpl {
+internal class SimulationStateImpl : SimulationState {
 
-    private val circuitState: KernelState = TODO()
+    private val kernelState: KernelState = TODO()
     private val componentStates: MutableMap<UUID, ComponentState> = mutableMapOf()
     private val networkStates: MutableMap<UUID, NetworkState> = mutableMapOf()
 }

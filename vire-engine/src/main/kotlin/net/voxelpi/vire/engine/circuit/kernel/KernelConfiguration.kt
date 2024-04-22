@@ -51,7 +51,7 @@ internal class KernelConfigurationImpl(
     init {
         for (parameterName in parameterStates.keys) {
             // Check that only existing parameters are specified.
-            require(parameterName in kernel.parameters) { "Specified value for unknown parameter '$parameterName'" }
+            require(kernel.hasParameter(parameterName)) { "Specified value for unknown parameter '$parameterName'" }
         }
         for (parameter in kernel.parameters()) {
             // Check that every parameter has an assigned value.
@@ -64,7 +64,7 @@ internal class KernelConfigurationImpl(
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: Parameter<T>): T {
         // Check that a parameter with the given name exists.
-        require(parameter.name in kernel.parameters) { "Unknown parameter ${parameter.name}" }
+        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
 
         // Return the value of the parameter.
         return parameterStates[parameter.name] as T
@@ -72,7 +72,7 @@ internal class KernelConfigurationImpl(
 
     override fun <T> set(parameter: Parameter<T>, value: T) {
         // Check that a parameter with the given name exists.
-        require(parameter.name in kernel.parameters) { "Unknown parameter ${parameter.name}" }
+        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
 
         // Check that the value is valid for the specified parameter.
         require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
@@ -83,7 +83,7 @@ internal class KernelConfigurationImpl(
 
     override fun get(parameterName: String): Any? {
         // Check that a parameter with the given name exists.
-        require(parameterName in kernel.parameters) { "Unknown parameter $parameterName" }
+        require(kernel.hasParameter(parameterName)) { "Unknown parameter $parameterName" }
 
         // Return the value of the parameter.
         return parameterStates[parameterName]
@@ -91,8 +91,8 @@ internal class KernelConfigurationImpl(
 
     override fun set(parameterName: String, value: Any?) {
         // Check that a parameter with the given name exists.
-        require(parameterName in kernel.parameters) { "Unknown parameter $parameterName" }
-        val parameter = kernel.parameters[parameterName]!!
+        val parameter = kernel.parameter(parameterName)
+            ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
         // Check that the value is valid for the specified parameter.
         require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }

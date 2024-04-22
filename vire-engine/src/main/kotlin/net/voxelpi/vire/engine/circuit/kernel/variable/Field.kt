@@ -4,7 +4,7 @@ import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
-public interface Field<T> : Variable {
+public interface Field<T> : Variable<T> {
 
     /**
      * The name of the variable.
@@ -14,7 +14,7 @@ public interface Field<T> : Variable {
     /**
      * The type of the variable.
      */
-    public val type: KType
+    override val type: KType
 
     /**
      * The initialization of the field.
