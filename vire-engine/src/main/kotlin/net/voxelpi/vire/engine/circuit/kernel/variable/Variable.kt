@@ -14,7 +14,13 @@ public sealed interface Variable {
 /**
  * An abstract io variable.
  */
-public sealed interface IOVector : Variable
+public sealed interface IOVector : Variable {
+
+    /**
+     * The initial size of the io vector.
+     */
+    public val initialSize: VariableInitialization<Int>
+}
 
 /**
  * An abstract io variable.

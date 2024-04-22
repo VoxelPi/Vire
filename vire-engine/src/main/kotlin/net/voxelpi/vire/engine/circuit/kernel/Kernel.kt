@@ -34,4 +34,36 @@ public interface Kernel {
     public fun outputs(): Collection<Output> = outputs.values
 }
 
-internal interface KernelImpl : Kernel
+internal interface KernelImpl : Kernel {
+
+    fun processConfiguration(kernelConfiguration: KernelConfiguration): Result<KernelConfigurationResults>
+
+    /**
+     * Returns a map that contains all parameters of the kernel and their default values.
+     */
+    fun generateDefaultConfiguration(): KernelConfigurationImpl {
+        return KernelConfigurationImpl(this, generateDefaultParameterStates())
+    }
+
+    /**
+     * Returns a map that contains all parameters of the kernel and their default values.
+     */
+    fun generateDefaultParameterStates(): MutableMap<String, Any?> {
+        val parameterStates = mutableMapOf<String, Any?>()
+        for (parameter in parameters.values) {
+            parameterStates[parameter.name] = parameter.initialization.provideValue()
+        }
+        return parameterStates
+    }
+
+    /**
+     * Returns a map that contains all io vectors of the kernel and their default sizes.
+     */
+    fun generateDefaultIOVectorSizes(): MutableMap<String, Int> {
+        val ioVectorSizes = mutableMapOf<String, Int>()
+        for (input in inputs.values) {
+            ioVectorSizes[input.name] = input.initialSize.provideValue()
+        }
+        return ioVectorSizes
+    }
+}

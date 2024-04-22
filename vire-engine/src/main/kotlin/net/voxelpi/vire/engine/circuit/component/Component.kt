@@ -11,7 +11,6 @@ import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
 import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
 import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
-import net.voxelpi.vire.engine.circuit.kernel.variable.KernelConfigurationImpl
 import java.util.UUID
 
 public interface Component : CircuitElement {
@@ -22,7 +21,7 @@ public interface Component : CircuitElement {
     public val kernel: Kernel
 
     /**
-     * The kernel instance of the component.
+     * The kernel configuration of the component.
      */
     public val kernelInstance: KernelInstance
 
@@ -49,12 +48,9 @@ public interface Component : CircuitElement {
 
 internal class ComponentImpl(
     override val circuit: CircuitImpl,
-    kernelConfiguration: KernelConfigurationImpl,
+    override val kernelInstance: KernelInstanceImpl,
     override val uniqueId: UUID,
 ) : CircuitElementImpl(), Component {
-
-    override val kernelInstance: KernelInstanceImpl
-        get() = TODO("Not yet implemented")
 
     override val kernel: KernelImpl
         get() = kernelInstance.kernel

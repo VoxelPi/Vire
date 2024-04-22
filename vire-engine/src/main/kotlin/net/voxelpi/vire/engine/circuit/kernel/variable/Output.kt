@@ -1,3 +1,3 @@
 package net.voxelpi.vire.engine.circuit.kernel.variable
 
-public interface Output : Variable
+public interface Output : IOVector
