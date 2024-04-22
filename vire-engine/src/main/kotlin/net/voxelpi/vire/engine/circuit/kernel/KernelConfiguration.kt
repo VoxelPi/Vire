@@ -101,3 +101,8 @@ internal class KernelConfigurationImpl(
         parameterStates[parameter.name] = value
     }
 }
+
+internal data class KernelConfigurationResults(
+    val kernelConfiguration: KernelConfiguration,
+    val ioVectorSizes: MutableMap<String, Int>,
+)

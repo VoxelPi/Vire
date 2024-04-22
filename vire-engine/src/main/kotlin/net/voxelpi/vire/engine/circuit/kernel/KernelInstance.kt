@@ -49,16 +49,32 @@ public interface KernelInstance {
 
     public companion object {
 
+        /**
+         * Creates a new instance of the given [kernel].
+         * @param kernel the kernel of which a new instance should be created.
+         */
         public fun create(kernel: Kernel): KernelInstance {
             require(kernel is KernelImpl)
             return KernelInstanceImpl.create(kernel)
         }
 
+        /**
+         * Creates a new instance of the given [kernel] that is configured using the given [block].
+         * Values are initialized to their default values before the block is applied.
+         * @param kernel the kernel of which a new instance should be created.
+         * @param block the code that should be applied to the kernel configuration.
+         */
         public fun create(kernel: Kernel, block: KernelConfiguration.() -> Unit): KernelInstance {
             require(kernel is KernelImpl)
             return KernelInstanceImpl.create(kernel, block)
         }
 
+        /**
+         * Creates a new instance of the given [kernel] that is configured using the given [values].
+         * Values are initialized to their default values if not specified in the values map.
+         * @param kernel the kernel of which a new instance should be created.
+         * @param values the values that should be applied to the kernel configuration.
+         */
         public fun create(kernel: Kernel, values: Map<String, Any?>): KernelInstance {
             require(kernel is KernelImpl)
             return KernelInstanceImpl.create(kernel, values)
