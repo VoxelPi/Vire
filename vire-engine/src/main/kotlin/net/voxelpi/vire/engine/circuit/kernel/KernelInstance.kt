@@ -1,12 +1,16 @@
 package net.voxelpi.vire.engine.circuit.kernel
 
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVector
+import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorSizeProvider
+import net.voxelpi.vire.engine.circuit.kernel.variable.Input
+import net.voxelpi.vire.engine.circuit.kernel.variable.Output
 import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
+import net.voxelpi.vire.engine.circuit.kernel.variable.ParameterStateProvider
 
 /**
  * An instance of a kernel.
  */
-public interface KernelInstance {
+public interface KernelInstance : ParameterStateProvider, IOVectorSizeProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -14,23 +18,11 @@ public interface KernelInstance {
     public val kernel: Kernel
 
     /**
-     * Returns the current value of the given [parameter].
-     *
-     * @param parameter the parameter of which the value should be returned.
-     */
-    public operator fun <T> get(parameter: Parameter<T>): T
-
-    /**
      * Returns the current value of the parameter with the given [parameterName].
      *
      * @param parameterName the name of the parameter of which the value should be returned.
      */
     public operator fun get(parameterName: String): Any?
-
-    /**
-     * Returns the size of the given [ioVector].
-     */
-    public fun size(ioVector: IOVector): Int
 
     /**
      * Returns the size of the given IO-vector with the given [variableName].
@@ -173,12 +165,20 @@ internal class KernelInstanceImpl(
         parameterStates[parameter.name] = value
     }
 
-    override fun size(ioVector: IOVector): Int {
+    override fun size(input: Input): Int {
         // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name))
+        require(kernel.hasInput(input.name))
 
         // Return the size.
-        return ioVectorSizes[ioVector.name]!!
+        return ioVectorSizes[input.name]!!
+    }
+
+    override fun size(output: Output): Int {
+        // Check that the io vector is defined on the kernel.
+        require(kernel.hasOutput(output.name))
+
+        // Return the size.
+        return ioVectorSizes[output.name]!!
     }
 
     override fun size(variableName: String): Int {

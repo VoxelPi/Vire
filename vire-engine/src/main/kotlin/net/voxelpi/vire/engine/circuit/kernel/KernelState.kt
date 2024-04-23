@@ -1,6 +1,14 @@
 package net.voxelpi.vire.engine.circuit.kernel
 
-public interface KernelState {
+import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorSizeProvider
+import net.voxelpi.vire.engine.circuit.kernel.variable.Input
+import net.voxelpi.vire.engine.circuit.kernel.variable.Output
+import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
+import net.voxelpi.vire.engine.circuit.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.circuit.kernel.variable.Setting
+import net.voxelpi.vire.engine.circuit.kernel.variable.SettingStateProvider
+
+public interface KernelState : ParameterStateProvider, SettingStateProvider, IOVectorSizeProvider {
 
     /**
      * The kernel configuration from which this state was generated.
@@ -74,5 +82,21 @@ internal class KernelStateImpl(
 //        return KernelStateImpl(kernel, config)
             TODO()
         }
+    }
+
+    override fun <T> get(parameter: Parameter<T>): T {
+        TODO("Not yet implemented")
+    }
+
+    override fun <T> get(setting: Setting<T>): T {
+        TODO("Not yet implemented")
+    }
+
+    override fun size(input: Input): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun size(output: Output): Int {
+        TODO("Not yet implemented")
     }
 }

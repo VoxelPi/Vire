@@ -1,11 +1,12 @@
 package net.voxelpi.vire.engine.circuit.kernel
 
+import net.voxelpi.vire.engine.circuit.kernel.variable.MutableParameterStateProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
 
 /**
  * An instance of a kernel.
  */
-public interface KernelConfiguration {
+public interface KernelConfiguration : MutableParameterStateProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -13,26 +14,11 @@ public interface KernelConfiguration {
     public val kernel: Kernel
 
     /**
-     * Returns the current value of the given [parameter].
-     *
-     * @param parameter the parameter of which the value should be returned.
-     */
-    public operator fun <T> get(parameter: Parameter<T>): T
-
-    /**
      * Returns the current value of the parameter with the given [parameterName].
      *
      * @param parameterName the name of the parameter of which the value should be returned.
      */
     public operator fun get(parameterName: String): Any?
-
-    /**
-     * Sets the value of the given [parameter] to the given [value].
-     *
-     * @param parameter the parameter of which the value should be modified.
-     * @param value the new value of the parameter.
-     */
-    public operator fun <T> set(parameter: Parameter<T>, value: T)
 
     /**
      * Sets the value of the parameter with the given [parameterName] to the given [value].
