@@ -21,8 +21,11 @@ import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
 import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import net.voxelpi.vire.engine.circuit.kernel.variable.Input
+import net.voxelpi.vire.engine.circuit.kernel.variable.InputProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Output
+import net.voxelpi.vire.engine.circuit.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Setting
+import net.voxelpi.vire.engine.circuit.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
 import net.voxelpi.vire.engine.circuit.network.Network
 import net.voxelpi.vire.engine.circuit.network.NetworkConnection
@@ -41,7 +44,7 @@ import java.util.UUID
 /**
  * A logic circuit created by linking different components together.
  */
-public interface Circuit {
+public interface Circuit : SettingProvider, InputProvider, OutputProvider {
 
     /**
      * The environment of the circuit.
@@ -52,66 +55,6 @@ public interface Circuit {
      * The event scope of the environment.
      */
     public val eventScope: EventScope
-
-    /**
-     * Returns all variables that are registered on the circuit.
-     */
-    public fun variables(): Collection<Variable<*>>
-
-    /**
-     * Returns the variable with the given [name].
-     */
-    public fun variable(name: String): Variable<*>?
-
-    /**
-     * Checks if the circuit has a variable with the given [name].
-     */
-    public fun hasVariable(name: String): Boolean = variable(name) != null
-
-    /**
-     * Returns all settings that are registered on the circuit.
-     */
-    public fun settings(): Collection<Setting<*>>
-
-    /**
-     * Returns the setting with the given [name].
-     */
-    public fun setting(name: String): Setting<*>?
-
-    /**
-     * Checks if the circuit has a setting with the given [name].
-     */
-    public fun hasSetting(name: String): Boolean = setting(name) != null
-
-    /**
-     * Returns all inputs that are registered on the circuit.
-     */
-    public fun inputs(): Collection<Input>
-
-    /**
-     * Returns the input with the given [name].
-     */
-    public fun input(name: String): Input?
-
-    /**
-     * Checks if the circuit has an input with the given [name].
-     */
-    public fun hasInput(name: String): Boolean = input(name) != null
-
-    /**
-     * Returns all outputs that are registered on the kernel.
-     */
-    public fun outputs(): Collection<Output>
-
-    /**
-     * Returns the output with the given [name].
-     */
-    public fun output(name: String): Output?
-
-    /**
-     * Checks if the kernel has an output with the given [name].
-     */
-    public fun hasOutput(name: String): Boolean = output(name) != null
 
     /**
      * Creates a new simulation of this circuit.

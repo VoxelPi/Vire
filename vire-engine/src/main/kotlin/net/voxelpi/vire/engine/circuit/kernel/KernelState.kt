@@ -2,6 +2,11 @@ package net.voxelpi.vire.engine.circuit.kernel
 
 public interface KernelState {
 
+    /**
+     * The kernel configuration from which this state was generated.
+     */
+    public val kernelInstance: KernelInstance
+
     public companion object {
 
         /**
@@ -37,9 +42,11 @@ public interface KernelState {
     }
 }
 
-internal class KernelStateImpl : KernelState {
-    companion object {
+internal class KernelStateImpl(
+    override val kernelInstance: KernelInstance,
+) : KernelState {
 
+    companion object {
         fun create(kernelInstance: KernelInstanceImpl): KernelStateImpl {
 //        val state = KernelStateImpl(kernelInstance, kernel.generateDefaultConfiguration())
 //        return state

@@ -2,16 +2,21 @@ package net.voxelpi.vire.engine.circuit.kernel
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.circuit.kernel.variable.Field
+import net.voxelpi.vire.engine.circuit.kernel.variable.FieldProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Input
+import net.voxelpi.vire.engine.circuit.kernel.variable.InputProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Output
+import net.voxelpi.vire.engine.circuit.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
+import net.voxelpi.vire.engine.circuit.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Setting
+import net.voxelpi.vire.engine.circuit.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.
  */
-public interface Kernel {
+public interface Kernel : ParameterProvider, SettingProvider, FieldProvider, InputProvider, OutputProvider {
 
     /**
      * The id of the kernel.
@@ -27,96 +32,6 @@ public interface Kernel {
      * The properties of the kernel.
      */
     public val properties: Map<Identifier, String>
-
-    /**
-     * Returns all variables that are registered on the kernel.
-     */
-    public fun variables(): Collection<Variable<*>>
-
-    /**
-     * Returns the variable with the given [name].
-     */
-    public fun variable(name: String): Variable<*>?
-
-    /**
-     * Checks if the kernel has a variable with the given [name].
-     */
-    public fun hasVariable(name: String): Boolean = variable(name) != null
-
-    /**
-     * Returns all parameters that are registered on the kernel.
-     */
-    public fun parameters(): Collection<Parameter<*>>
-
-    /**
-     * Returns the parameter with the given [name].
-     */
-    public fun parameter(name: String): Parameter<*>?
-
-    /**
-     * Checks if the kernel has a parameter with the given [name].
-     */
-    public fun hasParameter(name: String): Boolean = parameter(name) != null
-
-    /**
-     * Returns all settings that are registered on the kernel.
-     */
-    public fun settings(): Collection<Setting<*>>
-
-    /**
-     * Returns the setting with the given [name].
-     */
-    public fun setting(name: String): Setting<*>?
-
-    /**
-     * Checks if the kernel has a setting with the given [name].
-     */
-    public fun hasSetting(name: String): Boolean = setting(name) != null
-
-    /**
-     * Returns all fields that are registered on the kernel.
-     */
-    public fun fields(): Collection<Field<*>>
-
-    /**
-     * Returns the field with the given [name].
-     */
-    public fun field(name: String): Field<*>?
-
-    /**
-     * Checks if the kernel has a field with the given [name].
-     */
-    public fun hasField(name: String): Boolean = field(name) != null
-
-    /**
-     * Returns all inputs that are registered on the kernel.
-     */
-    public fun inputs(): Collection<Input>
-
-    /**
-     * Returns the input with the given [name].
-     */
-    public fun input(name: String): Input?
-
-    /**
-     * Checks if the kernel has an input with the given [name].
-     */
-    public fun hasInput(name: String): Boolean = input(name) != null
-
-    /**
-     * Returns all outputs that are registered on the kernel.
-     */
-    public fun outputs(): Collection<Output>
-
-    /**
-     * Returns the output with the given [name].
-     */
-    public fun output(name: String): Output?
-
-    /**
-     * Checks if the kernel has an output with the given [name].
-     */
-    public fun hasOutput(name: String): Boolean = output(name) != null
 }
 
 internal abstract class KernelImpl(
