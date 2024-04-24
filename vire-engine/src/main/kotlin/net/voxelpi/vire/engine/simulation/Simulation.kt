@@ -1,8 +1,8 @@
 package net.voxelpi.vire.engine.simulation
 
 import net.voxelpi.event.EventScope
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariant
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 
@@ -19,7 +19,7 @@ public interface Simulation {
     /**
      * The simulated kernel.
      */
-    public val kernelInstance: KernelInstance
+    public val kernelVariant: KernelVariant
 
     /**
      * The event scope of the environment.
@@ -53,13 +53,13 @@ public interface Simulation {
 
 internal class SimulationImpl(
     override val environment: EnvironmentImpl,
-    override val kernelInstance: KernelInstanceImpl,
+    override val kernelVariant: KernelVariantImpl,
 ) : Simulation {
 
     // TODO: Should this be a sub-scope of the circuit event scope instead?
     override val eventScope: EventScope = environment.eventScope.createSubScope()
 
-    val history: SimulationHistory = SimulationHistory(kernelInstance)
+    val history: SimulationHistory = SimulationHistory(kernelVariant)
 
     override fun simulateSteps(steps: Int) {
         TODO("Not yet implemented")

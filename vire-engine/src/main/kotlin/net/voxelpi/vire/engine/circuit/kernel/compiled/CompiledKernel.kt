@@ -7,7 +7,7 @@ import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationImpl
 import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationResults
 import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
-import net.voxelpi.vire.engine.circuit.kernel.KernelState
+import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
 import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
 
 public interface CompiledKernel : Kernel {
@@ -49,11 +49,11 @@ internal class CompiledKernelImpl(
         return Result.success(KernelConfigurationResults(configuration, context.ioVectorSizes))
     }
 
-    override fun initializeKernel(state: KernelState) {
+    override fun initializeKernel(state: KernelInstance) {
         TODO("Not yet implemented")
     }
 
-    override fun updateKernel(state: KernelState) {
+    override fun updateKernel(state: KernelInstance) {
         TODO("Not yet implemented")
     }
 }

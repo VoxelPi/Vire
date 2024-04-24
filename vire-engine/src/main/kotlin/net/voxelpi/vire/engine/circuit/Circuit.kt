@@ -17,8 +17,8 @@ import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkSplitEvent
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalCreateEvent
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalDestroyEvent
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariant
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import net.voxelpi.vire.engine.circuit.kernel.variable.Input
 import net.voxelpi.vire.engine.circuit.kernel.variable.InputProvider
@@ -75,7 +75,7 @@ public interface Circuit : SettingProvider, InputProvider, OutputProvider {
     /**
      * Creates a new component in the circuit.
      */
-    public fun createComponent(configuration: KernelInstance, uniqueId: UUID = UUID.randomUUID()): Component
+    public fun createComponent(configuration: KernelVariant, uniqueId: UUID = UUID.randomUUID()): Component
 
     /**
      * Removes the given [component] from the circuit.
@@ -252,8 +252,8 @@ internal class CircuitImpl(
         return components[uniqueId]
     }
 
-    override fun createComponent(configuration: KernelInstance, uniqueId: UUID): ComponentImpl {
-        require(configuration is KernelInstanceImpl)
+    override fun createComponent(configuration: KernelVariant, uniqueId: UUID): ComponentImpl {
+        require(configuration is KernelVariantImpl)
 
         // Create the component.
         val component = ComponentImpl(this, configuration, uniqueId)

@@ -8,8 +8,8 @@ import net.voxelpi.vire.engine.circuit.event.component.ComponentPortCreateEvent
 import net.voxelpi.vire.engine.circuit.event.component.ComponentPortDestroyEvent
 import net.voxelpi.vire.engine.circuit.kernel.Kernel
 import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariant
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import java.util.UUID
 
@@ -23,7 +23,7 @@ public interface Component : CircuitElement {
     /**
      * The kernel configuration of the component.
      */
-    public val kernelInstance: KernelInstance
+    public val kernelVariant: KernelVariant
 
     /**
      * Returns all ports of this component.
@@ -48,12 +48,12 @@ public interface Component : CircuitElement {
 
 internal class ComponentImpl(
     override val circuit: CircuitImpl,
-    override val kernelInstance: KernelInstanceImpl,
+    override val kernelVariant: KernelVariantImpl,
     override val uniqueId: UUID,
 ) : CircuitElementImpl(), Component {
 
     override val kernel: KernelImpl
-        get() = kernelInstance.kernel
+        get() = kernelVariant.kernel
 
     private val ports: MutableMap<UUID, ComponentPortImpl> = mutableMapOf()
 

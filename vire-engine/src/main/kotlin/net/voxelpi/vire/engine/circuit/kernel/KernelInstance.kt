@@ -1,240 +1,104 @@
 package net.voxelpi.vire.engine.circuit.kernel
 
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVector
 import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorSizeProvider
 import net.voxelpi.vire.engine.circuit.kernel.variable.Input
 import net.voxelpi.vire.engine.circuit.kernel.variable.Output
 import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
 import net.voxelpi.vire.engine.circuit.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.circuit.kernel.variable.Setting
+import net.voxelpi.vire.engine.circuit.kernel.variable.SettingStateProvider
 
-/**
- * An instance of a kernel.
- */
-public interface KernelInstance : ParameterStateProvider, IOVectorSizeProvider {
-
-    /**
-     * The kernel which of which the instance was created.
-     */
-    public val kernel: Kernel
+public interface KernelInstance : ParameterStateProvider, SettingStateProvider, IOVectorSizeProvider {
 
     /**
-     * Returns the current value of the parameter with the given [parameterName].
-     *
-     * @param parameterName the name of the parameter of which the value should be returned.
+     * The kernel configuration from which this state was generated.
      */
-    public operator fun get(parameterName: String): Any?
+    public val kernelVariant: KernelVariant
 
-    /**
-     * Returns the size of the given IO-vector with the given [variableName].
-     */
-    public fun size(variableName: String): Int
 
-    /**
-     * Updates the state of the parameters of the instance using the given [block].
-     */
-    public fun configure(block: KernelConfiguration.() -> Unit): Result<Unit>
-
-    /**
-     * Updates the state of the parameters of the instance to the given [values].
-     */
-    public fun configure(values: Map<String, Any?>): Result<Unit>
 
     public companion object {
 
         /**
-         * Creates a new instance of the given [kernel].
-         * @param kernel the kernel of which a new instance should be created.
+         * Creates a new state of the given [kernelVariant].
+         * @param kernelVariant the kernelInstance of which a new state should be created.
          */
-        public fun create(kernel: Kernel): KernelInstance {
-            require(kernel is KernelImpl)
-            return KernelInstanceImpl.create(kernel)
+        public fun create(kernelVariant: KernelVariant): KernelInstance {
+            require(kernelVariant is KernelVariantImpl)
+            return KernelInstanceImpl.create(kernelVariant)
         }
 
         /**
-         * Creates a new instance of the given [kernel] that is configured using the given [block].
+         * Creates a new state of the given [kernelVariant] that is initialized using the given [block].
          * Values are initialized to their default values before the block is applied.
-         * @param kernel the kernel of which a new instance should be created.
+         * @param kernelVariant the kernelInstance of which a new state should be created.
          * @param block the code that should be applied to the kernel configuration.
          */
-        public fun create(kernel: Kernel, block: KernelConfiguration.() -> Unit): KernelInstance {
-            require(kernel is KernelImpl)
-            return KernelInstanceImpl.create(kernel, block)
+        public fun create(kernelVariant: KernelVariant, block: KernelInitialization.() -> Unit): KernelInstance {
+            require(kernelVariant is KernelVariantImpl)
+            return KernelInstanceImpl.create(kernelVariant, block)
         }
 
         /**
-         * Creates a new instance of the given [kernel] that is configured using the given [values].
+         * Creates a new state of the given [kernelVariant] that is initialized using the given [values].
          * Values are initialized to their default values if not specified in the values map.
-         * @param kernel the kernel of which a new instance should be created.
+         * @param kernelVariant the kernelInstance of which a new state should be created.
          * @param values the values that should be applied to the kernel configuration.
          */
-        public fun create(kernel: Kernel, values: Map<String, Any?>): KernelInstance {
-            require(kernel is KernelImpl)
-            return KernelInstanceImpl.create(kernel, values)
+        public fun create(kernelVariant: KernelVariant, values: Map<String, Any?>): KernelInstance {
+            require(kernelVariant is KernelVariantImpl)
+            return KernelInstanceImpl.create(kernelVariant, values)
         }
     }
 }
 
 internal class KernelInstanceImpl(
-    override val kernel: KernelImpl,
-    configuration: KernelConfigurationImpl,
+    override val kernelVariant: KernelVariant,
 ) : KernelInstance {
 
-    private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
-
-    private var ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
-
-    init {
-        configure(configuration).getOrThrow()
-    }
-
-    override fun configure(block: KernelConfiguration.() -> Unit): Result<Unit> {
-        // Create a new configuration from the current instance state and apply the update block.
-        val configuration = KernelConfigurationImpl(kernel, parameterStates.toMutableMap())
-        configuration.block()
-
-        // Apply the configuration.
-        return configure(configuration)
-    }
-
-    override fun configure(values: Map<String, Any?>): Result<Unit> {
-        // Create a new configuration from the current instance state and apply the update block.
-        val configuration = KernelConfigurationImpl(kernel, parameterStates.toMutableMap())
-        for ((parameterName, parameterValue) in values) {
-            // Check that only existing parameters are specified.
-            val parameter = kernel.parameter(parameterName)
-                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-            // Check that the value is valid for the parameter.
-            require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
-            this[parameterName] = parameterValue
+    companion object {
+        fun create(kernelInstance: KernelVariantImpl): KernelInstanceImpl {
+//        val state = KernelStateImpl(kernelInstance, kernel.generateDefaultConfiguration())
+//        return state
+            TODO()
         }
 
-        // Apply the configuration.
-        return configure(configuration)
-    }
-
-    private fun configure(configuration: KernelConfigurationImpl): Result<Unit> {
-        // Let the kernel process the configuration.
-        val results = kernel.configureKernel(configuration).getOrElse {
-            return Result.failure(it)
+        fun create(kernelInstance: KernelVariantImpl, block: KernelInitialization.() -> Unit): KernelInstanceImpl {
+//        val config = kernel.generateDefaultConfiguration()
+//        config.block()
+//        return KernelStateImpl(kernelInstance, config)
+            TODO()
         }
 
-        // Update the instance state.
-        parameterStates = configuration.parameterStates
-        ioVectorSizes = results.ioVectorSizes.toMutableMap()
-        return Result.success(Unit)
+        fun create(kernelInstance: KernelVariantImpl, values: Map<String, Any?>): KernelInstanceImpl {
+//        val config = kernelInstance.generateDefaultConfiguration()
+//        for ((parameterName, parameterValue) in values) {
+//            // Check that only existing parameters are specified.
+//            val parameter = kernelInstance.parameter(parameterName)
+//                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
+//
+//            // Check that the value is valid for the parameter.
+//            require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
+//            config[parameterName] = parameterValue
+//        }
+//        return KernelStateImpl(kernel, config)
+            TODO()
+        }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: Parameter<T>): T {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
-
-        // Return the value of the parameter.
-        return parameterStates[parameter.name] as T
+        TODO("Not yet implemented")
     }
 
-    operator fun <T> set(parameter: Parameter<T>, value: T) {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
-
-        // Check that the value is valid for the specified parameter.
-        require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
-
-        // Update the value of the parameter.
-        parameterStates[parameter.name] = value
-    }
-
-    override fun get(parameterName: String): Any? {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameterName)) { "Unknown parameter $parameterName" }
-
-        // Return the value of the parameter.
-        return parameterStates[parameterName]
-    }
-
-    operator fun set(parameterName: String, value: Any?) {
-        // Check that a parameter with the given name exists.
-        val parameter = kernel.parameter(parameterName)
-            ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-        // Check that the value is valid for the specified parameter.
-        require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
-
-        // Update the value of the parameter.
-        parameterStates[parameter.name] = value
+    override fun <T> get(setting: Setting<T>): T {
+        TODO("Not yet implemented")
     }
 
     override fun size(input: Input): Int {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(input.name))
-
-        // Return the size.
-        return ioVectorSizes[input.name]!!
+        TODO("Not yet implemented")
     }
 
     override fun size(output: Output): Int {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasOutput(output.name))
-
-        // Return the size.
-        return ioVectorSizes[output.name]!!
-    }
-
-    override fun size(variableName: String): Int {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName))
-
-        // Return the size.
-        return ioVectorSizes[variableName]!!
-    }
-
-    /**
-     * Changes the size of the given [ioVector] to the given [size].
-     */
-    fun resize(ioVector: IOVector, size: Int) {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name))
-
-        // Modify the size of the io vector.
-        ioVectorSizes[ioVector.name] = size
-    }
-
-    /**
-     * Changes the size of the given IO-vector with the given [variableName] to the given [size].
-     */
-    fun resize(variableName: String, size: Int) {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName))
-
-        // Modify the size of the io vector.
-        ioVectorSizes[variableName] = size
-    }
-
-    companion object {
-        fun create(kernel: KernelImpl): KernelInstanceImpl {
-            val instance = KernelInstanceImpl(kernel, kernel.generateDefaultConfiguration())
-            return instance
-        }
-
-        fun create(kernel: KernelImpl, block: KernelConfiguration.() -> Unit): KernelInstanceImpl {
-            val config = kernel.generateDefaultConfiguration()
-            config.block()
-            return KernelInstanceImpl(kernel, config)
-        }
-
-        fun create(kernel: KernelImpl, values: Map<String, Any?>): KernelInstanceImpl {
-            val config = kernel.generateDefaultConfiguration()
-            for ((parameterName, parameterValue) in values) {
-                // Check that only existing parameters are specified.
-                val parameter = kernel.parameter(parameterName)
-                    ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-                // Check that the value is valid for the parameter.
-                require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
-                config[parameterName] = parameterValue
-            }
-            return KernelInstanceImpl(kernel, config)
-        }
+        TODO("Not yet implemented")
     }
 }

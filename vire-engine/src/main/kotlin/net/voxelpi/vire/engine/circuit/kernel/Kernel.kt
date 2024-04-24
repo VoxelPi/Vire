@@ -100,9 +100,9 @@ internal abstract class KernelImpl(
      */
     abstract fun configureKernel(configuration: KernelConfiguration): Result<KernelConfigurationResults>
 
-    abstract fun initializeKernel(state: KernelState)
+    abstract fun initializeKernel(state: KernelInstance)
 
-    abstract fun updateKernel(state: KernelState)
+    abstract fun updateKernel(state: KernelInstance)
 
     /**
      * Returns a map that contains all parameters of the kernel and their default values.

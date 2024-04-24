@@ -1,9 +1,9 @@
 package net.voxelpi.vire.engine.simulation
 
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstanceImpl
+import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
 
 internal class SimulationHistory(
-    val kernelInstance: KernelInstanceImpl,
+    val kernelInstance: KernelVariantImpl,
 ) {
     val states: MutableList<SimulationState> = mutableListOf()
 
