@@ -15,8 +15,6 @@ public interface KernelInstance : ParameterStateProvider, SettingStateProvider, 
      */
     public val kernelVariant: KernelVariant
 
-
-
     public companion object {
 
         /**

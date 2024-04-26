@@ -9,6 +9,8 @@ import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationResults
 import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
 import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
 import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
+import net.voxelpi.vire.engine.circuit.kernel.variable.field
+import net.voxelpi.vire.engine.simulation.SimulationStateImpl
 
 public interface CircuitKernel : Kernel {
 
@@ -22,7 +24,13 @@ internal class CircuitKernelImpl(
     override val circuit: CircuitImpl,
 ) : KernelImpl(id, tags, properties), CircuitKernel {
 
-    override val variables: Map<String, Variable<*>> = circuit.variables().associateBy { it.name }
+    override val variables: Map<String, Variable<*>>
+
+    init {
+        val variables: MutableMap<String, Variable<*>> = circuit.variables().associateBy { it.name }.toMutableMap()
+        variables[STATE_FIELD.name] = STATE_FIELD
+        this.variables = variables
+    }
 
     override fun configureKernel(configuration: KernelConfiguration): Result<KernelConfigurationResults> {
         val ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
@@ -41,5 +49,9 @@ internal class CircuitKernelImpl(
 
     override fun updateKernel(state: KernelInstance) {
         TODO("Not yet implemented")
+    }
+
+    companion object {
+        private val STATE_FIELD = field("state", SimulationStateImpl())
     }
 }
