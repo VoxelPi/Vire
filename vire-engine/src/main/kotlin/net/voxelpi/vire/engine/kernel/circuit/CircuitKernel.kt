@@ -4,10 +4,10 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.kernel.Kernel
-import net.voxelpi.vire.engine.kernel.KernelConfiguration
-import net.voxelpi.vire.engine.kernel.KernelConfigurationResults
 import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.KernelInstance
+import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
+import net.voxelpi.vire.engine.kernel.KernelVariantData
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.simulation.SimulationStateImpl
@@ -32,7 +32,7 @@ internal class CircuitKernelImpl(
         this.variables = variables
     }
 
-    override fun configureKernel(configuration: KernelConfiguration): Result<KernelConfigurationResults> {
+    override fun configureKernel(builder: KernelVariantBuilder): Result<KernelVariantData> {
         val ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
         for (input in circuit.inputs()) {
             ioVectorSizes[input.name] = input.initialSize.provideValue()
@@ -40,7 +40,7 @@ internal class CircuitKernelImpl(
         for (output in circuit.outputs()) {
             ioVectorSizes[output.name] = output.initialSize.provideValue()
         }
-        return Result.success(KernelConfigurationResults(configuration, ioVectorSizes))
+        return Result.success(KernelVariantData(builder, ioVectorSizes))
     }
 
     override fun initializeKernel(state: KernelInstance) {

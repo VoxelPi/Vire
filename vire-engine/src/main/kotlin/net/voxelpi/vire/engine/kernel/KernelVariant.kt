@@ -30,53 +30,19 @@ public interface KernelVariant : ParameterStateProvider, IOVectorSizeProvider {
     public fun size(variableName: String): Int
 
     /**
-     * Updates the state of the parameters of the instance using the given [block].
+     * Updates the state of the parameters of the instance using the given [builder].
      */
-    public fun configure(block: KernelConfiguration.() -> Unit): Result<Unit>
+    public fun configure(builder: KernelVariantBuilder.() -> Unit): Result<Unit>
 
     /**
      * Updates the state of the parameters of the instance to the given [values].
      */
     public fun configure(values: Map<String, Any?>): Result<Unit>
-
-    public companion object {
-
-        /**
-         * Creates a new instance of the given [kernel].
-         * @param kernel the kernel of which a new instance should be created.
-         */
-        public fun create(kernel: Kernel): KernelVariant {
-            require(kernel is KernelImpl)
-            return KernelVariantImpl.create(kernel)
-        }
-
-        /**
-         * Creates a new instance of the given [kernel] that is configured using the given [block].
-         * Values are initialized to their default values before the block is applied.
-         * @param kernel the kernel of which a new instance should be created.
-         * @param block the code that should be applied to the kernel configuration.
-         */
-        public fun create(kernel: Kernel, block: KernelConfiguration.() -> Unit): KernelVariant {
-            require(kernel is KernelImpl)
-            return KernelVariantImpl.create(kernel, block)
-        }
-
-        /**
-         * Creates a new instance of the given [kernel] that is configured using the given [values].
-         * Values are initialized to their default values if not specified in the values map.
-         * @param kernel the kernel of which a new instance should be created.
-         * @param values the values that should be applied to the kernel configuration.
-         */
-        public fun create(kernel: Kernel, values: Map<String, Any?>): KernelVariant {
-            require(kernel is KernelImpl)
-            return KernelVariantImpl.create(kernel, values)
-        }
-    }
 }
 
 internal class KernelVariantImpl(
     override val kernel: KernelImpl,
-    configuration: KernelConfigurationImpl,
+    configuration: KernelVariantBuilderImpl,
 ) : KernelVariant {
 
     private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
@@ -87,18 +53,18 @@ internal class KernelVariantImpl(
         configure(configuration).getOrThrow()
     }
 
-    override fun configure(block: KernelConfiguration.() -> Unit): Result<Unit> {
+    override fun configure(builder: KernelVariantBuilder.() -> Unit): Result<Unit> {
         // Create a new configuration from the current instance state and apply the update block.
-        val configuration = KernelConfigurationImpl(kernel, parameterStates.toMutableMap())
-        configuration.block()
+        val builderInstance = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
+            .apply(builder)
 
         // Apply the configuration.
-        return configure(configuration)
+        return configure(builderInstance)
     }
 
     override fun configure(values: Map<String, Any?>): Result<Unit> {
         // Create a new configuration from the current instance state and apply the update block.
-        val configuration = KernelConfigurationImpl(kernel, parameterStates.toMutableMap())
+        val builder = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
         for ((parameterName, parameterValue) in values) {
             // Check that only existing parameters are specified.
             val parameter = kernel.parameter(parameterName)
@@ -110,18 +76,18 @@ internal class KernelVariantImpl(
         }
 
         // Apply the configuration.
-        return configure(configuration)
+        return configure(builder)
     }
 
-    private fun configure(configuration: KernelConfigurationImpl): Result<Unit> {
+    private fun configure(builder: KernelVariantBuilderImpl): Result<Unit> {
         // Let the kernel process the configuration.
-        val results = kernel.configureKernel(configuration).getOrElse {
+        val variantData = kernel.configureKernel(builder).getOrElse {
             return Result.failure(it)
         }
 
         // Update the instance state.
-        parameterStates = configuration.parameterStates
-        ioVectorSizes = results.ioVectorSizes.toMutableMap()
+        parameterStates = builder.parameterStates
+        ioVectorSizes = variantData.ioVectorSizes.toMutableMap()
         return Result.success(Unit)
     }
 
@@ -209,32 +175,5 @@ internal class KernelVariantImpl(
 
         // Modify the size of the io vector.
         ioVectorSizes[variableName] = size
-    }
-
-    companion object {
-        fun create(kernel: KernelImpl): KernelVariantImpl {
-            val instance = KernelVariantImpl(kernel, kernel.generateDefaultConfiguration())
-            return instance
-        }
-
-        fun create(kernel: KernelImpl, block: KernelConfiguration.() -> Unit): KernelVariantImpl {
-            val config = kernel.generateDefaultConfiguration()
-            config.block()
-            return KernelVariantImpl(kernel, config)
-        }
-
-        fun create(kernel: KernelImpl, values: Map<String, Any?>): KernelVariantImpl {
-            val config = kernel.generateDefaultConfiguration()
-            for ((parameterName, parameterValue) in values) {
-                // Check that only existing parameters are specified.
-                val parameter = kernel.parameter(parameterName)
-                    ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-                // Check that the value is valid for the parameter.
-                require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
-                config[parameterName] = parameterValue
-            }
-            return KernelVariantImpl(kernel, config)
-        }
     }
 }

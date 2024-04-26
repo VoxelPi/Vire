@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.simulation
 
 import net.voxelpi.event.EventScope
+import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 import net.voxelpi.vire.engine.kernel.KernelVariant
@@ -34,6 +35,10 @@ public interface Simulation {
     public fun stepBack(steps: Int): SimulationState
 
     public fun stepForward(steps: Int): SimulationState
+
+    public fun configureInputs(block: SimulationInputConfiguration.() -> Unit)
+
+    public fun configureInputs(values: Map<String, Array<LogicState>>)
 
     /**
      * The number of steps that have been simulated.
@@ -70,6 +75,14 @@ internal class SimulationImpl(
     }
 
     override fun stepForward(steps: Int): SimulationState {
+        TODO("Not yet implemented")
+    }
+
+    override fun configureInputs(block: SimulationInputConfiguration.() -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun configureInputs(values: Map<String, Array<LogicState>>) {
         TODO("Not yet implemented")
     }
 

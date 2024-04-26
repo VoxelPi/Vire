@@ -6,7 +6,7 @@ import net.voxelpi.vire.engine.kernel.variable.Parameter
 /**
  * An instance of a kernel.
  */
-public interface KernelConfiguration : MutableParameterStateProvider {
+public interface KernelVariantBuilder : MutableParameterStateProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -29,10 +29,10 @@ public interface KernelConfiguration : MutableParameterStateProvider {
     public operator fun set(parameterName: String, value: Any?)
 }
 
-internal class KernelConfigurationImpl(
+internal class KernelVariantBuilderImpl(
     override val kernel: KernelImpl,
     val parameterStates: MutableMap<String, Any?> = kernel.generateDefaultParameterStates(),
-) : KernelConfiguration {
+) : KernelVariantBuilder {
 
     init {
         for (parameterName in parameterStates.keys) {
@@ -88,7 +88,7 @@ internal class KernelConfigurationImpl(
     }
 }
 
-internal data class KernelConfigurationResults(
-    val kernelConfiguration: KernelConfiguration,
+internal data class KernelVariantData(
+    val kernelVariantBuilder: KernelVariantBuilder,
     val ioVectorSizes: Map<String, Int>,
 )

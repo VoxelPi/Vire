@@ -32,7 +32,7 @@ public interface KernelInstance : ParameterStateProvider, SettingStateProvider, 
          * @param kernelVariant the kernelInstance of which a new state should be created.
          * @param block the code that should be applied to the kernel configuration.
          */
-        public fun create(kernelVariant: KernelVariant, block: KernelInitialization.() -> Unit): KernelInstance {
+        public fun create(kernelVariant: KernelVariant, block: KernelInstanceBuilder.() -> Unit): KernelInstance {
             require(kernelVariant is KernelVariantImpl)
             return KernelInstanceImpl.create(kernelVariant, block)
         }
@@ -61,7 +61,7 @@ internal class KernelInstanceImpl(
             TODO()
         }
 
-        fun create(kernelInstance: KernelVariantImpl, block: KernelInitialization.() -> Unit): KernelInstanceImpl {
+        fun create(kernelInstance: KernelVariantImpl, block: KernelInstanceBuilder.() -> Unit): KernelInstanceImpl {
 //        val config = kernel.generateDefaultConfiguration()
 //        config.block()
 //        return KernelStateImpl(kernelInstance, config)

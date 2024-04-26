@@ -2,12 +2,12 @@ package net.voxelpi.vire.engine.kernel.compiled
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
-import net.voxelpi.vire.engine.kernel.KernelConfiguration
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
-import net.voxelpi.vire.engine.kernel.KernelConfigurationImpl
-import net.voxelpi.vire.engine.kernel.KernelConfigurationResults
 import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.KernelInstance
+import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
+import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
+import net.voxelpi.vire.engine.kernel.KernelVariantData
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
 public interface CompiledKernel : Kernel {
@@ -38,15 +38,15 @@ internal class CompiledKernelImpl(
     override val update: (UpdateContext) -> Unit,
 ) : KernelImpl(id, tags, properties), CompiledKernel {
 
-    override fun configureKernel(configuration: KernelConfiguration): Result<KernelConfigurationResults> {
-        require(configuration is KernelConfigurationImpl)
-        val context = ConfigurationContextImpl(configuration)
+    override fun configureKernel(builder: KernelVariantBuilder): Result<KernelVariantData> {
+        require(builder is KernelVariantBuilderImpl)
+        val context = ConfigurationContextImpl(builder)
         try {
             configure(context)
         } catch (exception: KernelConfigurationException) {
             return Result.failure(exception)
         }
-        return Result.success(KernelConfigurationResults(configuration, context.ioVectorSizes))
+        return Result.success(KernelVariantData(builder, context.ioVectorSizes))
     }
 
     override fun initializeKernel(state: KernelInstance) {

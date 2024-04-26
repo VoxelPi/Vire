@@ -2,7 +2,7 @@ package net.voxelpi.vire.engine.kernel.compiled
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
-import net.voxelpi.vire.engine.kernel.KernelConfigurationImpl
+import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
 import net.voxelpi.vire.engine.kernel.variable.IOVector
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 
@@ -57,7 +57,7 @@ public interface ConfigurationContext {
 }
 
 internal class ConfigurationContextImpl(
-    val configuration: KernelConfigurationImpl,
+    val configuration: KernelVariantBuilderImpl,
 ) : ConfigurationContext {
 
     override val kernel: Kernel
