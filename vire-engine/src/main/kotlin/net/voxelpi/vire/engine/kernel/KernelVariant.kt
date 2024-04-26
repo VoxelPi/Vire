@@ -30,19 +30,19 @@ public interface KernelVariant : ParameterStateProvider, IOVectorSizeProvider {
     public fun size(variableName: String): Int
 
     /**
-     * Updates the state of the parameters of the instance using the given [builder].
+     * Updates the state of the parameters of the instance using the given [lambda].
      */
-    public fun configure(builder: KernelVariantBuilder.() -> Unit): Result<Unit>
+    public fun modify(lambda: KernelVariantBuilder.() -> Unit): Result<Unit>
 
     /**
      * Updates the state of the parameters of the instance to the given [values].
      */
-    public fun configure(values: Map<String, Any?>): Result<Unit>
+    public fun modify(values: Map<String, Any?>): Result<Unit>
 }
 
 internal class KernelVariantImpl(
     override val kernel: KernelImpl,
-    configuration: KernelVariantBuilderImpl,
+    builder: KernelVariantBuilderImpl,
 ) : KernelVariant {
 
     private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
@@ -50,20 +50,20 @@ internal class KernelVariantImpl(
     private var ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
 
     init {
-        configure(configuration).getOrThrow()
+        modify(builder).getOrThrow()
     }
 
-    override fun configure(builder: KernelVariantBuilder.() -> Unit): Result<Unit> {
-        // Create a new configuration from the current instance state and apply the update block.
-        val builderInstance = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
-            .apply(builder)
+    override fun modify(lambda: KernelVariantBuilder.() -> Unit): Result<Unit> {
+        // Create a new builder from the current state and apply the lambda on it.
+        val builder = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
+            .apply(lambda)
 
-        // Apply the configuration.
-        return configure(builderInstance)
+        // Apply the builder.
+        return modify(builder)
     }
 
-    override fun configure(values: Map<String, Any?>): Result<Unit> {
-        // Create a new configuration from the current instance state and apply the update block.
+    override fun modify(values: Map<String, Any?>): Result<Unit> {
+        // Create a new builder from the current state and set the provided values.
         val builder = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
         for ((parameterName, parameterValue) in values) {
             // Check that only existing parameters are specified.
@@ -75,17 +75,17 @@ internal class KernelVariantImpl(
             this[parameterName] = parameterValue
         }
 
-        // Apply the configuration.
-        return configure(builder)
+        // Apply the builder.
+        return modify(builder)
     }
 
-    private fun configure(builder: KernelVariantBuilderImpl): Result<Unit> {
-        // Let the kernel process the configuration.
-        val variantData = kernel.configureKernel(builder).getOrElse {
+    private fun modify(builder: KernelVariantBuilderImpl): Result<Unit> {
+        // Let the kernel process the builder.
+        val variantData = kernel.generateVariantData(builder).getOrElse {
             return Result.failure(it)
         }
 
-        // Update the instance state.
+        // Update the variant data.
         parameterStates = builder.parameterStates
         ioVectorSizes = variantData.ioVectorSizes.toMutableMap()
         return Result.success(Unit)

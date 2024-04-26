@@ -38,7 +38,7 @@ internal class CompiledKernelImpl(
     override val update: (UpdateContext) -> Unit,
 ) : KernelImpl(id, tags, properties), CompiledKernel {
 
-    override fun configureKernel(builder: KernelVariantBuilder): Result<KernelVariantData> {
+    override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
         require(builder is KernelVariantBuilderImpl)
         val context = ConfigurationContextImpl(builder)
         try {

@@ -32,7 +32,7 @@ internal class CircuitKernelImpl(
         this.variables = variables
     }
 
-    override fun configureKernel(builder: KernelVariantBuilder): Result<KernelVariantData> {
+    override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
         val ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
         for (input in circuit.inputs()) {
             ioVectorSizes[input.name] = input.initialSize.provideValue()

@@ -146,9 +146,9 @@ internal abstract class KernelImpl(
     }
 
     /**
-     * Process the given [builder] and generate [KernelVariantData].
+     * Processes the given [builder] ands returns the resulting [KernelVariantData].
      */
-    abstract fun configureKernel(builder: KernelVariantBuilder): Result<KernelVariantData>
+    abstract fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData>
 
     abstract fun initializeKernel(state: KernelInstance)
 
