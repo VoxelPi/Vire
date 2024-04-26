@@ -1,7 +1,7 @@
-package net.voxelpi.vire.engine.circuit.kernel.compiled
+package net.voxelpi.vire.engine.kernel.compiled
 
-import net.voxelpi.vire.engine.circuit.kernel.Kernel
-import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.Kernel
+import net.voxelpi.vire.engine.kernel.variable.Parameter
 
 public interface InitializationContext {
 

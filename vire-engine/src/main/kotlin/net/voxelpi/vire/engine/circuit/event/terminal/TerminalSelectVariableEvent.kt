@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.circuit.event.terminal
 
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import net.voxelpi.vire.engine.circuit.terminal.Terminal
+import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
 
 /**
  * An event that is called when the variable of a terminal is selected.

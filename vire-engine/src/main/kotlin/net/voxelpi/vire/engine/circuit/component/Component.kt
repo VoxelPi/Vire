@@ -6,11 +6,11 @@ import net.voxelpi.vire.engine.circuit.CircuitElementImpl
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.event.component.ComponentPortCreateEvent
 import net.voxelpi.vire.engine.circuit.event.component.ComponentPortDestroyEvent
-import net.voxelpi.vire.engine.circuit.kernel.Kernel
-import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
-import net.voxelpi.vire.engine.circuit.kernel.KernelVariant
-import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.kernel.Kernel
+import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.KernelVariant
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
+import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
 import java.util.UUID
 
 public interface Component : CircuitElement {

@@ -1,15 +1,15 @@
-package net.voxelpi.vire.engine.circuit.kernel.circuit
+package net.voxelpi.vire.engine.kernel.circuit
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
-import net.voxelpi.vire.engine.circuit.kernel.Kernel
-import net.voxelpi.vire.engine.circuit.kernel.KernelConfiguration
-import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationResults
-import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
-import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
-import net.voxelpi.vire.engine.circuit.kernel.variable.field
+import net.voxelpi.vire.engine.kernel.Kernel
+import net.voxelpi.vire.engine.kernel.KernelConfiguration
+import net.voxelpi.vire.engine.kernel.KernelConfigurationResults
+import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.KernelInstance
+import net.voxelpi.vire.engine.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.simulation.SimulationStateImpl
 
 public interface CircuitKernel : Kernel {

@@ -5,12 +5,12 @@ import net.voxelpi.vire.engine.circuit.CircuitElement
 import net.voxelpi.vire.engine.circuit.CircuitElementImpl
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalSelectVariableEvent
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
 import net.voxelpi.vire.engine.circuit.network.Network
 import net.voxelpi.vire.engine.circuit.network.NetworkImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNode
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeHolder
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeImpl
+import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
 import java.util.UUID
 
 /**

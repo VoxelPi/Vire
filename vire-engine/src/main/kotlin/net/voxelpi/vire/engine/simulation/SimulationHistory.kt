@@ -1,6 +1,6 @@
 package net.voxelpi.vire.engine.simulation
 
-import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 
 internal class SimulationHistory(
     val kernelInstance: KernelVariantImpl,

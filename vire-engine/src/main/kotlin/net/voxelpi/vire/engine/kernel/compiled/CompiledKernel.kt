@@ -1,14 +1,14 @@
-package net.voxelpi.vire.engine.circuit.kernel.compiled
+package net.voxelpi.vire.engine.kernel.compiled
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.circuit.kernel.Kernel
-import net.voxelpi.vire.engine.circuit.kernel.KernelConfiguration
-import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationException
-import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationImpl
-import net.voxelpi.vire.engine.circuit.kernel.KernelConfigurationResults
-import net.voxelpi.vire.engine.circuit.kernel.KernelImpl
-import net.voxelpi.vire.engine.circuit.kernel.KernelInstance
-import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.Kernel
+import net.voxelpi.vire.engine.kernel.KernelConfiguration
+import net.voxelpi.vire.engine.kernel.KernelConfigurationException
+import net.voxelpi.vire.engine.kernel.KernelConfigurationImpl
+import net.voxelpi.vire.engine.kernel.KernelConfigurationResults
+import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.KernelInstance
+import net.voxelpi.vire.engine.kernel.variable.Variable
 
 public interface CompiledKernel : Kernel {
 

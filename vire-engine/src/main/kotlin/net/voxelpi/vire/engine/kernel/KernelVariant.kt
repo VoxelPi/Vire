@@ -1,11 +1,11 @@
-package net.voxelpi.vire.engine.circuit.kernel
+package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVector
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorSizeProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Input
-import net.voxelpi.vire.engine.circuit.kernel.variable.Output
-import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
-import net.voxelpi.vire.engine.circuit.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.IOVector
+import net.voxelpi.vire.engine.kernel.variable.IOVectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.Input
+import net.voxelpi.vire.engine.kernel.variable.Output
+import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 
 /**
  * An instance of a kernel.

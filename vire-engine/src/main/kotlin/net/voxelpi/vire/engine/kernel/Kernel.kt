@@ -1,17 +1,17 @@
-package net.voxelpi.vire.engine.circuit.kernel
+package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.circuit.kernel.variable.Field
-import net.voxelpi.vire.engine.circuit.kernel.variable.FieldProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Input
-import net.voxelpi.vire.engine.circuit.kernel.variable.InputProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Output
-import net.voxelpi.vire.engine.circuit.kernel.variable.OutputProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
-import net.voxelpi.vire.engine.circuit.kernel.variable.ParameterProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Setting
-import net.voxelpi.vire.engine.circuit.kernel.variable.SettingProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.Field
+import net.voxelpi.vire.engine.kernel.variable.FieldProvider
+import net.voxelpi.vire.engine.kernel.variable.Input
+import net.voxelpi.vire.engine.kernel.variable.InputProvider
+import net.voxelpi.vire.engine.kernel.variable.Output
+import net.voxelpi.vire.engine.kernel.variable.OutputProvider
+import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
+import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.SettingProvider
+import net.voxelpi.vire.engine.kernel.variable.Variable
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.

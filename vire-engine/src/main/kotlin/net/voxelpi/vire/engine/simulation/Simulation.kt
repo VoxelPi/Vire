@@ -1,10 +1,10 @@
 package net.voxelpi.vire.engine.simulation
 
 import net.voxelpi.event.EventScope
-import net.voxelpi.vire.engine.circuit.kernel.KernelVariant
-import net.voxelpi.vire.engine.circuit.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
+import net.voxelpi.vire.engine.kernel.KernelVariant
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 
 /**
  * A simulation of a logic circuit.

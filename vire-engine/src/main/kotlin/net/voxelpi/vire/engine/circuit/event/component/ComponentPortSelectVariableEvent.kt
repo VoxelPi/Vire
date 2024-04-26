@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.circuit.event.component
 
 import net.voxelpi.vire.engine.circuit.component.ComponentPort
-import net.voxelpi.vire.engine.circuit.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
 
 /**
  * An event that is called when the variable of a component port is selected.

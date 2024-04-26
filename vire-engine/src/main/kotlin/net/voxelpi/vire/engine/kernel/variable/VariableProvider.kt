@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.circuit.kernel.variable
+package net.voxelpi.vire.engine.kernel.variable
 
 /**
  * A type that provides kernel variables of any type.

@@ -1,7 +1,7 @@
-package net.voxelpi.vire.engine.circuit.kernel
+package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.circuit.kernel.variable.MutableParameterStateProvider
-import net.voxelpi.vire.engine.circuit.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.MutableParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.Parameter
 
 /**
  * An instance of a kernel.

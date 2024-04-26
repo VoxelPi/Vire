@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.circuit.kernel.variable
+package net.voxelpi.vire.engine.kernel.variable
 
 import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType

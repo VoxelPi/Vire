@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.circuit.kernel.variable
+package net.voxelpi.vire.engine.kernel.variable
 
 /**
  * Defines how a kernel variable is initialized.
