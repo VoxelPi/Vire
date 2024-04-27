@@ -52,6 +52,6 @@ internal class CircuitKernelImpl(
     }
 
     companion object {
-        private val STATE_FIELD = field("state", SimulationStateImpl())
+        private val STATE_FIELD = field("state", CircuitKernelStateImpl())
     }
 }
