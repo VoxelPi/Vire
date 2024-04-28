@@ -10,7 +10,7 @@ import net.voxelpi.vire.engine.circuit.network.NetworkImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNode
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeHolder
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeImpl
-import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import java.util.UUID
 
 /**
@@ -27,7 +27,7 @@ public interface ComponentPort : CircuitElement {
     /**
      * The variable that should be bound to the port.
      */
-    public var variable: IOVectorElement?
+    public var variable: InterfaceVariable?
 
     /**
      * The network the port is part of.
@@ -42,11 +42,11 @@ public interface ComponentPort : CircuitElement {
 
 internal class ComponentPortImpl(
     override val component: ComponentImpl,
-    variable: IOVectorElement?,
+    variable: InterfaceVariable?,
     override val uniqueId: UUID = UUID.randomUUID(),
 ) : CircuitElementImpl(), ComponentPort, NetworkNodeHolder {
 
-    override var variable: IOVectorElement? = variable
+    override var variable: InterfaceVariable? = variable
         set(value) {
             circuit.eventScope.post(ComponentPortSelectVariableEvent(this, value, field))
             field = value

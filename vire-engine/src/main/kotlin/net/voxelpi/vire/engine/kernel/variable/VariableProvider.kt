@@ -11,6 +11,11 @@ public interface VariableProvider {
     public fun variables(): Collection<Variable<*>>
 
     /**
+     * Returns all registered vector variables
+     */
+    public fun vectorVariables(): Collection<VectorVariable<*>> = variables().filterIsInstance<VectorVariable<*>>()
+
+    /**
      * Returns the variable with the given [name].
      */
     public fun variable(name: String): Variable<*>?
@@ -19,6 +24,16 @@ public interface VariableProvider {
      * Checks if there is a registered variable with the given [name].
      */
     public fun hasVariable(name: String): Boolean = variable(name) != null
+
+    /**
+     * Checks if there is a registered variable with the given [name].
+     */
+    public fun hasScalarVariable(name: String): Boolean = (variable(name) as? ScalarVariable<*>) != null
+
+    /**
+     * Checks if there is a registered variable with the given [name].
+     */
+    public fun hasVectorVariable(name: String): Boolean = (variable(name) as? VectorVariable<*>) != null
 }
 
 /**
@@ -95,6 +110,11 @@ public interface InputProvider : VariableProvider {
     public fun inputs(): Collection<Input>
 
     /**
+     * Returns all input vectors that are registered on the kernel.
+     */
+    public fun inputVectors(): Collection<InputVector> = inputs().filterIsInstance<InputVector>()
+
+    /**
      * Returns the input with the given [name].
      */
     public fun input(name: String): Input?
@@ -114,6 +134,11 @@ public interface OutputProvider : VariableProvider {
      * Returns all outputs that are registered on the kernel.
      */
     public fun outputs(): Collection<Output>
+
+    /**
+     * Returns all output vectors that are registered on the kernel.
+     */
+    public fun outputVectors(): Collection<OutputVector> = outputs().filterIsInstance<OutputVector>()
 
     /**
      * Returns the output with the given [name].

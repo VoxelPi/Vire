@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.circuit.event.component
 
 import net.voxelpi.vire.engine.circuit.component.ComponentPort
-import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 
 /**
  * An event that is called when the variable of a component port is selected.
@@ -10,6 +10,6 @@ import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
  */
 public data class ComponentPortSelectVariableEvent(
     override val port: ComponentPort,
-    val newVariable: IOVectorElement?,
-    val oldVariable: IOVectorElement?,
+    val newVariable: InterfaceVariable?,
+    val oldVariable: InterfaceVariable?,
 ) : ComponentPortEvent

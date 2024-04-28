@@ -10,7 +10,7 @@ import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
-import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import java.util.UUID
 
 public interface Component : CircuitElement {
@@ -38,7 +38,7 @@ public interface Component : CircuitElement {
     /**
      * Creates a new component port that has the given [variable] assigned to it.
      */
-    public fun createPort(variable: IOVectorElement?, uniqueId: UUID = UUID.randomUUID()): ComponentPort
+    public fun createPort(variable: InterfaceVariable?, uniqueId: UUID = UUID.randomUUID()): ComponentPort
 
     /**
      * Removes the given [port] from the component.
@@ -65,7 +65,7 @@ internal class ComponentImpl(
         return ports[uniqueId]
     }
 
-    override fun createPort(variable: IOVectorElement?, uniqueId: UUID): ComponentPort {
+    override fun createPort(variable: InterfaceVariable?, uniqueId: UUID): ComponentPort {
         // Create the port.
         val port = ComponentPortImpl(this, variable, uniqueId)
         registerPort(port)

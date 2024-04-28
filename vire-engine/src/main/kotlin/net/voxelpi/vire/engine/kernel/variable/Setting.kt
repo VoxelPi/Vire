@@ -2,7 +2,7 @@ package net.voxelpi.vire.engine.kernel.variable
 
 import kotlin.reflect.KType
 
-public interface Setting<T> : Variable<T> {
+public interface Setting<T> : ScalarVariable<T> {
 
     override val name: String
 

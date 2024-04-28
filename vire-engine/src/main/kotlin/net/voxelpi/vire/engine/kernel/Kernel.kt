@@ -9,6 +9,7 @@ import net.voxelpi.vire.engine.kernel.variable.Output
 import net.voxelpi.vire.engine.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
@@ -175,14 +176,8 @@ internal abstract class KernelImpl(
     /**
      * Returns a map that contains all io vectors of the kernel and their default sizes.
      */
-    fun generateDefaultIOVectorSizes(): MutableMap<String, Int> {
-        val ioVectorSizes = mutableMapOf<String, Int>()
-        for (input in inputs()) {
-            ioVectorSizes[input.name] = input.initialSize.provideValue()
-        }
-        for (output in outputs()) {
-            ioVectorSizes[output.name] = output.initialSize.provideValue()
-        }
-        return ioVectorSizes
+    fun generateVectorVariableSizeMap(parameterStateProvider: ParameterStateProvider): Map<String, Int> {
+        return vectorVariables()
+            .associate { it.name to it.size.get(parameterStateProvider) }
     }
 }

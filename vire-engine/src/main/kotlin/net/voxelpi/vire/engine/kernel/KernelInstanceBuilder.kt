@@ -1,13 +1,13 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.IOVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
 
 /**
  * An instance of a kernel.
  */
-public interface KernelInstanceBuilder : ParameterStateProvider, IOVectorSizeProvider, MutableSettingStateProvider {
+public interface KernelInstanceBuilder : ParameterStateProvider, VectorVariableSizeProvider, MutableSettingStateProvider {
 
     /**
      * The kernel which of which the instance was created.

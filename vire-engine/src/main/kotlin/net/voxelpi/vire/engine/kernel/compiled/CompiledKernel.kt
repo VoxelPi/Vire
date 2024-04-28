@@ -40,13 +40,13 @@ internal class CompiledKernelImpl(
 
     override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
         require(builder is KernelVariantBuilderImpl)
-        val context = ConfigurationContextImpl(builder)
+        val context = ConfigurationContextImpl(this, builder)
         try {
             configure(context)
         } catch (exception: KernelConfigurationException) {
             return Result.failure(exception)
         }
-        return Result.success(KernelVariantData(builder, context.ioVectorSizes))
+        return Result.success(KernelVariantData(builder, context.vectorVariableSizes))
     }
 
     override fun initializeKernel(state: KernelInstance) {

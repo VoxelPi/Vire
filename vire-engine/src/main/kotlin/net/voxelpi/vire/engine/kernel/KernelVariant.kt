@@ -1,16 +1,14 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.IOVector
-import net.voxelpi.vire.engine.kernel.variable.IOVectorSizeProvider
-import net.voxelpi.vire.engine.kernel.variable.Input
-import net.voxelpi.vire.engine.kernel.variable.Output
+import net.voxelpi.vire.engine.kernel.variable.MutableVectorVariableSizeMap
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
 
 /**
  * An instance of a kernel.
  */
-public interface KernelVariant : ParameterStateProvider, IOVectorSizeProvider {
+public interface KernelVariant : ParameterStateProvider, VectorVariableSizeProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -23,11 +21,6 @@ public interface KernelVariant : ParameterStateProvider, IOVectorSizeProvider {
      * @param parameterName the name of the parameter of which the value should be returned.
      */
     public operator fun get(parameterName: String): Any?
-
-    /**
-     * Returns the size of the given IO-vector with the given [variableName].
-     */
-    public fun size(variableName: String): Int
 
     /**
      * Updates the state of the parameters of the instance using the given [lambda].
@@ -43,11 +36,11 @@ public interface KernelVariant : ParameterStateProvider, IOVectorSizeProvider {
 internal class KernelVariantImpl(
     override val kernel: KernelImpl,
     builder: KernelVariantBuilderImpl,
-) : KernelVariant {
+) : KernelVariant, MutableVectorVariableSizeMap {
 
     private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
 
-    private var ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
+    override var vectorVariableSizes: MutableMap<String, Int> = mutableMapOf()
 
     init {
         modify(builder).getOrThrow()
@@ -87,7 +80,7 @@ internal class KernelVariantImpl(
 
         // Update the variant data.
         parameterStates = builder.parameterStates
-        ioVectorSizes = variantData.ioVectorSizes.toMutableMap()
+        vectorVariableSizes = variantData.ioVectorSizes.toMutableMap()
         return Result.success(Unit)
     }
 
@@ -129,51 +122,5 @@ internal class KernelVariantImpl(
 
         // Update the value of the parameter.
         parameterStates[parameter.name] = value
-    }
-
-    override fun size(input: Input): Int {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(input.name))
-
-        // Return the size.
-        return ioVectorSizes[input.name]!!
-    }
-
-    override fun size(output: Output): Int {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasOutput(output.name))
-
-        // Return the size.
-        return ioVectorSizes[output.name]!!
-    }
-
-    override fun size(variableName: String): Int {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName))
-
-        // Return the size.
-        return ioVectorSizes[variableName]!!
-    }
-
-    /**
-     * Changes the size of the given [ioVector] to the given [size].
-     */
-    fun resize(ioVector: IOVector, size: Int) {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(ioVector.name) || kernel.hasOutput(ioVector.name))
-
-        // Modify the size of the io vector.
-        ioVectorSizes[ioVector.name] = size
-    }
-
-    /**
-     * Changes the size of the given IO-vector with the given [variableName] to the given [size].
-     */
-    fun resize(variableName: String, size: Int) {
-        // Check that the io vector is defined on the kernel.
-        require(kernel.hasInput(variableName) || kernel.hasOutput(variableName))
-
-        // Modify the size of the io vector.
-        ioVectorSizes[variableName] = size
     }
 }

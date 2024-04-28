@@ -1,8 +1,6 @@
 package net.voxelpi.vire.engine.kernel.variable
 
-import net.voxelpi.vire.engine.LogicState
 import kotlin.reflect.KType
-import kotlin.reflect.typeOf
 
 /**
  * An abstract kernel variable.
@@ -20,31 +18,66 @@ public sealed interface Variable<T> {
     public val type: KType
 }
 
-/**
- * An abstract io variable.
- */
-public sealed interface IOVector : Variable<Array<LogicState>> {
+public sealed interface ScalarVariable<T> : Variable<T>
 
-    /**
-     * The initial size of the io vector.
-     */
-    public val initialSize: VariableInitialization<Int>
+public sealed interface VectorVariable<T> : Variable<T> {
+
+    public val size: VectorVariableSize
+
+    public operator fun get(index: Int): VectorVariableElement<T>
+}
+
+public sealed interface VectorVariableElement<T> : Variable<T> {
+
+    public val vector: VectorVariable<T>
+
+    public val index: Int
+
+    override val name: String
+        get() = "${vector.name}[$index]"
 
     override val type: KType
-        get() = typeOf<Array<LogicState>>()
+        get() = vector.type
 }
 
 /**
- * An abstract io variable.
+ * The size of a vector variable.
  */
-public data class IOVectorElement(
-    val vector: IOVector,
-    val index: Int,
-) {
+public sealed interface VectorVariableSize {
 
     /**
-     * The name of the variable. Consists of the name of the vector name and the element index.
+     * Returns the default size of the vector under the given parameter state.
+     * Note that a dynamic vector size can be changed during the configuration, the returned value in this case is only the default value.
      */
-    public val name: String
-        get() = "${vector.name}[$index]"
+    public fun get(state: ParameterStateProvider): Int
+
+    /**
+     * The size of the vector variable is a constant value.
+     *
+     * @param value the size of the vector variable.
+     */
+    public data class Constant(val value: Int) : VectorVariableSize {
+
+        override fun get(state: ParameterStateProvider): Int = value
+    }
+
+    /**
+     * The size of the vector variable is set to the value of a parameter during configuration.
+     *
+     * @param parameter the parameter that should be used.
+     */
+    public data class Parameter(val parameter: net.voxelpi.vire.engine.kernel.variable.Parameter<Int>) : VectorVariableSize {
+
+        override fun get(state: ParameterStateProvider): Int = state[parameter]
+    }
+
+    /**
+     * The size of the vector variable is set during the configuration of the kernel.
+     *
+     * @param default the default size of the vector until it is configured.
+     */
+    public data class Dynamic(val default: Int) : VectorVariableSize {
+
+        override fun get(state: ParameterStateProvider): Int = default
+    }
 }

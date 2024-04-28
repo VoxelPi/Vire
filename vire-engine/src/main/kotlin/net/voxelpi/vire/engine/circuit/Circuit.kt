@@ -29,11 +29,11 @@ import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
-import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
-import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputProvider
-import net.voxelpi.vire.engine.kernel.variable.Output
+import net.voxelpi.vire.engine.kernel.variable.InputScalar
+import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import net.voxelpi.vire.engine.kernel.variable.OutputProvider
+import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
@@ -95,7 +95,7 @@ public interface Circuit : SettingProvider, InputProvider, OutputProvider {
     /**
      * Creates a new terminal with the given [uniqueId] in the circuit for the given [variable].
      */
-    public fun createTerminal(variable: IOVectorElement?, uniqueId: UUID = UUID.randomUUID()): Terminal
+    public fun createTerminal(variable: InterfaceVariable?, uniqueId: UUID = UUID.randomUUID()): Terminal
 
     /**
      * Removes the given [terminal] from the circuit.
@@ -219,20 +219,20 @@ internal class CircuitImpl(
         return variableOfKind<Setting<*>>(name)
     }
 
-    override fun inputs(): Collection<Input> {
-        return variables.values.filterIsInstance<Input>()
+    override fun inputs(): Collection<InputScalar> {
+        return variables.values.filterIsInstance<InputScalar>()
     }
 
-    override fun input(name: String): Input? {
-        return variableOfKind<Input>(name)
+    override fun input(name: String): InputScalar? {
+        return variableOfKind<InputScalar>(name)
     }
 
-    override fun outputs(): Collection<Output> {
-        return variables.values.filterIsInstance<Output>()
+    override fun outputs(): Collection<OutputScalar> {
+        return variables.values.filterIsInstance<OutputScalar>()
     }
 
-    override fun output(name: String): Output? {
-        return variableOfKind<Output>(name)
+    override fun output(name: String): OutputScalar? {
+        return variableOfKind<OutputScalar>(name)
     }
 
     private inline fun <reified T : Variable<*>> variableOfKind(name: String): T? {
@@ -293,7 +293,7 @@ internal class CircuitImpl(
         return terminals[uniqueId]
     }
 
-    override fun createTerminal(variable: IOVectorElement?, uniqueId: UUID): Terminal {
+    override fun createTerminal(variable: InterfaceVariable?, uniqueId: UUID): Terminal {
         // Create the terminal.
         val terminal = TerminalImpl(this, variable, uniqueId)
         registerTerminal(terminal)

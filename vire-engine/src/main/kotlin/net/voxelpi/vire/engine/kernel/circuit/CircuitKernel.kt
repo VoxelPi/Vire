@@ -10,7 +10,6 @@ import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
 import net.voxelpi.vire.engine.kernel.KernelVariantData
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.simulation.SimulationStateImpl
 
 public interface CircuitKernel : Kernel {
 
@@ -33,14 +32,7 @@ internal class CircuitKernelImpl(
     }
 
     override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
-        val ioVectorSizes: MutableMap<String, Int> = mutableMapOf()
-        for (input in circuit.inputs()) {
-            ioVectorSizes[input.name] = input.initialSize.provideValue()
-        }
-        for (output in circuit.outputs()) {
-            ioVectorSizes[output.name] = output.initialSize.provideValue()
-        }
-        return Result.success(KernelVariantData(builder, ioVectorSizes))
+        return Result.success(KernelVariantData(builder, emptyMap()))
     }
 
     override fun initializeKernel(state: KernelInstance) {

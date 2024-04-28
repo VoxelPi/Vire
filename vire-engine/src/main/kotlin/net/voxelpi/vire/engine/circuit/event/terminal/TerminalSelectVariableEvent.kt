@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.circuit.event.terminal
 
 import net.voxelpi.vire.engine.circuit.terminal.Terminal
-import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
+import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 
 /**
  * An event that is called when the variable of a terminal is selected.
@@ -10,6 +10,6 @@ import net.voxelpi.vire.engine.kernel.variable.IOVectorElement
  */
 public data class TerminalSelectVariableEvent(
     override val terminal: Terminal,
-    val newVariable: IOVectorElement?,
-    val oldVariable: IOVectorElement?,
+    val newVariable: InterfaceVariable?,
+    val oldVariable: InterfaceVariable?,
 ) : TerminalEvent

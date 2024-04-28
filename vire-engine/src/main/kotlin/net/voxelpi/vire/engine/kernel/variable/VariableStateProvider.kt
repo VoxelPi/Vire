@@ -3,47 +3,35 @@ package net.voxelpi.vire.engine.kernel.variable
 import net.voxelpi.vire.engine.LogicState
 
 /**
- * A type that provides ways to access the size of an input variable.
+ * A type that provides ways to access the size of a vector variable.
  */
-public interface InputSizeProvider {
+public interface VectorVariableSizeProvider {
 
     /**
-     * Returns the size of the given [input].
+     * Returns the size of the given [vector].
      */
-    public fun size(input: Input): Int
+    public fun size(vector: VectorVariable<*>): Int
+
+    /**
+     * Returns the size of the vector with the given [vectorName].
+     */
+    public fun size(vectorName: String): Int
 }
 
 /**
- * A type that provides ways to access and modify the size of an input variable.
+ * A type that provides ways to access and modify the size of a vector variable.
  */
-public interface MutableInputSizeProvider {
+public interface MutableVectorVariableSizeProvider {
 
     /**
-     * Changes the size of the given [input] to the given [size].
+     * Changes the size of the given [vector] to the given [size].
      */
-    public fun resize(input: Input, size: Int)
-}
-
-/**
- * A type that provides ways to access the size of an output variable.
- */
-public interface OutputSizeProvider {
+    public fun resize(vector: VectorVariable<*>, size: Int)
 
     /**
-     * Returns the size of the given [output].
+     * Changes the size of the vector with the given [vectorName] to the given [size].
      */
-    public fun size(output: Output): Int
-}
-
-/**
- * A type that provides ways to access and modify the size of an output variable.
- */
-public interface MutableOutputSizeProvider {
-
-    /**
-     * Changes the size of the given [output] to the given [size].
-     */
-    public fun resize(output: Output, size: Int)
+    public fun resize(vectorName: String, size: Int)
 }
 
 /**
@@ -130,14 +118,29 @@ public interface MutableFieldStateProvider : FieldStateProvider {
 /**
  * A type that provides ways to access the state of an input variable.
  */
-public interface InputStateProvider : InputSizeProvider {
+public interface InputStateProvider {
 
     /**
-     * Returns the current value of the given [input].
+     * Returns the value of the given [input].
      *
-     * @param input the variable of which the value should be returned.
+     * @param input the input of which the value should be returned.
      */
-    public operator fun get(input: Input): Array<LogicState>
+    public operator fun get(input: InputScalar): LogicState
+
+    /**
+     * Returns the value of all entries of the given [inputVector].
+     *
+     * @param inputVector the input vector of which the value should be returned.
+     */
+    public operator fun get(inputVector: InputVector): Array<LogicState>
+
+    /**
+     * Returns the value of the entry at the given [index] of the given [inputVector].
+     *
+     * @param inputVector the input vector of which the value should be returned.
+     * @param index the index in the input vector of the entry.
+     */
+    public operator fun get(inputVector: InputVector, index: Int): LogicState
 }
 
 /**
@@ -151,20 +154,50 @@ public interface MutableInputStateProvider : InputStateProvider {
      * @param input the input of which the value should be modified.
      * @param value the new value of the input.
      */
-    public operator fun set(input: Input, value: Array<LogicState>)
+    public operator fun set(input: InputScalar, value: LogicState)
+
+    /**
+     * Sets the value of all entries of the given [inputVector].
+     *
+     * @param inputVector the input vector of which the value should be modified.
+     */
+    public operator fun set(inputVector: InputVector, value: LogicState): Array<LogicState>
+
+    /**
+     * Set the value of the entry at the given [index] of the given [inputVector].
+     *
+     * @param inputVector the input vector of which the value should be modified.
+     * @param index the index in the input vector of the entry.
+     */
+    public operator fun set(inputVector: InputVector, index: Int, value: LogicState): LogicState
 }
 
 /**
  * A type that provides ways to access the state of an output variable.
  */
-public interface OutputStateProvider : OutputSizeProvider {
+public interface OutputStateProvider {
 
     /**
-     * Returns the current value of the given [output].
+     * Returns the value of the given [output].
      *
      * @param output the variable of which the value should be returned.
      */
-    public operator fun get(output: Output): Array<LogicState>
+    public operator fun get(output: OutputScalar): Array<LogicState>
+
+    /**
+     * Returns the value of all entries of the given [outputVector].
+     *
+     * @param outputVector the output vector of which the value should be returned.
+     */
+    public operator fun get(outputVector: OutputVector): Array<LogicState>
+
+    /**
+     * Returns the value of the entry at the given [index] of the given [outputVector].
+     *
+     * @param outputVector the output vector of which the value should be returned.
+     * @param index the index in the output vector of the entry.
+     */
+    public operator fun get(outputVector: OutputVector, index: Int): LogicState
 }
 
 /**
@@ -178,12 +211,23 @@ public interface MutableOutputStateProvider : OutputStateProvider {
      * @param output the output of which the value should be modified.
      * @param value the new value of the output.
      */
-    public operator fun set(output: Output, value: Array<LogicState>)
+    public operator fun set(output: OutputScalar, value: LogicState)
+
+    /**
+     * Sets the value of all entries of the given [outputVector].
+     *
+     * @param outputVector the output vector of which the value should be modified.
+     */
+    public operator fun set(outputVector: OutputVector, value: LogicState): Array<LogicState>
+
+    /**
+     * Set the value of the entry at the given [index] of the given [outputVector].
+     *
+     * @param outputVector the output vector of which the value should be modified.
+     * @param index the index in the output vector of the entry.
+     */
+    public operator fun set(outputVector: OutputVector, index: Int, value: LogicState): LogicState
 }
-
-public interface IOVectorSizeProvider : InputSizeProvider, OutputSizeProvider
-
-public interface MutableIOVectorSizeProvider : MutableInputSizeProvider, MutableOutputSizeProvider
 
 public interface IOVectorStateProvider : InputStateProvider, OutputStateProvider
 
