@@ -33,17 +33,26 @@ public interface KernelVariant : ParameterStateProvider, VectorVariableSizeProvi
     public fun modify(values: Map<String, Any?>): Result<Unit>
 }
 
-internal class KernelVariantImpl(
+internal class KernelVariantImpl private constructor(
     override val kernel: KernelImpl,
-    builder: KernelVariantBuilderImpl,
 ) : KernelVariant, MutableVectorVariableSizeMap {
+
+    constructor(
+        kernel: KernelImpl,
+        builder: KernelVariantBuilderImpl,
+    ) : this(kernel) {
+        modify(builder).getOrThrow()
+    }
 
     private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
 
     override var vectorVariableSizes: MutableMap<String, Int> = mutableMapOf()
 
-    init {
-        modify(builder).getOrThrow()
+    fun clone(): KernelVariantImpl {
+        val clone = KernelVariantImpl(kernel)
+        clone.parameterStates = parameterStates.toMutableMap()
+        clone.vectorVariableSizes = vectorVariableSizes.toMutableMap()
+        return clone
     }
 
     override fun modify(lambda: KernelVariantBuilder.() -> Unit): Result<Unit> {

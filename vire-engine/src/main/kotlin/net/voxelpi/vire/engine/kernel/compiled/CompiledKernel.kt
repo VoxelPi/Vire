@@ -4,7 +4,6 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantData
@@ -47,13 +46,5 @@ internal class CompiledKernelImpl(
             return Result.failure(exception)
         }
         return Result.success(KernelVariantData(builder, context.vectorVariableSizes))
-    }
-
-    override fun initializeKernel(state: KernelInstance) {
-        TODO("Not yet implemented")
-    }
-
-    override fun updateKernel(state: KernelInstance) {
-        TODO("Not yet implemented")
     }
 }

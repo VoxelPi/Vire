@@ -36,3 +36,35 @@ internal interface MutableVectorVariableSizeMap : VectorVariableSizeMap, Mutable
         vectorVariableSizes[vectorName] = size
     }
 }
+
+internal interface SettingStateMap : SettingStateProvider {
+
+    val kernel: Kernel
+
+    val variableStates: Map<String, Any?>
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> get(setting: Setting<T>): T {
+        // Check that a setting with the given name exists.
+        require(kernel.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
+
+        // Return the value of the setting.
+        return variableStates[setting.name] as T
+    }
+}
+
+internal interface MutableSettingStateMap : SettingStateMap, MutableSettingStateProvider {
+
+    override val variableStates: MutableMap<String, Any?>
+
+    override fun <T> set(setting: Setting<T>, value: T) {
+        // Check that a setting with the given name exists.
+        require(kernel.hasParameter(setting.name)) { "Unknown setting ${setting.name}" }
+
+        // Check that the value is valid for the specified setting.
+        require(setting.isValidValue(value)) { "Value $setting does not meet the requirements for the setting ${setting.name}" }
+
+        // Update the value of the parameter.
+        variableStates[setting.name] = value
+    }
+}

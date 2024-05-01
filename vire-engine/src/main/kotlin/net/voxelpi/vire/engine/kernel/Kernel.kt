@@ -151,9 +151,9 @@ internal abstract class KernelImpl(
      */
     abstract fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData>
 
-    abstract fun initializeKernel(state: KernelInstance)
-
-    abstract fun updateKernel(state: KernelInstance)
+//    abstract fun initializeKernel(state: KernelInstance)
+//
+//    abstract fun updateKernel(state: KernelInstance)
 
     /**
      * Returns a map that contains all parameters of the kernel and their default values.

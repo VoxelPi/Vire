@@ -5,7 +5,6 @@ import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
 import net.voxelpi.vire.engine.kernel.KernelVariantData
 import net.voxelpi.vire.engine.kernel.variable.Variable
@@ -33,14 +32,6 @@ internal class CircuitKernelImpl(
 
     override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
         return Result.success(KernelVariantData(builder, emptyMap()))
-    }
-
-    override fun initializeKernel(state: KernelInstance) {
-        TODO("Not yet implemented")
-    }
-
-    override fun updateKernel(state: KernelInstance) {
-        TODO("Not yet implemented")
     }
 
     companion object {
