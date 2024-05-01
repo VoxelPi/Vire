@@ -141,6 +141,15 @@ public interface InputStateProvider {
      * @param index the index in the input vector of the entry.
      */
     public operator fun get(inputVector: InputVector, index: Int): LogicState
+
+    /**
+     * Returns the value of the given [inputVectorElement].
+     *
+     * @param inputVectorElement the input vector element of which the value should be returned.
+     */
+    public operator fun get(inputVectorElement: InputVectorElement): LogicState {
+        return get(inputVectorElement.vector, inputVectorElement.index)
+    }
 }
 
 /**
@@ -157,19 +166,31 @@ public interface MutableInputStateProvider : InputStateProvider {
     public operator fun set(input: InputScalar, value: LogicState)
 
     /**
-     * Sets the value of all entries of the given [inputVector].
+     * Sets the value of all entries of the given [inputVector] to the given [value].
      *
      * @param inputVector the input vector of which the value should be modified.
+     * @param value the new value of the input.
      */
     public operator fun set(inputVector: InputVector, value: LogicState): Array<LogicState>
 
     /**
-     * Set the value of the entry at the given [index] of the given [inputVector].
+     * Sets the value of the entry at the given [index] of the given [inputVector] to the given [value].
      *
      * @param inputVector the input vector of which the value should be modified.
      * @param index the index in the input vector of the entry.
+     * @param value the new value of the input.
      */
     public operator fun set(inputVector: InputVector, index: Int, value: LogicState): LogicState
+
+    /**
+     * Sets the value of the given [inputVectorElement] to the given [value].
+     *
+     * @param inputVectorElement the input vector element of which the value should be modified.
+     * @param value the new value of the input.
+     */
+    public operator fun set(inputVectorElement: InputVectorElement, value: LogicState) {
+        set(inputVectorElement.vector, inputVectorElement.index, value)
+    }
 }
 
 /**
@@ -198,6 +219,15 @@ public interface OutputStateProvider {
      * @param index the index in the output vector of the entry.
      */
     public operator fun get(outputVector: OutputVector, index: Int): LogicState
+
+    /**
+     * Returns the value of the given [outputVectorElement].
+     *
+     * @param outputVectorElement the output vector element of which the value should be returned.
+     */
+    public operator fun get(outputVectorElement: OutputVectorElement): LogicState {
+        return get(outputVectorElement.vector, outputVectorElement.index)
+    }
 }
 
 /**
@@ -214,19 +244,31 @@ public interface MutableOutputStateProvider : OutputStateProvider {
     public operator fun set(output: OutputScalar, value: LogicState)
 
     /**
-     * Sets the value of all entries of the given [outputVector].
+     * Sets the value of all entries of the given [outputVector] to the given [value].
      *
      * @param outputVector the output vector of which the value should be modified.
+     * @param value the new value of the output.
      */
     public operator fun set(outputVector: OutputVector, value: LogicState): Array<LogicState>
 
     /**
-     * Set the value of the entry at the given [index] of the given [outputVector].
+     * Sets the value of the entry at the given [index] of the given [outputVector] to the given [value].
      *
      * @param outputVector the output vector of which the value should be modified.
      * @param index the index in the output vector of the entry.
+     * @param value the new value of the output.
      */
     public operator fun set(outputVector: OutputVector, index: Int, value: LogicState): LogicState
+
+    /**
+     * Sets the value of the given [outputVectorElement] to the given [value].
+     *
+     * @param outputVectorElement the output vector element of which the value should be modified.
+     * @param value the new value of the output.
+     */
+    public operator fun set(outputVectorElement: OutputVectorElement, value: LogicState) {
+        set(outputVectorElement.vector, outputVectorElement.index, value)
+    }
 }
 
 public interface IOVectorStateProvider : InputStateProvider, OutputStateProvider
