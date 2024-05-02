@@ -171,7 +171,7 @@ public interface MutableInputStateProvider : InputStateProvider {
      * @param inputVector the input vector of which the value should be modified.
      * @param value the new value of the input.
      */
-    public operator fun set(inputVector: InputVector, value: LogicState): Array<LogicState>
+    public operator fun set(inputVector: InputVector, value: Array<LogicState>)
 
     /**
      * Sets the value of the entry at the given [index] of the given [inputVector] to the given [value].
@@ -180,7 +180,7 @@ public interface MutableInputStateProvider : InputStateProvider {
      * @param index the index in the input vector of the entry.
      * @param value the new value of the input.
      */
-    public operator fun set(inputVector: InputVector, index: Int, value: LogicState): LogicState
+    public operator fun set(inputVector: InputVector, index: Int, value: LogicState)
 
     /**
      * Sets the value of the given [inputVectorElement] to the given [value].
@@ -203,7 +203,7 @@ public interface OutputStateProvider {
      *
      * @param output the variable of which the value should be returned.
      */
-    public operator fun get(output: OutputScalar): Array<LogicState>
+    public operator fun get(output: OutputScalar): LogicState
 
     /**
      * Returns the value of all entries of the given [outputVector].
@@ -249,7 +249,7 @@ public interface MutableOutputStateProvider : OutputStateProvider {
      * @param outputVector the output vector of which the value should be modified.
      * @param value the new value of the output.
      */
-    public operator fun set(outputVector: OutputVector, value: LogicState): Array<LogicState>
+    public operator fun set(outputVector: OutputVector, value: Array<LogicState>)
 
     /**
      * Sets the value of the entry at the given [index] of the given [outputVector] to the given [value].
@@ -258,7 +258,7 @@ public interface MutableOutputStateProvider : OutputStateProvider {
      * @param index the index in the output vector of the entry.
      * @param value the new value of the output.
      */
-    public operator fun set(outputVector: OutputVector, index: Int, value: LogicState): LogicState
+    public operator fun set(outputVector: OutputVector, index: Int, value: LogicState)
 
     /**
      * Sets the value of the given [outputVectorElement] to the given [value].

@@ -200,6 +200,10 @@ public data class BooleanState(
         return result
     }
 
+    public fun clone(): BooleanState {
+        return BooleanState(channels.clone())
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

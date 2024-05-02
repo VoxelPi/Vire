@@ -10,7 +10,9 @@ import net.voxelpi.vire.engine.circuit.network.NetworkImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNode
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeHolder
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeImpl
+import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
+import net.voxelpi.vire.engine.kernel.variable.Output
 import java.util.UUID
 
 /**
@@ -32,6 +34,16 @@ public interface Terminal : CircuitElement {
      * The network node of the terminal.
      */
     public val networkNode: NetworkNode
+
+    /**
+     * If the terminal is assigned to an input of the circuit.
+     */
+    public val isInput: Boolean
+
+    /**
+     * If the terminal is assigned to an output of the circuit.
+     */
+    public val isOutput: Boolean
 }
 
 internal class TerminalImpl(
@@ -60,4 +72,10 @@ internal class TerminalImpl(
     fun destroy() {
         circuit.removeNetworkNode(networkNode)
     }
+
+    override val isInput: Boolean
+        get() = variable != null && variable is Input
+
+    override val isOutput: Boolean
+        get() = variable != null && variable is Output
 }

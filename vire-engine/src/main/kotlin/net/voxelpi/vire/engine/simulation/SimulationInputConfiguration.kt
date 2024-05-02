@@ -52,11 +52,11 @@ internal class SimulationInputConfigurationImpl(
         TODO("Not yet implemented")
     }
 
-    override fun set(inputVector: InputVector, value: LogicState): Array<LogicState> {
+    override fun set(inputVector: InputVector, value: Array<LogicState>) {
         TODO("Not yet implemented")
     }
 
-    override fun set(inputVector: InputVector, index: Int, value: LogicState): LogicState {
+    override fun set(inputVector: InputVector, index: Int, value: LogicState) {
         TODO("Not yet implemented")
     }
 

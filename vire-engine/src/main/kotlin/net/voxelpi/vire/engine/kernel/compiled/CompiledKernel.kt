@@ -7,6 +7,7 @@ import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantData
+import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
 public interface CompiledKernel : Kernel {
@@ -46,5 +47,10 @@ internal class CompiledKernelImpl(
             return Result.failure(exception)
         }
         return Result.success(KernelVariantData(builder, context.vectorVariableSizes))
+    }
+
+    override fun updateKernel(state: MutableKernelState) {
+        val context = UpdateContextImpl(state)
+        update(context)
     }
 }

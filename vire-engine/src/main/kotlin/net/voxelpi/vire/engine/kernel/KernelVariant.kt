@@ -37,16 +37,13 @@ internal class KernelVariantImpl private constructor(
     override val kernel: KernelImpl,
 ) : KernelVariant, MutableVectorVariableSizeMap {
 
-    constructor(
-        kernel: KernelImpl,
-        builder: KernelVariantBuilderImpl,
-    ) : this(kernel) {
-        modify(builder).getOrThrow()
-    }
-
     private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
 
     override var vectorVariableSizes: MutableMap<String, Int> = mutableMapOf()
+
+    constructor(kernel: KernelImpl, builder: KernelVariantBuilderImpl) : this(kernel) {
+        modify(builder).getOrThrow()
+    }
 
     fun clone(): KernelVariantImpl {
         val clone = KernelVariantImpl(kernel)

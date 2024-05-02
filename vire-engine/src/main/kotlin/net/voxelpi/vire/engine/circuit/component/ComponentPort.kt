@@ -10,7 +10,9 @@ import net.voxelpi.vire.engine.circuit.network.NetworkImpl
 import net.voxelpi.vire.engine.circuit.network.NetworkNode
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeHolder
 import net.voxelpi.vire.engine.circuit.network.NetworkNodeImpl
+import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
+import net.voxelpi.vire.engine.kernel.variable.Output
 import java.util.UUID
 
 /**
@@ -38,6 +40,16 @@ public interface ComponentPort : CircuitElement {
      * The network node of the port.
      */
     public val networkNode: NetworkNode
+
+    /**
+     * If the port is assigned to an input of the kernel.
+     */
+    public val isInput: Boolean
+
+    /**
+     * If the port is assigned to an output of the kernel.
+     */
+    public val isOutput: Boolean
 }
 
 internal class ComponentPortImpl(
@@ -69,4 +81,10 @@ internal class ComponentPortImpl(
     fun destroy() {
         circuit.removeNetworkNode(networkNode)
     }
+
+    override val isInput: Boolean
+        get() = variable != null && variable is Input
+
+    override val isOutput: Boolean
+        get() = variable != null && variable is Output
 }

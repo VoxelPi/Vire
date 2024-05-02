@@ -81,6 +81,10 @@ public data class LogicState(
         }
     }
 
+    public fun clone(): LogicState {
+        return LogicState(channels.clone())
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
