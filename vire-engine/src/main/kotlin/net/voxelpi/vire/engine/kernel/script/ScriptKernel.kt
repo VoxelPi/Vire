@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.compiled
+package net.voxelpi.vire.engine.kernel.script
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
@@ -10,7 +10,7 @@ import net.voxelpi.vire.engine.kernel.KernelVariantData
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
-public interface CompiledKernel : Kernel {
+public interface ScriptKernel : Kernel {
 
     /**
      * The configuration action of the kernel.
@@ -28,7 +28,7 @@ public interface CompiledKernel : Kernel {
     public val update: (UpdateContext) -> Unit
 }
 
-internal class CompiledKernelImpl(
+internal class ScriptKernelImpl(
     id: Identifier,
     tags: Set<Identifier>,
     properties: Map<Identifier, String>,
@@ -36,7 +36,7 @@ internal class CompiledKernelImpl(
     override val configure: (ConfigurationContext) -> Unit,
     override val initialize: (InitializationContext) -> Unit,
     override val update: (UpdateContext) -> Unit,
-) : KernelImpl(id, tags, properties), CompiledKernel {
+) : KernelImpl(id, tags, properties), ScriptKernel {
 
     override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
         require(builder is KernelVariantBuilderImpl)

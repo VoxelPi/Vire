@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.compiled
+package net.voxelpi.vire.engine.kernel.script
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.variable.Parameter

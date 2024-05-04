@@ -1,23 +1,22 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.kernel.variable.Field
+import net.voxelpi.vire.engine.kernel.script.ScriptKernel
+import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilder
+import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilderImpl
 import net.voxelpi.vire.engine.kernel.variable.FieldProvider
-import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputProvider
-import net.voxelpi.vire.engine.kernel.variable.Output
 import net.voxelpi.vire.engine.kernel.variable.OutputProvider
-import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.
  */
-public interface Kernel : ParameterProvider, SettingProvider, FieldProvider, InputProvider, OutputProvider {
+public interface Kernel : VariableProvider, ParameterProvider, SettingProvider, FieldProvider, InputProvider, OutputProvider {
 
     /**
      * The id of the kernel.
@@ -59,6 +58,15 @@ public interface Kernel : ParameterProvider, SettingProvider, FieldProvider, Inp
     public fun createVariant(values: Map<String, Any?>): KernelVariant
 }
 
+/**
+ * Creates a new [ScriptKernel] with the given [id] using the given [lambda].
+ */
+public fun kernel(id: Identifier, lambda: ScriptKernelBuilder.() -> Unit): ScriptKernel {
+    val builder = ScriptKernelBuilderImpl(id)
+    builder.lambda()
+    return builder.build()
+}
+
 internal abstract class KernelImpl(
     override val id: Identifier,
     override val tags: Set<Identifier>,
@@ -73,51 +81,6 @@ internal abstract class KernelImpl(
 
     override fun variable(name: String): Variable<*>? {
         return variables[name]
-    }
-
-    override fun parameters(): Collection<Parameter<*>> {
-        return variables.values.filterIsInstance<Parameter<*>>()
-    }
-
-    override fun parameter(name: String): Parameter<*>? {
-        return variableOfKind<Parameter<*>>(name)
-    }
-
-    override fun settings(): Collection<Setting<*>> {
-        return variables.values.filterIsInstance<Setting<*>>()
-    }
-
-    override fun setting(name: String): Setting<*>? {
-        return variableOfKind<Setting<*>>(name)
-    }
-
-    override fun fields(): Collection<Field<*>> {
-        return variables.values.filterIsInstance<Field<*>>()
-    }
-
-    override fun field(name: String): Field<*>? {
-        return variableOfKind<Field<*>>(name)
-    }
-
-    override fun inputs(): Collection<Input> {
-        return variables.values.filterIsInstance<Input>()
-    }
-
-    override fun input(name: String): Input? {
-        return variableOfKind<Input>(name)
-    }
-
-    override fun outputs(): Collection<Output> {
-        return variables.values.filterIsInstance<Output>()
-    }
-
-    override fun output(name: String): Output? {
-        return variableOfKind<Output>(name)
-    }
-
-    private inline fun <reified T : Variable<*>> variableOfKind(name: String): T? {
-        val variable = variables[name] ?: return null
-        return if (variable is T) variable else null
     }
 
     override fun createVariant(): KernelVariantImpl {
