@@ -8,6 +8,7 @@ import net.voxelpi.vire.engine.kernel.variable.min
 import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.engine.kernel.variable.range
+import net.voxelpi.vire.engine.kernel.variable.setting
 import org.junit.jupiter.api.Test
 
 class KernelImplTest {
@@ -33,10 +34,15 @@ class KernelImplTest {
             range(2F..3F)
         }
 
+        val setting = setting("mode", VariableInitialization.constant("mode_a")) {
+            selection("mode_a", "mode_b", "mode_c")
+        }
+
         val kernel = kernel(Identifier("test", "test")) {
             declare(parameter1)
             declare(parameter2)
             declare(parameter3)
+            declare(setting)
             declare(input)
             val output = declare(output("B", 2))
 
