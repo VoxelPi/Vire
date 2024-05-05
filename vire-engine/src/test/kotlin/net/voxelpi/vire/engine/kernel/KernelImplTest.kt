@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.kernel.variable.VariableInitialization
 import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.max
 import net.voxelpi.vire.engine.kernel.variable.min
@@ -17,7 +16,7 @@ class KernelImplTest {
     fun test1() {
         val input = input("A")
 
-        val parameter1 = parameter("test", VariableInitialization.constant(3)) {
+        val parameter1 = parameter("test", { 2 }) {
             predicate { it % 2 == 0 }
             range(2..3)
             any {
@@ -27,14 +26,14 @@ class KernelImplTest {
                 }
             }
         }
-        val parameter2 = parameter("test2", VariableInitialization.constant(3.0)) {
+        val parameter2 = parameter("test2", { 3.0 }) {
             range(2.0..3.0)
         }
-        val parameter3 = parameter("test3", VariableInitialization.constant(3F)) {
+        val parameter3 = parameter("test3", { 3F }) {
             range(2F..3F)
         }
 
-        val setting = setting("mode", VariableInitialization.constant("mode_a")) {
+        val setting = setting("mode", { "mode_a" }) {
             selection("mode_a", "mode_b", "mode_c")
         }
 

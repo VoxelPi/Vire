@@ -8,7 +8,7 @@ import kotlin.reflect.typeOf
 public data class Parameter<T> internal constructor(
     override val name: String,
     override val type: KType,
-    public val initialization: VariableInitialization<T>,
+    public val initialization: () -> T,
     public val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T> {
 
@@ -43,7 +43,7 @@ public data class Parameter<T> internal constructor(
  */
 public inline fun <reified T> parameter(
     name: String,
-    initialization: VariableInitialization<T>,
+    noinline initialization: () -> T,
     constraint: VariableConstraint<T> = VariableConstraint.Always,
 ): Parameter<T> = parameter(name, typeOf<T>(), initialization, constraint)
 
@@ -53,7 +53,7 @@ public inline fun <reified T> parameter(
  */
 public inline fun <reified T> parameter(
     name: String,
-    initialization: VariableInitialization<T>,
+    noinline initialization: () -> T,
     noinline constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
 ): Parameter<T> = parameter(name, typeOf<T>(), initialization, constraintBuilder)
 
@@ -63,7 +63,7 @@ public inline fun <reified T> parameter(
 public fun <T> parameter(
     name: String,
     type: KType,
-    initialization: VariableInitialization<T>,
+    initialization: () -> T,
     constraint: VariableConstraint<T> = VariableConstraint.Always,
 ): Parameter<T> = Parameter(name, type, initialization, constraint)
 
@@ -74,6 +74,6 @@ public fun <T> parameter(
 public fun <T> parameter(
     name: String,
     type: KType,
-    initialization: VariableInitialization<T>,
+    initialization: () -> T,
     constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
 ): Parameter<T> = Parameter(name, type, initialization, AllVariableConstraintBuilder<T>().apply(constraintBuilder).build())

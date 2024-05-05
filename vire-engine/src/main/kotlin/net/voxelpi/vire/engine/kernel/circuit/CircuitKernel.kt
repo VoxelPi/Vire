@@ -103,6 +103,6 @@ internal class CircuitKernelImpl(
     }
 
     companion object {
-        private val CIRCUIT_STATE_FIELD = field<CircuitState>("state", MutableCircuitStateImpl())
+        private val CIRCUIT_STATE_FIELD = field<CircuitState>("state", initialization = { MutableCircuitStateImpl() })
     }
 }

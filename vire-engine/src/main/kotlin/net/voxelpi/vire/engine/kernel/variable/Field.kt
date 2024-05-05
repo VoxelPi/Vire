@@ -2,58 +2,28 @@ package net.voxelpi.vire.engine.kernel.variable
 
 import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
-public interface Field<T> : ScalarVariable<T> {
+public data class Field<T> internal constructor(
+    override val name: String,
+    override val type: KType,
+    public val initialization: () -> T,
+) : ScalarVariable<T> {
 
     /**
-     * The name of the variable.
+     * Returns if the given [type] is valid for the parameter.
      */
-    override val name: String
+    public fun isValidType(type: KType): Boolean {
+        return type.isSubtypeOf(this.type)
+    }
 
     /**
-     * The type of the variable.
+     * Returns if the given [value] is valid for the parameter.
      */
-    override val type: KType
-
-    /**
-     * The initialization of the field.
-     */
-    public val initialization: VariableInitialization<T>
-
-    /**
-     * Returns if the given [value] is valid for the field.
-     */
-    public fun isValidValue(value: Any?): Boolean
-}
-
-/**
- * Creates a new field with the given [name] that is initialized to the value of [initialization].
- */
-public inline fun <reified T> field(
-    name: String,
-    initialization: T,
-): Field<T> {
-    return field(
-        name,
-        typeOf<T>(),
-        initialization,
-    )
-}
-
-/**
- * Creates a new field with the given [name] that is initialized to the value of [initialization].
- */
-public fun <T> field(
-    name: String,
-    type: KType,
-    initialization: T,
-): Field<T> {
-    return FieldImpl(
-        name,
-        type,
-        VariableInitialization.constant(initialization),
-    )
+    public fun isValidTypeAndValue(value: Any?): Boolean {
+        return isInstanceOfType(value, type)
+    }
 }
 
 /**
@@ -63,11 +33,7 @@ public inline fun <reified T> field(
     name: String,
     noinline initialization: () -> T,
 ): Field<T> {
-    return field(
-        name,
-        typeOf<T>(),
-        initialization,
-    )
+    return field(name, typeOf<T>(), initialization)
 }
 
 /**
@@ -78,20 +44,5 @@ public fun <T> field(
     type: KType,
     initialization: () -> T,
 ): Field<T> {
-    return FieldImpl(
-        name,
-        type,
-        VariableInitialization.dynamic(initialization),
-    )
-}
-
-internal data class FieldImpl<T>(
-    override val name: String,
-    override val type: KType,
-    override val initialization: VariableInitialization<T>,
-) : Field<T> {
-
-    override fun isValidValue(value: Any?): Boolean {
-        return isInstanceOfType(value, type)
-    }
+    return Field(name, type, initialization)
 }

@@ -131,7 +131,7 @@ internal abstract class KernelImpl(
     fun generateDefaultParameterStates(): MutableMap<String, Any?> {
         val parameterStates = mutableMapOf<String, Any?>()
         for (parameter in parameters()) {
-            parameterStates[parameter.name] = parameter.initialization.provideValue()
+            parameterStates[parameter.name] = parameter.initialization()
         }
         return parameterStates
     }

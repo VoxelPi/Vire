@@ -95,7 +95,7 @@ internal interface MutableFieldStateMap : FieldStateMap, MutableFieldStateProvid
         require(kernel.hasParameter(field.name)) { "Unknown field ${field.name}" }
 
         // Check that the value is valid for the specified field.
-        require(field.isValidValue(value)) { "Value $field does not meet the requirements for the field ${field.name}" }
+        require(field.isValidTypeAndValue(value)) { "Value $field does not meet the requirements for the field ${field.name}" }
 
         // Update the value of the parameter.
         variableStates[field.name] = value
