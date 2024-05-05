@@ -52,11 +52,11 @@ public sealed interface VectorVariableSize {
     public fun get(state: ParameterStateProvider): Int
 
     /**
-     * The size of the vector variable is a constant value.
+     * The size of the vector variable is set to the provided value.
      *
      * @param value the size of the vector variable.
      */
-    public data class Constant(val value: Int) : VectorVariableSize {
+    public data class Value(val value: Int) : VectorVariableSize {
 
         override fun get(state: ParameterStateProvider): Int = value
     }
@@ -69,15 +69,5 @@ public sealed interface VectorVariableSize {
     public data class Parameter(val parameter: net.voxelpi.vire.engine.kernel.variable.Parameter<Int>) : VectorVariableSize {
 
         override fun get(state: ParameterStateProvider): Int = state[parameter]
-    }
-
-    /**
-     * The size of the vector variable is set during the configuration of the kernel.
-     *
-     * @param default the default size of the vector until it is configured.
-     */
-    public data class Dynamic(val default: Int) : VectorVariableSize {
-
-        override fun get(state: ParameterStateProvider): Int = default
     }
 }

@@ -22,9 +22,14 @@ public interface ScriptKernelBuilder {
     public var initialize: (InitializationContext) -> Unit
 
     /**
-     * The update action fo the kernel.
+     * The update action of the kernel.
      */
     public var update: (UpdateContext) -> Unit
+
+    /**
+     * Declares the given [variable] on the kernel.
+     */
+    public fun <V : Variable<*>> declare(variable: V): V
 
     /**
      * Builds the kernel.
@@ -47,6 +52,12 @@ internal class ScriptKernelBuilderImpl(
     override var update: (UpdateContext) -> Unit = {}
 
     private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
+
+    override fun <V : Variable<*>> declare(variable: V): V {
+        require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists" }
+        variables[variable.name] = variable
+        return variable
+    }
 
     override fun build(): ScriptKernelImpl {
         return ScriptKernelImpl(
