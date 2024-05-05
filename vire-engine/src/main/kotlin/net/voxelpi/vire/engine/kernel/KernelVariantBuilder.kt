@@ -43,7 +43,7 @@ internal class KernelVariantBuilderImpl(
             // Check that every parameter has an assigned value.
             require(parameter.name in parameterStates) { "No value for the parameter ${parameter.name}" }
             // Check that the assigned value is valid for the given parameter.
-            require(parameter.isValidValue(parameterStates[parameter.name])) { "Invalid value for the parameter ${parameter.name}" }
+            require(parameter.isValidTypeAndValue(parameterStates[parameter.name])) { "Invalid value for the parameter ${parameter.name}" }
         }
     }
 
@@ -81,7 +81,7 @@ internal class KernelVariantBuilderImpl(
             ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
         // Check that the value is valid for the specified parameter.
-        require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
+        require(parameter.isValidTypeAndValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
 
         // Update the value of the parameter.
         parameterStates[parameter.name] = value

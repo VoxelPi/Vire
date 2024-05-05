@@ -103,7 +103,7 @@ internal abstract class KernelImpl(
                 ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
             // Check that the value is valid for the parameter.
-            require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
+            require(parameter.isValidTypeAndValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
             builder[parameterName] = parameterValue
         }
         return KernelVariantImpl(this, builder)

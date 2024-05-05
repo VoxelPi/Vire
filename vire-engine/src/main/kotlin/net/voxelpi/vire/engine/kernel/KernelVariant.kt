@@ -70,7 +70,7 @@ internal class KernelVariantImpl private constructor(
                 ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
             // Check that the value is valid for the parameter.
-            require(parameter.isValidValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
+            require(parameter.isValidTypeAndValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
             this[parameterName] = parameterValue
         }
 
@@ -124,7 +124,7 @@ internal class KernelVariantImpl private constructor(
             ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
         // Check that the value is valid for the specified parameter.
-        require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
+        require(parameter.isValidTypeAndValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
 
         // Update the value of the parameter.
         parameterStates[parameter.name] = value
