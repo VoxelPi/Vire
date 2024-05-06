@@ -4,7 +4,7 @@ import net.voxelpi.vire.engine.LogicState
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
-public sealed interface IOVariable : Variable<LogicState> {
+public sealed interface IOVariable : Variable<LogicState>, VariantVariable<LogicState> {
 
     override val type: KType
         get() = typeOf<LogicState>()

@@ -9,7 +9,7 @@ public data class Field<T> internal constructor(
     override val name: String,
     override val type: KType,
     public val initialization: () -> T,
-) : ScalarVariable<T> {
+) : ScalarVariable<T>, VariantVariable<T> {
 
     /**
      * Returns if the given [type] is valid for the parameter.

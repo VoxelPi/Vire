@@ -16,6 +16,10 @@ class KernelImplTest {
     fun test1() {
         val input = input("A")
 
+        val parameterMode = parameter("mode", { "mode_a" }) {
+            selection("mode_a", "mode_b", "mode_c")
+        }
+
         val parameter1 = parameter("test", { 2 }) {
             predicate { it % 2 == 0 }
             range(2..3)
@@ -38,16 +42,17 @@ class KernelImplTest {
         }
 
         val kernel = kernel(Identifier("test", "test")) {
+            declare(parameterMode)
             declare(parameter1)
             declare(parameter2)
             declare(parameter3)
-            declare(setting)
             declare(input)
             val output = declare(output("B", 2))
 
-            configure = { _ ->
-//                context.declare()
-//                declare()
+            configure = { context ->
+                if (context[parameterMode] == "mode_a") {
+                    context.declare(setting)
+                }
             }
         }
     }

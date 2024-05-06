@@ -71,3 +71,8 @@ public sealed interface VectorVariableSize {
         override fun get(state: ParameterStateProvider): Int = state[parameter]
     }
 }
+
+/**
+ * A variable that can be declared during the configuration of the kernel and be therefore dependent on the kernel variant.
+ */
+public sealed interface VariantVariable<T> : Variable<T>

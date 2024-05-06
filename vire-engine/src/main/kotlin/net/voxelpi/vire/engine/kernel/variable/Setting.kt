@@ -10,7 +10,7 @@ public data class Setting<T> internal constructor(
     override val type: KType,
     public val initialization: () -> T,
     public val constraint: VariableConstraint<T>,
-) : ScalarVariable<T> {
+) : ScalarVariable<T>, VariantVariable<T> {
 
     /**
      * Returns if the given [value] is valid for the setting.
