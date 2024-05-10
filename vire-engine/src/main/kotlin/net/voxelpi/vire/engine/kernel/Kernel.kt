@@ -137,12 +137,4 @@ internal abstract class KernelImpl(
         }
         return KernelVariantConfig(this, parameterStates)
     }
-
-    /**
-     * Returns a map that contains all io vectors of the kernel and their default sizes.
-     */
-    fun generateVectorVariableSizeMap(parameterStateProvider: ParameterStateProvider): Map<String, Int> {
-        return vectorVariables()
-            .associate { it.name to it.size.get(parameterStateProvider) }
-    }
 }
