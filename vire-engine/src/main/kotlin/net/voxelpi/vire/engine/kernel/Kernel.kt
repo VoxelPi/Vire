@@ -125,11 +125,10 @@ internal abstract class KernelImpl(
 
     abstract fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl>
 
+    abstract fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl>
+
     abstract fun updateKernel(state: MutableKernelState)
 
-    /**
-     * Returns a map that contains all parameters of the kernel and their default values.
-     */
     override fun generateDefaultParameterStates(): KernelVariantConfig {
         val parameterStates = mutableMapOf<String, Any?>()
         for (parameter in parameters()) {

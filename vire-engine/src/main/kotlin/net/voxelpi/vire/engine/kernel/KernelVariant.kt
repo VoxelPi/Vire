@@ -7,6 +7,7 @@ import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingProvider
+import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeMap
@@ -51,6 +52,18 @@ public interface KernelVariant :
      * Creates a new copy of this kernel variant, whose parameters have been modified using the given [values].
      */
     public fun copy(values: Map<String, Any?>): Result<KernelVariant>
+
+    /**
+     * Creates a new instance of the kernel variant.
+     */
+    public fun createInstance(
+        base: SettingStateProvider = generateDefaultSettingStates(),
+    ): Result<KernelInstance>
+
+    /**
+     * Generates a new [SettingStateProvider] with the default value of each setting.
+     */
+    public fun generateDefaultSettingStates(): SettingStateProvider
 }
 
 internal class KernelVariantImpl(
@@ -86,5 +99,18 @@ internal class KernelVariantImpl(
 
         // Return the value of the parameter.
         return variableStates[parameterName]
+    }
+
+    override fun createInstance(base: SettingStateProvider): Result<KernelInstance> {
+        val config = KernelInstanceConfig(this, base)
+        return kernel.generateInstance(config)
+    }
+
+    override fun generateDefaultSettingStates(): SettingStateProvider {
+        val settingStates = mutableMapOf<String, Any?>()
+        for (setting in settings()) {
+            settingStates[setting.name] = setting.initialization()
+        }
+        return KernelInstanceConfig(this, settingStates)
     }
 }

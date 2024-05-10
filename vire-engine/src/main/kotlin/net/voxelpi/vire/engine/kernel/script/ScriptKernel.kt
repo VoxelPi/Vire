@@ -4,6 +4,9 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.KernelInitializationException
+import net.voxelpi.vire.engine.kernel.KernelInstanceConfig
+import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantConfig
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
@@ -47,6 +50,18 @@ internal class ScriptKernelImpl(
 
         val variant = KernelVariantImpl(this, context.variables, config.variableStates, context.vectorVariableSizes)
         return Result.success(variant)
+    }
+
+    override fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
+        val context = InitializationContextImpl(config.kernelVariant, config)
+        try {
+            initialize(context)
+        } catch (exception: KernelInitializationException) {
+            return Result.failure(exception)
+        }
+
+        val instance = KernelInstanceImpl(config.kernelVariant, context.variableStates)
+        return Result.success(instance)
     }
 
     override fun updateKernel(state: MutableKernelState) {

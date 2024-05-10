@@ -12,7 +12,7 @@ internal interface KernelVariantWrapper : ParameterStateProvider, VectorVariable
     val kernel: Kernel
         get() = kernelVariant.kernel
 
-    override fun <T> get(parameter: Parameter<T>): T = kernelVariant.get(parameter)
+    override fun <T> get(parameter: Parameter<T>): T = kernelVariant[parameter]
 
     override fun size(vector: VectorVariable<*>): Int = kernelVariant.size(vector)
 

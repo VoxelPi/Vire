@@ -36,4 +36,15 @@ class KernelVariantImplTest {
         assertFalse { variant1.hasVariable(setting1.name) }
         assertTrue { variant2.hasVariable(setting1.name) }
     }
+
+    @Test
+    fun `create instance`() {
+        val setting1 = setting("setting_1", { 0.0 })
+        val kernel = kernel(Identifier("test", "test")) {
+            declare(setting1)
+        }
+
+        val variant = kernel.createVariant().getOrThrow()
+        val instance = variant.createInstance().getOrThrow()
+    }
 }

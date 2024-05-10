@@ -1,9 +1,9 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.variable.OutputScalar
+import net.voxelpi.vire.engine.kernel.variable.FieldStateMap
+import net.voxelpi.vire.engine.kernel.variable.FieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.OutputStateMap
 import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateMap
@@ -11,7 +11,12 @@ import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
 
-public interface KernelInstance : ParameterStateProvider, VectorVariableSizeProvider, SettingStateProvider, OutputStateProvider {
+public interface KernelInstance :
+    ParameterStateProvider,
+    VectorVariableSizeProvider,
+    SettingStateProvider,
+    FieldStateProvider,
+    OutputStateProvider {
 
     public val kernelVariant: KernelVariant
 
@@ -28,20 +33,8 @@ public interface KernelInstance : ParameterStateProvider, VectorVariableSizeProv
 internal class KernelInstanceImpl(
     override val kernelVariant: KernelVariantImpl,
     override val variableStates: Map<String, Any?>,
-) : KernelInstance, SettingStateMap {
+) : KernelInstance, SettingStateMap, FieldStateMap, OutputStateMap {
 
     override val kernel: KernelImpl
         get() = kernelVariant.kernel
-
-    override fun get(output: OutputScalar): LogicState {
-        TODO("Not yet implemented")
-    }
-
-    override fun get(outputVector: OutputVector): Array<LogicState> {
-        TODO("Not yet implemented")
-    }
-
-    override fun get(outputVector: OutputVector, index: Int): LogicState {
-        TODO("Not yet implemented")
-    }
 }

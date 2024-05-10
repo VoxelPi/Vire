@@ -7,6 +7,8 @@ import net.voxelpi.vire.engine.circuit.CircuitState
 import net.voxelpi.vire.engine.circuit.MutableCircuitStateImpl
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.KernelInstanceConfig
+import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantConfig
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
@@ -40,6 +42,12 @@ internal class CircuitKernelImpl(
     override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
         val variant = KernelVariantImpl(this, variables, config.variableStates, emptyMap())
         return Result.success(variant)
+    }
+
+    override fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
+        // TODO: Create instances for all sub kernels.
+        val instance = KernelInstanceImpl(config.kernelVariant, config.variableStates)
+        return Result.success(instance)
     }
 
     override fun updateKernel(state: MutableKernelState) {
