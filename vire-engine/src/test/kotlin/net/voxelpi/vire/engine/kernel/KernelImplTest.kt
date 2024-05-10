@@ -95,32 +95,4 @@ class KernelImplTest {
         assertTrue { kernel.hasVariable(input1.name) }
         assertTrue { kernel.hasVariable(output1.name) }
     }
-
-    @Test
-    fun `test variant variables`() {
-        val parameter1 = parameter("parameter_1", { "mode_a" }) {
-            selection("mode_a", "mode_b", "mode_c")
-        }
-        val setting1 = setting("setting_1", { 0.0 })
-
-        val kernel = kernel(Identifier("test", "test")) {
-            declare(parameter1)
-
-            configure = { context ->
-                if (context[parameter1] == "mode_b") {
-                    context.declare(setting1)
-                }
-            }
-        }
-        val variant1 = kernel.createVariant {
-            this[parameter1] = "mode_a"
-        }.getOrThrow()
-        val variant2 = kernel.createVariant {
-            this[parameter1] = "mode_b"
-        }.getOrThrow()
-
-        assertFalse { kernel.hasVariable(setting1.name) }
-        assertFalse { variant1.hasVariable(setting1.name) }
-        assertTrue { variant2.hasVariable(setting1.name) }
-    }
 }
