@@ -1,14 +1,29 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.kernel.variable.FieldProvider
+import net.voxelpi.vire.engine.kernel.variable.InputProvider
+import net.voxelpi.vire.engine.kernel.variable.OutputProvider
+import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.SettingProvider
+import net.voxelpi.vire.engine.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeMap
 import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
 
 /**
  * An instance of a kernel.
  */
-public interface KernelVariant : ParameterStateProvider, VectorVariableSizeProvider {
+public interface KernelVariant :
+    VariableProvider,
+    ParameterProvider,
+    SettingProvider,
+    FieldProvider,
+    InputProvider,
+    OutputProvider,
+    ParameterStateProvider,
+    VectorVariableSizeProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -40,9 +55,18 @@ public interface KernelVariant : ParameterStateProvider, VectorVariableSizeProvi
 
 internal class KernelVariantImpl(
     override val kernel: KernelImpl,
+    val variables: Map<String, Variable<*>>,
     override val variableStates: Map<String, Any?>,
     override var vectorVariableSizes: Map<String, Int>,
 ) : KernelVariant, VectorVariableSizeMap, ParameterStateMap {
+
+    override fun variables(): Collection<Variable<*>> {
+        return variables.values
+    }
+
+    override fun variable(name: String): Variable<*>? {
+        return variables[name]
+    }
 
     override fun copy(): Result<KernelVariantImpl> {
         return kernel.createVariant(this)

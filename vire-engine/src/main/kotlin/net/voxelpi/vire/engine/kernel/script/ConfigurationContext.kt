@@ -38,7 +38,7 @@ internal class ConfigurationContextImpl(
     private val parameterStateProvider: ParameterStateProvider,
 ) : ConfigurationContext, MutableVectorVariableSizeMap {
 
-    private val variables: MutableMap<String, Variable<*>> = kernel.variables()
+    val variables: MutableMap<String, Variable<*>> = kernel.variables()
         .associateBy { it.name }
         .toMutableMap()
 

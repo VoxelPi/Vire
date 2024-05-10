@@ -45,7 +45,7 @@ internal class ScriptKernelImpl(
             return Result.failure(exception)
         }
 
-        val variant = KernelVariantImpl(this, config.variableStates, context.vectorVariableSizes)
+        val variant = KernelVariantImpl(this, context.variables, config.variableStates, context.vectorVariableSizes)
         return Result.success(variant)
     }
 

@@ -38,7 +38,7 @@ internal class CircuitKernelImpl(
     }
 
     override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
-        val variant = KernelVariantImpl(this, config.variableStates, emptyMap())
+        val variant = KernelVariantImpl(this, variables, config.variableStates, emptyMap())
         return Result.success(variant)
     }
 
