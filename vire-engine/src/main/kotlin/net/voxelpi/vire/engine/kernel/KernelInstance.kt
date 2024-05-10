@@ -26,11 +26,9 @@ public interface KernelInstance : ParameterStateProvider, VectorVariableSizeProv
 }
 
 internal class KernelInstanceImpl(
-    kernelVariant: KernelVariantImpl,
+    override val kernelVariant: KernelVariantImpl,
     override val variableStates: Map<String, Any?>,
 ) : KernelInstance, SettingStateMap {
-
-    override val kernelVariant: KernelVariantImpl = kernelVariant.clone()
 
     override val kernel: KernelImpl
         get() = kernelVariant.kernel

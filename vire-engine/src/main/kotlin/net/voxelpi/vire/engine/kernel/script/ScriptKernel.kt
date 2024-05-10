@@ -4,9 +4,8 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
-import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
-import net.voxelpi.vire.engine.kernel.KernelVariantData
+import net.voxelpi.vire.engine.kernel.KernelVariantConfig
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
@@ -38,15 +37,16 @@ internal class ScriptKernelImpl(
     override val update: (UpdateContext) -> Unit,
 ) : KernelImpl(id, tags, properties), ScriptKernel {
 
-    override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
-        require(builder is KernelVariantBuilderImpl)
-        val context = ConfigurationContextImpl(this, builder)
+    override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
+        val context = ConfigurationContextImpl(this, config)
         try {
             configure(context)
         } catch (exception: KernelConfigurationException) {
             return Result.failure(exception)
         }
-        return Result.success(KernelVariantData(builder, context.vectorVariableSizes))
+
+        val variant = KernelVariantImpl(this, config.variableStates, context.vectorVariableSizes)
+        return Result.success(variant)
     }
 
     override fun updateKernel(state: MutableKernelState) {

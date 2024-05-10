@@ -35,17 +35,25 @@ public interface Kernel : VariableProvider, ParameterProvider, SettingProvider, 
 
     /**
      * Creates a new variant of the kernel using the default value of each parameter.
+     *
+     * @param base A parameter state provider that should be used to initialize all parameters.
      */
-    public fun createVariant(): KernelVariant
+    public fun createVariant(
+        base: ParameterStateProvider = generateDefaultParameterStates(),
+    ): Result<KernelVariant>
 
     /**
      * Creates a new variant of the kernel using the given [lambda] to initialize the parameters.
      * Before the builder is run, all parameters of the kernel are initialized to their default values,
      * therefore the builder doesn't have to set every parameter.
      *
+     * @param base A parameter state provider that should be used to initialize all parameters before the lambda is run.
      * @param lambda the receiver lambda which will be invoked on the builder.
      */
-    public fun createVariant(lambda: KernelVariantBuilder.() -> Unit): KernelVariant
+    public fun createVariant(
+        base: ParameterStateProvider = generateDefaultParameterStates(),
+        lambda: KernelVariantBuilder.() -> Unit,
+    ): Result<KernelVariant>
 
     /**
      * Creates a new variant of the kernel using the given [values] as the state of the parameters.
@@ -53,9 +61,18 @@ public interface Kernel : VariableProvider, ParameterProvider, SettingProvider, 
      * parameters without specified value are set to their default value.
      * However, the value map must not have any entries for parameters that do not belong to the kernel.
      *
+     * @param base A parameter state provider that should be used to initialize all parameters that are not specified in the map.
      * @param values the values that should be applied to the kernel configuration.
      */
-    public fun createVariant(values: Map<String, Any?>): KernelVariant
+    public fun createVariant(
+        values: Map<String, Any?>,
+        base: ParameterStateProvider = generateDefaultParameterStates(),
+    ): Result<KernelVariant>
+
+    /**
+     * Generates a new [ParameterStateProvider] with the default value of each parameter.
+     */
+    public fun generateDefaultParameterStates(): ParameterStateProvider
 }
 
 /**
@@ -83,57 +100,42 @@ internal abstract class KernelImpl(
         return variables[name]
     }
 
-    override fun createVariant(): KernelVariantImpl {
-        val builder = KernelVariantBuilderImpl(this, generateDefaultParameterStates())
-        val variant = KernelVariantImpl(this, builder)
-        return variant
+    override fun createVariant(
+        base: ParameterStateProvider,
+    ): Result<KernelVariantImpl> {
+        val config = KernelVariantConfig(this, base)
+        return generateVariant(config)
     }
 
-    override fun createVariant(lambda: KernelVariantBuilder.() -> Unit): KernelVariantImpl {
-        val builder = KernelVariantBuilderImpl(this, generateDefaultParameterStates())
-            .apply(lambda)
-        return KernelVariantImpl(this, builder)
+    override fun createVariant(
+        base: ParameterStateProvider,
+        lambda: KernelVariantBuilder.() -> Unit,
+    ): Result<KernelVariantImpl> {
+        val config = KernelVariantBuilderImpl(this, base).apply(lambda).build()
+        return generateVariant(config)
     }
 
-    override fun createVariant(values: Map<String, Any?>): KernelVariantImpl {
-        val builder = KernelVariantBuilderImpl(this, generateDefaultParameterStates())
-        for ((parameterName, parameterValue) in values) {
-            // Check that only existing parameters are specified.
-            val parameter = parameter(parameterName)
-                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-            // Check that the value is valid for the parameter.
-            require(parameter.isValidTypeAndValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
-            builder[parameterName] = parameterValue
-        }
-        return KernelVariantImpl(this, builder)
+    override fun createVariant(
+        values: Map<String, Any?>,
+        base: ParameterStateProvider,
+    ): Result<KernelVariantImpl> {
+        val config = KernelVariantBuilderImpl(this, base).apply(values).build()
+        return generateVariant(config)
     }
 
-    /**
-     * Processes the given [builder] ands returns the resulting [KernelVariantData].
-     */
-    abstract fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData>
+    abstract fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl>
 
-//    abstract fun initializeKernel(state: KernelInstance)
-//
     abstract fun updateKernel(state: MutableKernelState)
 
     /**
      * Returns a map that contains all parameters of the kernel and their default values.
      */
-    fun generateDefaultConfiguration(): KernelVariantBuilderImpl {
-        return KernelVariantBuilderImpl(this, generateDefaultParameterStates())
-    }
-
-    /**
-     * Returns a map that contains all parameters of the kernel and their default values.
-     */
-    fun generateDefaultParameterStates(): MutableMap<String, Any?> {
+    override fun generateDefaultParameterStates(): KernelVariantConfig {
         val parameterStates = mutableMapOf<String, Any?>()
         for (parameter in parameters()) {
             parameterStates[parameter.name] = parameter.initialization()
         }
-        return parameterStates
+        return KernelVariantConfig(this, parameterStates)
     }
 
     /**

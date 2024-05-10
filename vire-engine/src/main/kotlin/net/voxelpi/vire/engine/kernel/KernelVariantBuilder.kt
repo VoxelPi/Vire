@@ -1,7 +1,8 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.kernel.variable.MutableParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.MutableParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 
 /**
  * An instance of a kernel.
@@ -31,40 +32,23 @@ public interface KernelVariantBuilder : MutableParameterStateProvider {
 
 internal class KernelVariantBuilderImpl(
     override val kernel: KernelImpl,
-    val parameterStates: MutableMap<String, Any?> = kernel.generateDefaultParameterStates(),
-) : KernelVariantBuilder {
+    override val variableStates: MutableMap<String, Any?>,
+) : KernelVariantBuilder, MutableParameterStateMap {
+
+    constructor(kernel: KernelImpl, parameterStateProvider: ParameterStateProvider) :
+        this(kernel, kernel.parameters().associate { it.name to parameterStateProvider[it] }.toMutableMap())
 
     init {
-        for (parameterName in parameterStates.keys) {
+        for (parameterName in variableStates.keys) {
             // Check that only existing parameters are specified.
             require(kernel.hasParameter(parameterName)) { "Specified value for unknown parameter '$parameterName'" }
         }
         for (parameter in kernel.parameters()) {
             // Check that every parameter has an assigned value.
-            require(parameter.name in parameterStates) { "No value for the parameter ${parameter.name}" }
+            require(parameter.name in variableStates) { "No value for the parameter ${parameter.name}" }
             // Check that the assigned value is valid for the given parameter.
-            require(parameter.isValidTypeAndValue(parameterStates[parameter.name])) { "Invalid value for the parameter ${parameter.name}" }
+            require(parameter.isValidTypeAndValue(variableStates[parameter.name])) { "Invalid value for the parameter ${parameter.name}" }
         }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> get(parameter: Parameter<T>): T {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
-
-        // Return the value of the parameter.
-        return parameterStates[parameter.name] as T
-    }
-
-    override fun <T> set(parameter: Parameter<T>, value: T) {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
-
-        // Check that the value is valid for the specified parameter.
-        require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
-
-        // Update the value of the parameter.
-        parameterStates[parameter.name] = value
     }
 
     override fun get(parameterName: String): Any? {
@@ -72,7 +56,7 @@ internal class KernelVariantBuilderImpl(
         require(kernel.hasParameter(parameterName)) { "Unknown parameter $parameterName" }
 
         // Return the value of the parameter.
-        return parameterStates[parameterName]
+        return variableStates[parameterName]
     }
 
     override fun set(parameterName: String, value: Any?) {
@@ -84,11 +68,23 @@ internal class KernelVariantBuilderImpl(
         require(parameter.isValidTypeAndValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
 
         // Update the value of the parameter.
-        parameterStates[parameter.name] = value
+        variableStates[parameter.name] = value
+    }
+
+    fun apply(values: Map<String, Any?>): KernelVariantBuilderImpl {
+        for ((parameterName, parameterValue) in values) {
+            // Check that only existing parameters are specified.
+            val parameter = kernel.parameter(parameterName)
+                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
+
+            // Check that the value is valid for the parameter.
+            require(parameter.isValidTypeAndValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
+            this[parameterName] = parameterValue
+        }
+        return this
+    }
+
+    fun build(): KernelVariantConfig {
+        return KernelVariantConfig(kernel, variableStates)
     }
 }
-
-internal data class KernelVariantData(
-    val kernelVariantBuilder: KernelVariantBuilder,
-    val ioVectorSizes: Map<String, Int>,
-)

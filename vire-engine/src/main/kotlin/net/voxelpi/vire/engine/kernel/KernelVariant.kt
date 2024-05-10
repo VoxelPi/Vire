@@ -1,8 +1,8 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.MutableVectorVariableSizeMap
-import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeMap
 import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
 
 /**
@@ -23,91 +23,37 @@ public interface KernelVariant : ParameterStateProvider, VectorVariableSizeProvi
     public operator fun get(parameterName: String): Any?
 
     /**
-     * Updates the state of the parameters of the instance using the given [lambda].
+     * Creates a new copy of this kernel variant.
      */
-    public fun modify(lambda: KernelVariantBuilder.() -> Unit): Result<Unit>
+    public fun copy(): Result<KernelVariant>
 
     /**
-     * Updates the state of the parameters of the instance to the given [values].
+     * Creates a new copy of this kernel variant, whose parameters have been modified using the given [lambda].
      */
-    public fun modify(values: Map<String, Any?>): Result<Unit>
+    public fun copy(lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariant>
+
+    /**
+     * Creates a new copy of this kernel variant, whose parameters have been modified using the given [values].
+     */
+    public fun copy(values: Map<String, Any?>): Result<KernelVariant>
 }
 
-internal class KernelVariantImpl private constructor(
+internal class KernelVariantImpl(
     override val kernel: KernelImpl,
-) : KernelVariant, MutableVectorVariableSizeMap {
+    override val variableStates: Map<String, Any?>,
+    override var vectorVariableSizes: Map<String, Int>,
+) : KernelVariant, VectorVariableSizeMap, ParameterStateMap {
 
-    private var parameterStates: MutableMap<String, Any?> = mutableMapOf()
-
-    override var vectorVariableSizes: MutableMap<String, Int> = mutableMapOf()
-
-    constructor(kernel: KernelImpl, builder: KernelVariantBuilderImpl) : this(kernel) {
-        modify(builder).getOrThrow()
+    override fun copy(): Result<KernelVariantImpl> {
+        return kernel.createVariant(this)
     }
 
-    fun clone(): KernelVariantImpl {
-        val clone = KernelVariantImpl(kernel)
-        clone.parameterStates = parameterStates.toMutableMap()
-        clone.vectorVariableSizes = vectorVariableSizes.toMutableMap()
-        return clone
+    override fun copy(lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariantImpl> {
+        return kernel.createVariant(this, lambda)
     }
 
-    override fun modify(lambda: KernelVariantBuilder.() -> Unit): Result<Unit> {
-        // Create a new builder from the current state and apply the lambda on it.
-        val builder = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
-            .apply(lambda)
-
-        // Apply the builder.
-        return modify(builder)
-    }
-
-    override fun modify(values: Map<String, Any?>): Result<Unit> {
-        // Create a new builder from the current state and set the provided values.
-        val builder = KernelVariantBuilderImpl(kernel, parameterStates.toMutableMap())
-        for ((parameterName, parameterValue) in values) {
-            // Check that only existing parameters are specified.
-            val parameter = kernel.parameter(parameterName)
-                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-            // Check that the value is valid for the parameter.
-            require(parameter.isValidTypeAndValue(parameterValue)) { "Invalid value for the parameter ${parameter.name}" }
-            this[parameterName] = parameterValue
-        }
-
-        // Apply the builder.
-        return modify(builder)
-    }
-
-    private fun modify(builder: KernelVariantBuilderImpl): Result<Unit> {
-        // Let the kernel process the builder.
-        val variantData = kernel.generateVariantData(builder).getOrElse {
-            return Result.failure(it)
-        }
-
-        // Update the variant data.
-        parameterStates = builder.parameterStates
-        vectorVariableSizes = variantData.ioVectorSizes.toMutableMap()
-        return Result.success(Unit)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> get(parameter: Parameter<T>): T {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
-
-        // Return the value of the parameter.
-        return parameterStates[parameter.name] as T
-    }
-
-    operator fun <T> set(parameter: Parameter<T>, value: T) {
-        // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
-
-        // Check that the value is valid for the specified parameter.
-        require(parameter.isValidValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
-
-        // Update the value of the parameter.
-        parameterStates[parameter.name] = value
+    override fun copy(values: Map<String, Any?>): Result<KernelVariantImpl> {
+        return kernel.createVariant(values, this)
     }
 
     override fun get(parameterName: String): Any? {
@@ -115,18 +61,6 @@ internal class KernelVariantImpl private constructor(
         require(kernel.hasParameter(parameterName)) { "Unknown parameter $parameterName" }
 
         // Return the value of the parameter.
-        return parameterStates[parameterName]
-    }
-
-    operator fun set(parameterName: String, value: Any?) {
-        // Check that a parameter with the given name exists.
-        val parameter = kernel.parameter(parameterName)
-            ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-        // Check that the value is valid for the specified parameter.
-        require(parameter.isValidTypeAndValue(value)) { "Value $value does not meet the requirements for the parameter ${parameter.name}" }
-
-        // Update the value of the parameter.
-        parameterStates[parameter.name] = value
+        return variableStates[parameterName]
     }
 }

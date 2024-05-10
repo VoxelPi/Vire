@@ -38,6 +38,38 @@ internal interface MutableVectorVariableSizeMap : VectorVariableSizeMap, Mutable
     }
 }
 
+internal interface ParameterStateMap : ParameterStateProvider {
+
+    val kernel: Kernel
+
+    val variableStates: Map<String, Any?>
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> get(parameter: Parameter<T>): T {
+        // Check that a parameter with the given name exists.
+        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
+
+        // Return the value of the parameter.
+        return variableStates[parameter.name] as T
+    }
+}
+
+internal interface MutableParameterStateMap : ParameterStateMap, MutableParameterStateProvider {
+
+    override val variableStates: MutableMap<String, Any?>
+
+    override fun <T> set(parameter: Parameter<T>, value: T) {
+        // Check that a parameter with the given name exists.
+        require(kernel.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
+
+        // Check that the value is valid for the specified parameter.
+        require(parameter.isValidValue(value)) { "Value $parameter does not meet the requirements for the parameter ${parameter.name}" }
+
+        // Update the value of the parameter.
+        variableStates[parameter.name] = value
+    }
+}
+
 internal interface SettingStateMap : SettingStateProvider {
 
     val kernel: Kernel

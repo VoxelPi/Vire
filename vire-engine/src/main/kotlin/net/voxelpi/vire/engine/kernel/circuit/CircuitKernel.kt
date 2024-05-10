@@ -7,8 +7,8 @@ import net.voxelpi.vire.engine.circuit.CircuitState
 import net.voxelpi.vire.engine.circuit.MutableCircuitStateImpl
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
-import net.voxelpi.vire.engine.kernel.KernelVariantData
+import net.voxelpi.vire.engine.kernel.KernelVariantConfig
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
@@ -37,8 +37,9 @@ internal class CircuitKernelImpl(
         this.variables = variables
     }
 
-    override fun generateVariantData(builder: KernelVariantBuilder): Result<KernelVariantData> {
-        return Result.success(KernelVariantData(builder, emptyMap()))
+    override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
+        val variant = KernelVariantImpl(this, config.variableStates, emptyMap())
+        return Result.success(variant)
     }
 
     override fun updateKernel(state: MutableKernelState) {
