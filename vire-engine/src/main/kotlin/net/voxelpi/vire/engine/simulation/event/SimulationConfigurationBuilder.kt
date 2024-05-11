@@ -2,8 +2,9 @@ package net.voxelpi.vire.engine.simulation.event
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelVariant
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateStorageWrapper
 
 public interface SimulationConfigurationBuilder : MutableSettingStateProvider {
 
@@ -15,9 +16,10 @@ public interface SimulationConfigurationBuilder : MutableSettingStateProvider {
 
 internal class SimulationConfigurationBuilderImpl(
     override val kernelVariant: KernelVariant,
-) : SimulationConfigurationBuilder, MutableSettingStateMap {
+) : SimulationConfigurationBuilder, MutableSettingStateStorageWrapper {
 
-    override val variableStates: MutableMap<String, Any?> = mutableMapOf()
+    override val settingStateStorage: MutableSettingStateStorage
+        get() = TODO("Not yet implemented")
 
     override val kernel: Kernel
         get() = super.kernel

@@ -5,7 +5,12 @@ import net.voxelpi.vire.engine.LogicState
 /**
  * A type that provides ways to access the size of a vector variable.
  */
-public interface VectorVariableSizeProvider {
+public interface VectorSizeProvider {
+
+    /**
+     * The variable provider for which the vector sizes should be provided.
+     */
+    public val variableProvider: VariableProvider
 
     /**
      * Returns the size of the given [vector].
@@ -21,7 +26,7 @@ public interface VectorVariableSizeProvider {
 /**
  * A type that provides ways to access and modify the size of a vector variable.
  */
-public interface MutableVectorVariableSizeProvider {
+public interface MutableVectorSizeProvider : VectorSizeProvider {
 
     /**
      * Changes the size of the given [vector] to the given [size].
@@ -38,6 +43,11 @@ public interface MutableVectorVariableSizeProvider {
  * A type that provides ways to access the state of a parameter variable.
  */
 public interface ParameterStateProvider {
+
+    /**
+     * The parameter provider for which the parameter states should be provided.
+     */
+    public val parameterProvider: ParameterProvider
 
     /**
      * Returns the current value of the given [parameter].
@@ -67,6 +77,11 @@ public interface MutableParameterStateProvider : ParameterStateProvider {
 public interface SettingStateProvider {
 
     /**
+     * The setting provider for which the setting states should be provided.
+     */
+    public val settingProvider: SettingProvider
+
+    /**
      * Returns the current value of the given [setting].
      *
      * @param setting the variable of which the value should be returned.
@@ -94,6 +109,11 @@ public interface MutableSettingStateProvider : SettingStateProvider {
 public interface FieldStateProvider {
 
     /**
+     * The field provider for which the field states should be provided.
+     */
+    public val fieldProvider: FieldProvider
+
+    /**
      * Returns the current value of the given [field].
      *
      * @param field the variable of which the value should be returned.
@@ -119,6 +139,11 @@ public interface MutableFieldStateProvider : FieldStateProvider {
  * A type that provides ways to access the state of an input variable.
  */
 public interface InputStateProvider {
+
+    /**
+     * The input provider for which the input states should be provided.
+     */
+    public val inputProvider: InputProvider
 
     /**
      * Returns the value of the given [input].
@@ -197,6 +222,11 @@ public interface MutableInputStateProvider : InputStateProvider {
  * A type that provides ways to access the state of an output variable.
  */
 public interface OutputStateProvider {
+
+    /**
+     * The output provider for which the output states should be provided.
+     */
+    public val outputProvider: OutputProvider
 
     /**
      * Returns the value of the given [output].

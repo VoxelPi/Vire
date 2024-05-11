@@ -2,19 +2,22 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.InputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateMap
 import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableInputStateMap
+import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.MutableInputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateMap
+import net.voxelpi.vire.engine.kernel.variable.MutableInputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableInputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 
 public interface KernelState :
-    VectorVariableSizeProvider,
+    VectorSizeProvider,
     ParameterStateProvider,
     SettingStateProvider,
     FieldStateProvider,
@@ -36,15 +39,20 @@ public interface MutableKernelState : KernelState, MutableFieldStateProvider, Mu
 
 internal class KernelStateImpl(
     override val kernelInstance: KernelInstanceImpl,
-) : MutableKernelState, MutableInputStateMap, MutableOutputStateMap, MutableFieldStateMap, KernelInstanceWrapper {
+    override val fieldStateStorage: MutableFieldStateStorage,
+    override val inputStateStorage: MutableInputStateStorage,
+    override val outputStateStorage: MutableOutputStateStorage,
+) : MutableKernelState,
+    MutableFieldStateStorageWrapper,
+    MutableInputStateStorageWrapper,
+    MutableOutputStateStorageWrapper,
+    KernelInstanceWrapper {
 
     override val kernel: Kernel
         get() = kernelVariant.kernel
 
     override val kernelVariant: KernelVariant
         get() = kernelInstance.kernelVariant
-
-    override val variableStates: MutableMap<String, Any?> = mutableMapOf()
 
     override fun clone(): KernelState {
         TODO("Not yet implemented")

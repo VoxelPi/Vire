@@ -4,14 +4,16 @@ import net.voxelpi.vire.engine.kernel.variable.FieldProvider
 import net.voxelpi.vire.engine.kernel.variable.InputProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeMap
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeStorage
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeStorageWrapper
 
 /**
  * An instance of a kernel.
@@ -24,7 +26,7 @@ public interface KernelVariant :
     InputProvider,
     OutputProvider,
     ParameterStateProvider,
-    VectorVariableSizeProvider {
+    VectorSizeProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -69,9 +71,9 @@ public interface KernelVariant :
 internal class KernelVariantImpl(
     override val kernel: KernelImpl,
     val variables: Map<String, Variable<*>>,
-    override val variableStates: Map<String, Any?>,
-    override var vectorVariableSizes: Map<String, Int>,
-) : KernelVariant, VectorVariableSizeMap, ParameterStateMap {
+    override val parameterStateStorage: ParameterStateStorage,
+    override val vectorSizeStorage: VectorSizeStorage,
+) : KernelVariant, VectorSizeStorageWrapper, ParameterStateStorageWrapper {
 
     override fun variables(): Collection<Variable<*>> {
         return variables.values
@@ -95,10 +97,11 @@ internal class KernelVariantImpl(
 
     override fun get(parameterName: String): Any? {
         // Check that a parameter with the given name exists.
-        require(kernel.hasParameter(parameterName)) { "Unknown parameter $parameterName" }
+        val parameter = kernel.parameter(parameterName)
+        require(parameter != null) { "Unknown parameter $parameterName" }
 
         // Return the value of the parameter.
-        return variableStates[parameterName]
+        return this[parameter]
     }
 
     override fun createInstance(base: SettingStateProvider): Result<KernelInstance> {

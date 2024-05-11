@@ -18,6 +18,10 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
+import net.voxelpi.vire.engine.kernel.variable.fieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.outputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.parameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
 
@@ -40,13 +44,23 @@ internal class CircuitKernelImpl(
     }
 
     override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
-        val variant = KernelVariantImpl(this, variables, config.variableStates, emptyMap())
+        val variant = KernelVariantImpl(
+            this,
+            variables,
+            config.parameterStateStorage,
+            vectorSizeStorage(config.kernel, emptyMap()),
+        )
         return Result.success(variant)
     }
 
     override fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
         // TODO: Create instances for all sub kernels.
-        val instance = KernelInstanceImpl(config.kernelVariant, config.variableStates)
+        val instance = KernelInstanceImpl(
+            config.kernelVariant,
+            config.settingStateStorage,
+            fieldStateStorage(config.kernelVariant, emptyMap()),
+            outputStateStorage(config.kernelVariant, emptyMap()),
+        )
         return Result.success(instance)
     }
 

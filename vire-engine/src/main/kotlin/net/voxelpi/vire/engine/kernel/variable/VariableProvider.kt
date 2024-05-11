@@ -21,6 +21,11 @@ public interface VariableProvider {
     public fun hasVariable(name: String): Boolean = variable(name) != null
 
     /**
+     * Checks if the given [variable] is registered.
+     */
+    public fun hasVariable(variable: Variable<*>): Boolean = variable(variable.name) == variable
+
+    /**
      * Returns all registered vector variables
      */
     public fun vectorVariables(): Collection<VectorVariable<*>> = variablesOfKind<VectorVariable<*>>()
@@ -78,6 +83,11 @@ public interface ParameterProvider : VariableProvider {
     public fun parameter(name: String): Parameter<*>? = variableOfKind(name)
 
     /**
+     * Checks if the given [parameter] is registered.
+     */
+    public fun hasParameter(parameter: Parameter<*>): Boolean = parameter(parameter.name) == parameter
+
+    /**
      * Checks if there is a registered parameter with the given [name].
      */
     public fun hasParameter(name: String): Boolean = hasVariableOfKind<Parameter<*>>(name)
@@ -99,6 +109,11 @@ public interface SettingProvider : VariableProvider {
     public fun setting(name: String): Setting<*>? = variableOfKind(name)
 
     /**
+     * Checks if the given [setting] is registered.
+     */
+    public fun hasSetting(setting: Setting<*>): Boolean = setting(setting.name) == setting
+
+    /**
      * Checks if there is a registered setting with the given [name].
      */
     public fun hasSetting(name: String): Boolean = hasVariableOfKind<Setting<*>>(name)
@@ -118,6 +133,11 @@ public interface FieldProvider : VariableProvider {
      * Returns the field with the given [name].
      */
     public fun field(name: String): Field<*>? = variableOfKind(name)
+
+    /**
+     * Checks if the given [field] is registered.
+     */
+    public fun hasField(field: Field<*>): Boolean = field(field.name) == field
 
     /**
      * Checks if there is a registered field with the given [name].
@@ -146,6 +166,11 @@ public interface InputProvider : VariableProvider {
     public fun input(name: String): Input? = variableOfKind(name)
 
     /**
+     * Checks if the given [input] is registered.
+     */
+    public fun hasInput(input: Input): Boolean = input(input.name) == input
+
+    /**
      * Checks if the kernel has an input with the given [name].
      */
     public fun hasInput(name: String): Boolean = hasVariableOfKind<Input>(name)
@@ -170,6 +195,11 @@ public interface OutputProvider : VariableProvider {
      * Returns the output with the given [name].
      */
     public fun output(name: String): Output? = variableOfKind(name)
+
+    /**
+     * Checks if the given [output] is registered.
+     */
+    public fun hasOutput(output: Output): Boolean = output(output.name) == output
 
     /**
      * Checks if the kernel has an output with the given [name].

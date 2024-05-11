@@ -1,19 +1,24 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.FieldStateMap
 import net.voxelpi.vire.engine.kernel.variable.FieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.OutputStateMap
+import net.voxelpi.vire.engine.kernel.variable.FieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.FieldStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.OutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.OutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.SettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.SettingStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
 
 public interface KernelInstance :
     ParameterStateProvider,
-    VectorVariableSizeProvider,
+    VectorSizeProvider,
     SettingStateProvider,
     FieldStateProvider,
     OutputStateProvider {
@@ -22,6 +27,12 @@ public interface KernelInstance :
 
     public val kernel: Kernel
         get() = kernelVariant.kernel
+
+    override val variableProvider: VariableProvider
+        get() = kernelVariant
+
+    override val parameterProvider: ParameterProvider
+        get() = kernelVariant
 
     override fun <T> get(parameter: Parameter<T>): T = kernelVariant[parameter]
 
@@ -32,8 +43,10 @@ public interface KernelInstance :
 
 internal class KernelInstanceImpl(
     override val kernelVariant: KernelVariantImpl,
-    override val variableStates: Map<String, Any?>,
-) : KernelInstance, SettingStateMap, FieldStateMap, OutputStateMap {
+    override val settingStateStorage: SettingStateStorage,
+    override val fieldStateStorage: FieldStateStorage,
+    override val outputStateStorage: OutputStateStorage,
+) : KernelInstance, SettingStateStorageWrapper, FieldStateStorageWrapper, OutputStateStorageWrapper {
 
     override val kernel: KernelImpl
         get() = kernelVariant.kernel

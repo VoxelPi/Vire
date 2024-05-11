@@ -6,19 +6,25 @@ import net.voxelpi.vire.engine.kernel.KernelInitializationException
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateMap
 import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateMap
+import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.mutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.mutableOutputStateStorage
 
 public interface InitializationContext :
     ParameterStateProvider,
-    VectorVariableSizeProvider,
+    VectorSizeProvider,
     SettingStateProvider,
     MutableFieldStateProvider,
     MutableOutputStateProvider {
@@ -45,7 +51,7 @@ public interface InitializationContext :
 internal class InitializationContextImpl(
     override val kernelVariant: KernelVariantImpl,
     private val settingStateProvider: SettingStateProvider,
-) : InitializationContext, KernelVariantWrapper, MutableFieldStateMap, MutableOutputStateMap {
+) : InitializationContext, KernelVariantWrapper, MutableFieldStateStorageWrapper, MutableOutputStateStorageWrapper {
 
     override val kernel: Kernel
         get() = kernelVariant.kernel
@@ -54,14 +60,20 @@ internal class InitializationContextImpl(
         .associateBy { it.name }
         .toMutableMap()
 
-    override val variableStates: MutableMap<String, Any?>
+    override val settingProvider: SettingProvider
+        get() = kernelVariant
 
-    init {
-        val variableStates = mutableMapOf<String, Any?>()
-        variableStates += kernel.fields().associate { it.name to it.initialization() }
-        variableStates += kernel.outputs().associate { it.name to LogicState.EMPTY }
-        this.variableStates = variableStates
-    }
+    override val fieldStateStorage: MutableFieldStateStorage = mutableFieldStateStorage(
+        kernelVariant,
+        kernelVariant.fields().associate { it.name to it.initialization() },
+    )
+
+    override val outputStateStorage: MutableOutputStateStorage = mutableOutputStateStorage(
+        kernelVariant,
+        kernelVariant.outputs().associate {
+            it.name to Array(if (it is OutputVector) kernelVariant.size(it) else 1) { LogicState.EMPTY }
+        },
+    )
 
     override fun <T> get(setting: Setting<T>): T {
         return settingStateProvider[setting]

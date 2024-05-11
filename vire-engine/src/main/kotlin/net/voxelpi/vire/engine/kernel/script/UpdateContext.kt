@@ -8,10 +8,10 @@ import net.voxelpi.vire.engine.kernel.variable.InputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 
 public interface UpdateContext :
-    VectorVariableSizeProvider,
+    VectorSizeProvider,
     ParameterStateProvider,
     SettingStateProvider,
     FieldStateProvider,

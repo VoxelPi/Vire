@@ -3,15 +3,28 @@ package net.voxelpi.vire.engine.kernel.script
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.variable.MutableVectorVariableSizeMap
-import net.voxelpi.vire.engine.kernel.variable.MutableVectorVariableSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.FieldProvider
+import net.voxelpi.vire.engine.kernel.variable.InputProvider
+import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeStorage
+import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 
-public interface ConfigurationContext : MutableVectorVariableSizeProvider, ParameterStateProvider {
+public interface ConfigurationContext :
+    ParameterProvider,
+    SettingProvider,
+    FieldProvider,
+    InputProvider,
+    OutputProvider,
+    MutableVectorSizeProvider,
+    ParameterStateProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -36,21 +49,35 @@ public interface ConfigurationContext : MutableVectorVariableSizeProvider, Param
 internal class ConfigurationContextImpl(
     override val kernel: KernelImpl,
     private val parameterStateProvider: ParameterStateProvider,
-) : ConfigurationContext, MutableVectorVariableSizeMap {
+) : ConfigurationContext, MutableVectorSizeStorageWrapper {
 
     val variables: MutableMap<String, Variable<*>> = kernel.variables()
         .associateBy { it.name }
         .toMutableMap()
 
-    override val vectorVariableSizes: MutableMap<String, Int> = kernel.vectorVariables()
-        .associate { it.name to it.size.get(this) }
-        .toMutableMap()
+    override fun variables(): Collection<Variable<*>> {
+        return variables.values
+    }
+
+    override fun variable(name: String): Variable<*>? {
+        return variables[name]
+    }
+
+    override val vectorSizeStorage: MutableVectorSizeStorage = MutableVectorSizeStorage(
+        this,
+        kernel.vectorVariables()
+            .associate { it.name to it.size.get(this) }
+            .toMutableMap(),
+    )
+
+    override val parameterProvider: ParameterProvider
+        get() = kernel
 
     override fun <V : VariantVariable<*>> declare(variable: V): V {
         require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists" }
         variables[variable.name] = variable
         if (variable is VectorVariable<*>) {
-            vectorVariableSizes[variable.name] = variable.size.get(this)
+            vectorSizeStorage.resize(variable, variable.size.get(this))
         }
         return variable
     }

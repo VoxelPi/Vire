@@ -48,7 +48,12 @@ internal class ScriptKernelImpl(
             return Result.failure(exception)
         }
 
-        val variant = KernelVariantImpl(this, context.variables, config.variableStates, context.vectorVariableSizes)
+        val variant = KernelVariantImpl(
+            this,
+            context.variables,
+            config.parameterStateStorage,
+            context.vectorSizeStorage.copy(),
+        )
         return Result.success(variant)
     }
 
@@ -60,7 +65,12 @@ internal class ScriptKernelImpl(
             return Result.failure(exception)
         }
 
-        val instance = KernelInstanceImpl(config.kernelVariant, context.variableStates)
+        val instance = KernelInstanceImpl(
+            config.kernelVariant,
+            config.settingStateStorage,
+            context.fieldStateStorage.copy(),
+            context.outputStateStorage.copy(),
+        )
         return Result.success(instance)
     }
 
