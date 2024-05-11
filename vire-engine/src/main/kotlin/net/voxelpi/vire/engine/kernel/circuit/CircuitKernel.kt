@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.kernel.circuit
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.CircuitState
+import net.voxelpi.vire.engine.circuit.MutableCircuitInstanceImpl
 import net.voxelpi.vire.engine.circuit.MutableCircuitStateImpl
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
@@ -19,6 +20,7 @@ import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.fieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.outputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.setting
 import net.voxelpi.vire.engine.kernel.variable.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
@@ -34,6 +36,7 @@ internal class CircuitKernelImpl(
 
     init {
         val variables: MutableMap<String, Variable<*>> = circuit.variables().associateBy { it.name }.toMutableMap()
+        variables[CIRCUIT_INSTANCE_SETTING.name] = CIRCUIT_INSTANCE_SETTING
         variables[CIRCUIT_STATE_FIELD.name] = CIRCUIT_STATE_FIELD
         this.variables = variables
     }
@@ -49,10 +52,23 @@ internal class CircuitKernelImpl(
     }
 
     override fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
-        // TODO: Create instances for all sub kernels.
+        val settingStateStorage = config.settingStateStorage.mutableCopy()
+
+        // Create instances for all component kernels.
+        val circuitInstance = MutableCircuitInstanceImpl(mutableMapOf())
+        for (component in circuit.components()) {
+            val kernelVariant = component.kernelVariant
+            val kernelInstance = kernelVariant.createInstance().getOrElse {
+                return Result.failure(it)
+            }
+            circuitInstance[component] = kernelInstance
+        }
+        settingStateStorage[CIRCUIT_INSTANCE_SETTING] = circuitInstance
+
+        // Create the instance.
         val instance = KernelInstanceImpl(
             config.kernelVariant,
-            config.settingStateStorage,
+            settingStateStorage,
             fieldStateStorage(config.kernelVariant, emptyMap()),
             outputStateStorage(config.kernelVariant, emptyMap()),
         )
@@ -121,6 +137,7 @@ internal class CircuitKernelImpl(
     }
 
     companion object {
+        private val CIRCUIT_INSTANCE_SETTING = setting("instance", initialization = { MutableCircuitInstanceImpl(mutableMapOf()) })
         private val CIRCUIT_STATE_FIELD = field<CircuitState>("state", initialization = { MutableCircuitStateImpl() })
     }
 }

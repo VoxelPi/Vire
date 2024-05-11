@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.kernel
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorage
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
@@ -46,6 +47,33 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
      * Creates a new instance of the kernel variant.
      */
     public fun createInstance(
+        base: SettingStateProvider = generateDefaultSettingStates(),
+    ): Result<KernelInstance>
+
+    /**
+     * Creates a new variant of the kernel variant using the given [lambda] to initialize the settings.
+     * Before the lambda is run, all settings of the kernel variant are initialized to their default values,
+     * therefore the lambda doesn't have to set a setting.
+     *
+     * @param base A setting state provider that should be used to initialize all settings before the lambda is run.
+     * @param lambda the receiver lambda which will be invoked on the builder.
+     */
+    public fun createInstance(
+        base: SettingStateProvider = generateDefaultSettingStates(),
+        lambda: KernelInstanceBuilder.() -> Unit,
+    ): Result<KernelInstance>
+
+    /**
+     * Creates a new instance of the kernel variant using the given [values] as the state of the settings.
+     * The value map doesn't have to contain entries for every setting,
+     * settings without specified value are set to their default value.
+     * However, the value map must not have any entries for settings that do not belong to the kernel variant.
+     *
+     * @param base A setting state provider that should be used to initialize all parameters that are not specified in the map.
+     * @param values the values that should be applied to the kernel configuration.
+     */
+    public fun createInstance(
+        values: SettingStateMap,
         base: SettingStateProvider = generateDefaultSettingStates(),
     ): Result<KernelInstance>
 
@@ -94,8 +122,18 @@ internal class KernelVariantImpl(
         return this[parameter]
     }
 
-    override fun createInstance(base: SettingStateProvider): Result<KernelInstance> {
+    override fun createInstance(base: SettingStateProvider): Result<KernelInstanceImpl> {
         val config = KernelInstanceConfig(this, base)
+        return kernel.generateInstance(config)
+    }
+
+    override fun createInstance(base: SettingStateProvider, lambda: KernelInstanceBuilder.() -> Unit): Result<KernelInstanceImpl> {
+        val config = KernelInstanceBuilderImpl(this, base).apply(lambda).build()
+        return kernel.generateInstance(config)
+    }
+
+    override fun createInstance(values: SettingStateMap, base: SettingStateProvider): Result<KernelInstanceImpl> {
+        val config = KernelInstanceBuilderImpl(this, base).apply(values).build()
         return kernel.generateInstance(config)
     }
 

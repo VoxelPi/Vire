@@ -4,6 +4,7 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.script.ScriptKernel
 import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilder
 import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilderImpl
+import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
@@ -60,7 +61,7 @@ public interface Kernel : VariableProvider {
      * @param values the values that should be applied to the kernel configuration.
      */
     public fun createVariant(
-        values: Map<String, Any?>,
+        values: ParameterStateMap,
         base: ParameterStateProvider = generateDefaultParameterStates(),
     ): Result<KernelVariant>
 
@@ -95,25 +96,17 @@ internal abstract class KernelImpl(
         return variables[name]
     }
 
-    override fun createVariant(
-        base: ParameterStateProvider,
-    ): Result<KernelVariantImpl> {
+    override fun createVariant(base: ParameterStateProvider): Result<KernelVariantImpl> {
         val config = KernelVariantConfig(this, base)
         return generateVariant(config)
     }
 
-    override fun createVariant(
-        base: ParameterStateProvider,
-        lambda: KernelVariantBuilder.() -> Unit,
-    ): Result<KernelVariantImpl> {
+    override fun createVariant(base: ParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariantImpl> {
         val config = KernelVariantBuilderImpl(this, base).apply(lambda).build()
         return generateVariant(config)
     }
 
-    override fun createVariant(
-        values: Map<String, Any?>,
-        base: ParameterStateProvider,
-    ): Result<KernelVariantImpl> {
+    override fun createVariant(values: ParameterStateMap, base: ParameterStateProvider): Result<KernelVariantImpl> {
         val config = KernelVariantBuilderImpl(this, base).apply(values).build()
         return generateVariant(config)
     }

@@ -4,6 +4,7 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.engine.kernel.variable.setting
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -39,12 +40,13 @@ class KernelVariantImplTest {
 
     @Test
     fun `create instance`() {
-        val setting1 = setting("setting_1", { 0.0 })
+        val setting1 = setting("setting_1", { 10.0 })
         val kernel = kernel(Identifier("test", "test")) {
             declare(setting1)
         }
 
         val variant = kernel.createVariant().getOrThrow()
         val instance = variant.createInstance().getOrThrow()
+        assertEquals(10.0, instance[setting1])
     }
 }

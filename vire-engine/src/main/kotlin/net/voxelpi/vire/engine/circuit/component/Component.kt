@@ -21,9 +21,14 @@ public interface Component : CircuitElement {
     public val kernel: Kernel
 
     /**
-     * The kernel configuration of the component.
+     * The kernel variant of the component.
      */
     public val kernelVariant: KernelVariant
+
+    /**
+     * The configuration of the component.
+     */
+    public val configuration: ComponentConfiguration
 
     /**
      * Returns all ports of this component.
@@ -56,6 +61,8 @@ internal class ComponentImpl(
         get() = kernelVariant.kernel
 
     private val ports: MutableMap<UUID, ComponentPortImpl> = mutableMapOf()
+
+    override val configuration: ComponentConfigurationImpl = ComponentConfigurationImpl(kernelVariant)
 
     override fun ports(): Collection<ComponentPort> {
         return ports.values

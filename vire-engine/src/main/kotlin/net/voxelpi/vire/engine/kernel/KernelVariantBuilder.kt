@@ -8,12 +8,12 @@ import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.mutableParameterStateStorage
 
 /**
- * An instance of a kernel.
+ * A builder for a kernel variant.
  */
 public interface KernelVariantBuilder : MutableParameterStateProvider {
 
     /**
-     * The kernel which of which the instance was created.
+     * The kernel which of which the variant should be created.
      */
     public val kernel: Kernel
 
