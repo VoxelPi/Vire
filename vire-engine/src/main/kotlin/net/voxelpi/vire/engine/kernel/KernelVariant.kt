@@ -1,13 +1,8 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.FieldProvider
-import net.voxelpi.vire.engine.kernel.variable.InputProvider
-import net.voxelpi.vire.engine.kernel.variable.OutputProvider
-import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorage
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
@@ -18,15 +13,7 @@ import net.voxelpi.vire.engine.kernel.variable.VectorSizeStorageWrapper
 /**
  * An instance of a kernel.
  */
-public interface KernelVariant :
-    VariableProvider,
-    ParameterProvider,
-    SettingProvider,
-    FieldProvider,
-    InputProvider,
-    OutputProvider,
-    ParameterStateProvider,
-    VectorSizeProvider {
+public interface KernelVariant : VariableProvider, ParameterStateProvider, VectorSizeProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -74,6 +61,9 @@ internal class KernelVariantImpl(
     override val parameterStateStorage: ParameterStateStorage,
     override val vectorSizeStorage: VectorSizeStorage,
 ) : KernelVariant, VectorSizeStorageWrapper, ParameterStateStorageWrapper {
+
+    override val variableProvider: VariableProvider
+        get() = this
 
     override fun variables(): Collection<Variable<*>> {
         return variables.values

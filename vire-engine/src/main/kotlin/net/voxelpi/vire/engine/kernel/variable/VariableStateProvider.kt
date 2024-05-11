@@ -45,9 +45,9 @@ public interface MutableVectorSizeProvider : VectorSizeProvider {
 public interface ParameterStateProvider {
 
     /**
-     * The parameter provider for which the parameter states should be provided.
+     * The variable provider for which the parameter states should be provided.
      */
-    public val parameterProvider: ParameterProvider
+    public val variableProvider: VariableProvider
 
     /**
      * Returns the current value of the given [parameter].
@@ -77,9 +77,9 @@ public interface MutableParameterStateProvider : ParameterStateProvider {
 public interface SettingStateProvider {
 
     /**
-     * The setting provider for which the setting states should be provided.
+     * The variable provider for which the setting states should be provided.
      */
-    public val settingProvider: SettingProvider
+    public val variableProvider: VariableProvider
 
     /**
      * Returns the current value of the given [setting].
@@ -109,9 +109,9 @@ public interface MutableSettingStateProvider : SettingStateProvider {
 public interface FieldStateProvider {
 
     /**
-     * The field provider for which the field states should be provided.
+     * The variable provider for which the field states should be provided.
      */
-    public val fieldProvider: FieldProvider
+    public val variableProvider: VariableProvider
 
     /**
      * Returns the current value of the given [field].
@@ -141,9 +141,9 @@ public interface MutableFieldStateProvider : FieldStateProvider {
 public interface InputStateProvider {
 
     /**
-     * The input provider for which the input states should be provided.
+     * The variable provider for which the input states should be provided.
      */
-    public val inputProvider: InputProvider
+    public val variableProvider: VariableProvider
 
     /**
      * Returns the value of the given [input].
@@ -224,9 +224,9 @@ public interface MutableInputStateProvider : InputStateProvider {
 public interface OutputStateProvider {
 
     /**
-     * The output provider for which the output states should be provided.
+     * The variable provider for which the output states should be provided.
      */
-    public val outputProvider: OutputProvider
+    public val variableProvider: VariableProvider
 
     /**
      * Returns the value of the given [output].

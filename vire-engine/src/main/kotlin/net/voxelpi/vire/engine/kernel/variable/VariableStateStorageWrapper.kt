@@ -35,8 +35,8 @@ internal interface ParameterStateStorageWrapper : ParameterStateProvider {
 
     val parameterStateStorage: ParameterStateStorage
 
-    override val parameterProvider: ParameterProvider
-        get() = parameterStateStorage.parameterProvider
+    override val variableProvider: VariableProvider
+        get() = parameterStateStorage.variableProvider
 
     override fun <T> get(parameter: Parameter<T>): T {
         return parameterStateStorage[parameter]
@@ -56,8 +56,8 @@ internal interface SettingStateStorageWrapper : SettingStateProvider {
 
     val settingStateStorage: SettingStateStorage
 
-    override val settingProvider: SettingProvider
-        get() = settingStateStorage.settingProvider
+    override val variableProvider: VariableProvider
+        get() = settingStateStorage.variableProvider
 
     override fun <T> get(setting: Setting<T>): T {
         return settingStateStorage[setting]
@@ -77,8 +77,8 @@ internal interface FieldStateStorageWrapper : FieldStateProvider {
 
     val fieldStateStorage: FieldStateStorage
 
-    override val fieldProvider: FieldProvider
-        get() = fieldStateStorage.fieldProvider
+    override val variableProvider: VariableProvider
+        get() = fieldStateStorage.variableProvider
 
     override fun <T> get(field: Field<T>): T {
         return fieldStateStorage[field]
@@ -98,8 +98,8 @@ internal interface InputStateStorageWrapper : InputStateProvider {
 
     val inputStateStorage: InputStateStorage
 
-    override val inputProvider: InputProvider
-        get() = inputStateStorage.inputProvider
+    override val variableProvider: VariableProvider
+        get() = inputStateStorage.variableProvider
 
     override fun get(input: InputScalar): LogicState {
         return inputStateStorage[input]
@@ -135,8 +135,8 @@ internal interface OutputStateStorageWrapper : OutputStateProvider {
 
     val outputStateStorage: OutputStateStorage
 
-    override val outputProvider: OutputProvider
-        get() = outputStateStorage.outputProvider
+    override val variableProvider: VariableProvider
+        get() = outputStateStorage.variableProvider
 
     override fun get(output: OutputScalar): LogicState {
         return outputStateStorage[output]

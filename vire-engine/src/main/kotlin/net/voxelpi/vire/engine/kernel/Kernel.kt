@@ -4,19 +4,14 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.script.ScriptKernel
 import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilder
 import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilderImpl
-import net.voxelpi.vire.engine.kernel.variable.FieldProvider
-import net.voxelpi.vire.engine.kernel.variable.InputProvider
-import net.voxelpi.vire.engine.kernel.variable.OutputProvider
-import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.
  */
-public interface Kernel : VariableProvider, ParameterProvider, SettingProvider, FieldProvider, InputProvider, OutputProvider {
+public interface Kernel : VariableProvider {
 
     /**
      * The id of the kernel.

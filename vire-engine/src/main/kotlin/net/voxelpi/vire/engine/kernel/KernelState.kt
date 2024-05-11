@@ -14,6 +14,7 @@ import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 
 public interface KernelState :
@@ -53,6 +54,9 @@ internal class KernelStateImpl(
 
     override val kernelVariant: KernelVariant
         get() = kernelInstance.kernelVariant
+
+    override val variableProvider: VariableProvider
+        get() = kernelVariant
 
     override fun clone(): KernelState {
         TODO("Not yet implemented")

@@ -2,19 +2,17 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.Field
-import net.voxelpi.vire.engine.kernel.variable.FieldProvider
 import net.voxelpi.vire.engine.kernel.variable.FieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.InputProvider
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.MutableInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 
 internal interface KernelStateWrapper : KernelInstanceWrapper, FieldStateProvider, InputStateProvider, OutputStateProvider {
 
@@ -25,13 +23,7 @@ internal interface KernelStateWrapper : KernelInstanceWrapper, FieldStateProvide
     override val kernelVariant: KernelVariant
         get() = kernelInstance.kernelVariant
 
-    override val fieldProvider: FieldProvider
-        get() = kernelVariant
-
-    override val inputProvider: InputProvider
-        get() = kernelVariant
-
-    override val outputProvider: OutputProvider
+    override val variableProvider: VariableProvider
         get() = kernelVariant
 
     override fun <T> get(field: Field<T>): T = kernelState[field]

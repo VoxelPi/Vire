@@ -88,7 +88,7 @@ internal fun mutableVectorSizeStorage(variableProvider: VariableProvider, dataPr
 
 internal interface ParameterStateStorage : ParameterStateProvider {
 
-    override val parameterProvider: ParameterProvider
+    override val variableProvider: VariableProvider
 
     val data: ParameterStateMap
 
@@ -99,7 +99,7 @@ internal interface ParameterStateStorage : ParameterStateProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: Parameter<T>): T {
         // Check that a parameter with the given name exists.
-        require(parameterProvider.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
+        require(variableProvider.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
 
         // Return the value of the parameter.
         return data[parameter.name] as T
@@ -107,19 +107,19 @@ internal interface ParameterStateStorage : ParameterStateProvider {
 }
 
 internal class MutableParameterStateStorage(
-    override val parameterProvider: ParameterProvider,
+    override val variableProvider: VariableProvider,
     override val data: MutableParameterStateMap,
 ) : ParameterStateStorage, MutableParameterStateProvider {
 
     override fun copy(): MutableParameterStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableParameterStateStorage {
-        return MutableParameterStateStorage(parameterProvider, data.toMutableMap())
+        return MutableParameterStateStorage(variableProvider, data.toMutableMap())
     }
 
     override fun <T> set(parameter: Parameter<T>, value: T) {
         // Check that a parameter with the given name exists.
-        require(parameterProvider.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
+        require(variableProvider.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
 
         // Check that the value is valid for the specified parameter.
         require(parameter.isValidValue(value)) { "Value $parameter does not meet the requirements for the parameter ${parameter.name}" }
@@ -129,15 +129,15 @@ internal class MutableParameterStateStorage(
     }
 }
 
-internal fun parameterStateStorage(variableProvider: ParameterProvider, data: ParameterStateMap): ParameterStateStorage {
+internal fun parameterStateStorage(variableProvider: VariableProvider, data: ParameterStateMap): ParameterStateStorage {
     return mutableParameterStateStorage(variableProvider, data)
 }
 
-internal fun parameterStateStorage(variableProvider: ParameterProvider, dataProvider: ParameterStateProvider): ParameterStateStorage {
+internal fun parameterStateStorage(variableProvider: VariableProvider, dataProvider: ParameterStateProvider): ParameterStateStorage {
     return mutableParameterStateStorage(variableProvider, dataProvider)
 }
 
-internal fun mutableParameterStateStorage(variableProvider: ParameterProvider, data: ParameterStateMap): MutableParameterStateStorage {
+internal fun mutableParameterStateStorage(variableProvider: VariableProvider, data: ParameterStateMap): MutableParameterStateStorage {
     val processedData: MutableParameterStateMap = mutableMapOf()
     for (parameter in variableProvider.parameters()) {
         // Check that the parameter has an assigned value.
@@ -156,13 +156,13 @@ internal fun mutableParameterStateStorage(variableProvider: ParameterProvider, d
 }
 
 internal fun mutableParameterStateStorage(
-    variableProvider: ParameterProvider,
+    variableProvider: VariableProvider,
     dataProvider: ParameterStateProvider,
 ): MutableParameterStateStorage {
     val processedData: MutableParameterStateMap = mutableMapOf()
     for (parameter in variableProvider.parameters()) {
         // Check that the parameter has an assigned value.
-        require(dataProvider.parameterProvider.hasVariable(parameter)) { "No value provided for the parameter ${parameter.name}" }
+        require(dataProvider.variableProvider.hasVariable(parameter)) { "No value provided for the parameter ${parameter.name}" }
 
         // Get the value from the provider.
         val value = dataProvider[parameter]
@@ -178,7 +178,7 @@ internal fun mutableParameterStateStorage(
 
 internal interface SettingStateStorage : SettingStateProvider {
 
-    override val settingProvider: SettingProvider
+    override val variableProvider: VariableProvider
 
     val data: SettingStateMap
 
@@ -189,7 +189,7 @@ internal interface SettingStateStorage : SettingStateProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(setting: Setting<T>): T {
         // Check that a setting with the given name exists.
-        require(settingProvider.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
+        require(variableProvider.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
 
         // Return the value of the setting.
         return data[setting.name] as T
@@ -197,19 +197,19 @@ internal interface SettingStateStorage : SettingStateProvider {
 }
 
 internal class MutableSettingStateStorage(
-    override val settingProvider: SettingProvider,
+    override val variableProvider: VariableProvider,
     override val data: MutableSettingStateMap,
 ) : SettingStateStorage, MutableSettingStateProvider {
 
     override fun copy(): MutableSettingStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableSettingStateStorage {
-        return MutableSettingStateStorage(settingProvider, data.toMutableMap())
+        return MutableSettingStateStorage(variableProvider, data.toMutableMap())
     }
 
     override fun <T> set(setting: Setting<T>, value: T) {
         // Check that a setting with the given name exists.
-        require(settingProvider.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
+        require(variableProvider.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
 
         // Check that the value is valid for the specified setting.
         require(setting.isValidValue(value)) { "Value $setting does not meet the requirements for the setting ${setting.name}" }
@@ -219,15 +219,15 @@ internal class MutableSettingStateStorage(
     }
 }
 
-internal fun settingStateStorage(variableProvider: SettingProvider, data: SettingStateMap): SettingStateStorage {
+internal fun settingStateStorage(variableProvider: VariableProvider, data: SettingStateMap): SettingStateStorage {
     return mutableSettingStateStorage(variableProvider, data)
 }
 
-internal fun settingStateStorage(variableProvider: SettingProvider, dataProvider: SettingStateProvider): SettingStateStorage {
+internal fun settingStateStorage(variableProvider: VariableProvider, dataProvider: SettingStateProvider): SettingStateStorage {
     return mutableSettingStateStorage(variableProvider, dataProvider)
 }
 
-internal fun mutableSettingStateStorage(variableProvider: SettingProvider, data: SettingStateMap): MutableSettingStateStorage {
+internal fun mutableSettingStateStorage(variableProvider: VariableProvider, data: SettingStateMap): MutableSettingStateStorage {
     val processedData: MutableSettingStateMap = mutableMapOf()
     for (setting in variableProvider.settings()) {
         // Check that the setting has an assigned value.
@@ -245,11 +245,14 @@ internal fun mutableSettingStateStorage(variableProvider: SettingProvider, data:
     return MutableSettingStateStorage(variableProvider, processedData)
 }
 
-internal fun mutableSettingStateStorage(variableProvider: SettingProvider, dataProvider: SettingStateProvider): MutableSettingStateStorage {
+internal fun mutableSettingStateStorage(
+    variableProvider: VariableProvider,
+    dataProvider: SettingStateProvider,
+): MutableSettingStateStorage {
     val processedData: MutableSettingStateMap = mutableMapOf()
     for (setting in variableProvider.settings()) {
         // Check that the setting has an assigned value.
-        require(dataProvider.settingProvider.hasVariable(setting)) { "No value provided for the setting ${setting.name}" }
+        require(dataProvider.variableProvider.hasVariable(setting)) { "No value provided for the setting ${setting.name}" }
 
         // Get the value from the provider.
         val value = dataProvider[setting]
@@ -265,7 +268,7 @@ internal fun mutableSettingStateStorage(variableProvider: SettingProvider, dataP
 
 internal interface FieldStateStorage : FieldStateProvider {
 
-    override val fieldProvider: FieldProvider
+    override val variableProvider: VariableProvider
 
     val data: FieldStateMap
 
@@ -276,7 +279,7 @@ internal interface FieldStateStorage : FieldStateProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(field: Field<T>): T {
         // Check that a field with the given name exists.
-        require(fieldProvider.hasField(field.name)) { "Unknown field ${field.name}" }
+        require(variableProvider.hasField(field.name)) { "Unknown field ${field.name}" }
 
         // Return the value of the field.
         return data[field.name] as T
@@ -284,19 +287,19 @@ internal interface FieldStateStorage : FieldStateProvider {
 }
 
 internal class MutableFieldStateStorage(
-    override val fieldProvider: FieldProvider,
+    override val variableProvider: VariableProvider,
     override val data: MutableFieldStateMap,
 ) : FieldStateStorage, MutableFieldStateProvider {
 
     override fun copy(): MutableFieldStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableFieldStateStorage {
-        return MutableFieldStateStorage(fieldProvider, data.toMutableMap())
+        return MutableFieldStateStorage(variableProvider, data.toMutableMap())
     }
 
     override fun <T> set(field: Field<T>, value: T) {
         // Check that a field with the given name exists.
-        require(fieldProvider.hasField(field.name)) { "Unknown field ${field.name}" }
+        require(variableProvider.hasField(field.name)) { "Unknown field ${field.name}" }
 
         // Check that the value is valid for the specified field.
         require(field.isValidTypeAndValue(value)) { "Value $field does not meet the requirements for the field ${field.name}" }
@@ -306,15 +309,15 @@ internal class MutableFieldStateStorage(
     }
 }
 
-internal fun fieldStateStorage(variableProvider: FieldProvider, data: FieldStateMap): FieldStateStorage {
+internal fun fieldStateStorage(variableProvider: VariableProvider, data: FieldStateMap): FieldStateStorage {
     return mutableFieldStateStorage(variableProvider, data)
 }
 
-internal fun fieldStateStorage(variableProvider: FieldProvider, dataProvider: FieldStateProvider): FieldStateStorage {
+internal fun fieldStateStorage(variableProvider: VariableProvider, dataProvider: FieldStateProvider): FieldStateStorage {
     return mutableFieldStateStorage(variableProvider, dataProvider)
 }
 
-internal fun mutableFieldStateStorage(variableProvider: FieldProvider, data: FieldStateMap): MutableFieldStateStorage {
+internal fun mutableFieldStateStorage(variableProvider: VariableProvider, data: FieldStateMap): MutableFieldStateStorage {
     val processedData: MutableFieldStateMap = mutableMapOf()
     for (field in variableProvider.fields()) {
         // Check that the field has an assigned value.
@@ -332,11 +335,11 @@ internal fun mutableFieldStateStorage(variableProvider: FieldProvider, data: Fie
     return MutableFieldStateStorage(variableProvider, processedData)
 }
 
-internal fun mutableFieldStateStorage(variableProvider: FieldProvider, dataProvider: FieldStateProvider): MutableFieldStateStorage {
+internal fun mutableFieldStateStorage(variableProvider: VariableProvider, dataProvider: FieldStateProvider): MutableFieldStateStorage {
     val processedData: MutableFieldStateMap = mutableMapOf()
     for (field in variableProvider.fields()) {
         // Check that the field has an assigned value.
-        require(dataProvider.fieldProvider.hasVariable(field)) { "No value provided for the field ${field.name}" }
+        require(dataProvider.variableProvider.hasVariable(field)) { "No value provided for the field ${field.name}" }
 
         // Get the value from the provider.
         val value = dataProvider[field]
@@ -352,7 +355,7 @@ internal fun mutableFieldStateStorage(variableProvider: FieldProvider, dataProvi
 
 internal interface InputStateStorage : InputStateProvider {
 
-    override val inputProvider: InputProvider
+    override val variableProvider: VariableProvider
 
     val data: InputStateMap
 
@@ -362,7 +365,7 @@ internal interface InputStateStorage : InputStateProvider {
 
     override fun get(input: InputScalar): LogicState {
         // Check that an input with the given name exists.
-        require(inputProvider.hasInput(input.name)) { "Unknown input ${input.name}" }
+        require(variableProvider.hasInput(input.name)) { "Unknown input ${input.name}" }
 
         // Return the value of the input.
         return data[input.name]!![0]
@@ -370,7 +373,7 @@ internal interface InputStateStorage : InputStateProvider {
 
     override fun get(inputVector: InputVector): Array<LogicState> {
         // Check that an input with the given name exists.
-        require(inputProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
+        require(variableProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
 
         // Return the value of the input.
         return data[inputVector.name]!!
@@ -382,19 +385,19 @@ internal interface InputStateStorage : InputStateProvider {
 }
 
 internal class MutableInputStateStorage(
-    override val inputProvider: InputProvider,
+    override val variableProvider: VariableProvider,
     override val data: MutableInputStateMap,
 ) : InputStateStorage, MutableInputStateProvider {
 
     override fun copy(): MutableInputStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableInputStateStorage {
-        return MutableInputStateStorage(inputProvider, data.toMutableMap())
+        return MutableInputStateStorage(variableProvider, data.toMutableMap())
     }
 
     override fun set(input: InputScalar, value: LogicState) {
         // Check that an input with the given name exists.
-        require(inputProvider.hasInput(input.name)) { "Unknown input ${input.name}" }
+        require(variableProvider.hasInput(input.name)) { "Unknown input ${input.name}" }
 
         // Update the value of the input.
         data[input.name]!![0] = value
@@ -402,7 +405,7 @@ internal class MutableInputStateStorage(
 
     override fun set(inputVector: InputVector, value: Array<LogicState>) {
         // Check that an input with the given name exists.
-        require(inputProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
+        require(variableProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
 
         // Update the value of the input.
         data[inputVector.name] = value
@@ -410,22 +413,22 @@ internal class MutableInputStateStorage(
 
     override fun set(inputVector: InputVector, index: Int, value: LogicState) {
         // Check that an input with the given name exists.
-        require(inputProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
+        require(variableProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
 
         // Return the value of the input.
         data[inputVector.name]!![index] = value
     }
 }
 
-internal fun inputStateStorage(variableProvider: InputProvider, data: InputStateMap): InputStateStorage {
+internal fun inputStateStorage(variableProvider: VariableProvider, data: InputStateMap): InputStateStorage {
     return mutableInputStateStorage(variableProvider, data)
 }
 
-internal fun inputStateStorage(variableProvider: InputProvider, dataProvider: InputStateProvider): InputStateStorage {
+internal fun inputStateStorage(variableProvider: VariableProvider, dataProvider: InputStateProvider): InputStateStorage {
     return mutableInputStateStorage(variableProvider, dataProvider)
 }
 
-internal fun mutableInputStateStorage(variableProvider: InputProvider, data: InputStateMap): MutableInputStateStorage {
+internal fun mutableInputStateStorage(variableProvider: VariableProvider, data: InputStateMap): MutableInputStateStorage {
     val processedData: MutableInputStateMap = mutableMapOf()
     for (input in variableProvider.inputs()) {
         // Check that the input has an assigned value.
@@ -440,11 +443,11 @@ internal fun mutableInputStateStorage(variableProvider: InputProvider, data: Inp
     return MutableInputStateStorage(variableProvider, processedData)
 }
 
-internal fun mutableInputStateStorage(variableProvider: InputProvider, dataProvider: InputStateProvider): MutableInputStateStorage {
+internal fun mutableInputStateStorage(variableProvider: VariableProvider, dataProvider: InputStateProvider): MutableInputStateStorage {
     val processedData: MutableInputStateMap = mutableMapOf()
     for (input in variableProvider.inputs()) {
         // Check that the input has an assigned value.
-        require(dataProvider.inputProvider.hasVariable(input)) { "No value provided for the input ${input.name}" }
+        require(dataProvider.variableProvider.hasVariable(input)) { "No value provided for the input ${input.name}" }
 
         // Get the value from the provider.
         val value = when (input) {
@@ -461,7 +464,7 @@ internal fun mutableInputStateStorage(variableProvider: InputProvider, dataProvi
 
 internal interface OutputStateStorage : OutputStateProvider {
 
-    override val outputProvider: OutputProvider
+    override val variableProvider: VariableProvider
 
     val data: OutputStateMap
 
@@ -471,7 +474,7 @@ internal interface OutputStateStorage : OutputStateProvider {
 
     override fun get(output: OutputScalar): LogicState {
         // Check that an output with the given name exists.
-        require(outputProvider.hasOutput(output.name)) { "Unknown output ${output.name}" }
+        require(variableProvider.hasOutput(output.name)) { "Unknown output ${output.name}" }
 
         // Return the value of the output.
         return data[output.name]!![0]
@@ -479,7 +482,7 @@ internal interface OutputStateStorage : OutputStateProvider {
 
     override fun get(outputVector: OutputVector): Array<LogicState> {
         // Check that an output with the given name exists.
-        require(outputProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
+        require(variableProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
 
         // Return the value of the output.
         return data[outputVector.name]!!
@@ -491,19 +494,19 @@ internal interface OutputStateStorage : OutputStateProvider {
 }
 
 internal class MutableOutputStateStorage(
-    override val outputProvider: OutputProvider,
+    override val variableProvider: VariableProvider,
     override val data: MutableOutputStateMap,
 ) : OutputStateStorage, MutableOutputStateProvider {
 
     override fun copy(): OutputStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableOutputStateStorage {
-        return MutableOutputStateStorage(outputProvider, data.toMutableMap())
+        return MutableOutputStateStorage(variableProvider, data.toMutableMap())
     }
 
     override fun set(output: OutputScalar, value: LogicState) {
         // Check that an output with the given name exists.
-        require(outputProvider.hasOutput(output.name)) { "Unknown output ${output.name}" }
+        require(variableProvider.hasOutput(output.name)) { "Unknown output ${output.name}" }
 
         // Update the value of the output.
         data[output.name]!![0] = value
@@ -511,7 +514,7 @@ internal class MutableOutputStateStorage(
 
     override fun set(outputVector: OutputVector, value: Array<LogicState>) {
         // Check that an output with the given name exists.
-        require(outputProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
+        require(variableProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
 
         // Update the value of the output.
         data[outputVector.name] = value
@@ -519,22 +522,22 @@ internal class MutableOutputStateStorage(
 
     override fun set(outputVector: OutputVector, index: Int, value: LogicState) {
         // Check that an output with the given name exists.
-        require(outputProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
+        require(variableProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
 
         // Return the value of the output.
         data[outputVector.name]!![index] = value
     }
 }
 
-internal fun outputStateStorage(variableProvider: OutputProvider, data: OutputStateMap): OutputStateStorage {
+internal fun outputStateStorage(variableProvider: VariableProvider, data: OutputStateMap): OutputStateStorage {
     return mutableOutputStateStorage(variableProvider, data)
 }
 
-internal fun outputStateStorage(variableProvider: OutputProvider, dataProvider: OutputStateProvider): OutputStateStorage {
+internal fun outputStateStorage(variableProvider: VariableProvider, dataProvider: OutputStateProvider): OutputStateStorage {
     return mutableOutputStateStorage(variableProvider, dataProvider)
 }
 
-internal fun mutableOutputStateStorage(variableProvider: OutputProvider, data: OutputStateMap): MutableOutputStateStorage {
+internal fun mutableOutputStateStorage(variableProvider: VariableProvider, data: OutputStateMap): MutableOutputStateStorage {
     val processedData: MutableOutputStateMap = mutableMapOf()
     for (output in variableProvider.outputs()) {
         // Check that the output has an assigned value.
@@ -549,11 +552,11 @@ internal fun mutableOutputStateStorage(variableProvider: OutputProvider, data: O
     return MutableOutputStateStorage(variableProvider, processedData)
 }
 
-internal fun mutableOutputStateStorage(variableProvider: OutputProvider, dataProvider: OutputStateProvider): MutableOutputStateStorage {
+internal fun mutableOutputStateStorage(variableProvider: VariableProvider, dataProvider: OutputStateProvider): MutableOutputStateStorage {
     val processedData: MutableOutputStateMap = mutableMapOf()
     for (output in variableProvider.outputs()) {
         // Check that the output has an assigned value.
-        require(dataProvider.outputProvider.hasVariable(output)) { "No value provided for the output ${output.name}" }
+        require(dataProvider.variableProvider.hasVariable(output)) { "No value provided for the output ${output.name}" }
 
         // Get the value from the provider.
         val value = when (output) {

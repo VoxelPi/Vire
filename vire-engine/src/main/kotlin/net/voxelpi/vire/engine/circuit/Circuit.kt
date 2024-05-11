@@ -29,14 +29,9 @@ import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
-import net.voxelpi.vire.engine.kernel.variable.InputProvider
-import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
-import net.voxelpi.vire.engine.kernel.variable.OutputProvider
-import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.simulation.Simulation
 import net.voxelpi.vire.engine.simulation.SimulationImpl
 import java.util.UUID
@@ -44,7 +39,7 @@ import java.util.UUID
 /**
  * A logic circuit created by linking different components together.
  */
-public interface Circuit : SettingProvider, InputProvider, OutputProvider {
+public interface Circuit : VariableProvider {
 
     /**
      * The environment of the circuit.
@@ -209,35 +204,6 @@ internal class CircuitImpl(
 
     override fun variable(name: String): Variable<*>? {
         return variables[name]
-    }
-
-    override fun settings(): Collection<Setting<*>> {
-        return variables.values.filterIsInstance<Setting<*>>()
-    }
-
-    override fun setting(name: String): Setting<*>? {
-        return variableOfKind<Setting<*>>(name)
-    }
-
-    override fun inputs(): Collection<InputScalar> {
-        return variables.values.filterIsInstance<InputScalar>()
-    }
-
-    override fun input(name: String): InputScalar? {
-        return variableOfKind<InputScalar>(name)
-    }
-
-    override fun outputs(): Collection<OutputScalar> {
-        return variables.values.filterIsInstance<OutputScalar>()
-    }
-
-    override fun output(name: String): OutputScalar? {
-        return variableOfKind<OutputScalar>(name)
-    }
-
-    private inline fun <reified T : Variable<*>> variableOfKind(name: String): T? {
-        val variable = variables[name] ?: return null
-        return if (variable is T) variable else null
     }
 
     override fun createSimulation(): Simulation {

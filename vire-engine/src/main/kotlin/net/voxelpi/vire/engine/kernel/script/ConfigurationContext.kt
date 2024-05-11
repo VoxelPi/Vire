@@ -3,28 +3,17 @@ package net.voxelpi.vire.engine.kernel.script
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.variable.FieldProvider
-import net.voxelpi.vire.engine.kernel.variable.InputProvider
 import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeStorage
 import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.OutputProvider
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 
-public interface ConfigurationContext :
-    ParameterProvider,
-    SettingProvider,
-    FieldProvider,
-    InputProvider,
-    OutputProvider,
-    MutableVectorSizeProvider,
-    ParameterStateProvider {
+public interface ConfigurationContext : VariableProvider, MutableVectorSizeProvider, ParameterStateProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -70,7 +59,7 @@ internal class ConfigurationContextImpl(
             .toMutableMap(),
     )
 
-    override val parameterProvider: ParameterProvider
+    override val variableProvider: VariableProvider
         get() = kernel
 
     override fun <V : VariantVariable<*>> declare(variable: V): V {

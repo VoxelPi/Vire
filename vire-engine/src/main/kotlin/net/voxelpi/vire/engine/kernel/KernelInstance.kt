@@ -7,7 +7,6 @@ import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.OutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateStorage
@@ -31,9 +30,6 @@ public interface KernelInstance :
     override val variableProvider: VariableProvider
         get() = kernelVariant
 
-    override val parameterProvider: ParameterProvider
-        get() = kernelVariant
-
     override fun <T> get(parameter: Parameter<T>): T = kernelVariant[parameter]
 
     override fun size(vector: VectorVariable<*>): Int = kernelVariant.size(vector)
@@ -50,4 +46,7 @@ internal class KernelInstanceImpl(
 
     override val kernel: KernelImpl
         get() = kernelVariant.kernel
+
+    override val variableProvider: VariableProvider
+        get() = kernelVariant
 }

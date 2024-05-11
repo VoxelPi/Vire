@@ -15,9 +15,9 @@ import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingProvider
 import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.mutableFieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.mutableOutputStateStorage
@@ -60,9 +60,6 @@ internal class InitializationContextImpl(
         .associateBy { it.name }
         .toMutableMap()
 
-    override val settingProvider: SettingProvider
-        get() = kernelVariant
-
     override val fieldStateStorage: MutableFieldStateStorage = mutableFieldStateStorage(
         kernelVariant,
         kernelVariant.fields().associate { it.name to it.initialization() },
@@ -74,6 +71,8 @@ internal class InitializationContextImpl(
             it.name to Array(if (it is OutputVector) kernelVariant.size(it) else 1) { LogicState.EMPTY }
         },
     )
+    override val variableProvider: VariableProvider
+        get() = kernelVariant
 
     override fun <T> get(setting: Setting<T>): T {
         return settingStateProvider[setting]

@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterProvider
 import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
@@ -15,9 +14,6 @@ internal interface KernelVariantWrapper : ParameterStateProvider, VectorSizeProv
         get() = kernelVariant.kernel
 
     override val variableProvider: VariableProvider
-        get() = kernelVariant
-
-    override val parameterProvider: ParameterProvider
         get() = kernelVariant
 
     override fun <T> get(parameter: Parameter<T>): T = kernelVariant[parameter]
