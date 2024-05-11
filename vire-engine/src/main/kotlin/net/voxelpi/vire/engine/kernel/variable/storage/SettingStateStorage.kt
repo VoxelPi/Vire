@@ -22,7 +22,7 @@ internal interface SettingStateStorage : SettingStateProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(setting: Setting<T>): T {
         // Check that a setting with the given name exists.
-        require(variableProvider.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
+        require(variableProvider.hasSetting(setting)) { "Unknown setting ${setting.name}" }
 
         // Return the value of the setting.
         return data[setting.name] as T
@@ -42,13 +42,25 @@ internal class MutableSettingStateStorage(
 
     override fun <T> set(setting: Setting<T>, value: T) {
         // Check that a setting with the given name exists.
-        require(variableProvider.hasSetting(setting.name)) { "Unknown setting ${setting.name}" }
+        require(variableProvider.hasSetting(setting)) { "Unknown setting ${setting.name}" }
 
         // Check that the value is valid for the specified setting.
         require(setting.isValidValue(value)) { "Value $setting does not meet the requirements for the setting ${setting.name}" }
 
         // Update the value of the setting.
         data[setting.name] = value
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun update(data: SettingStateMap) {
+        for ((settingName, value) in data) {
+            // Check that only existing settings are specified.
+            val setting = variableProvider.setting(settingName) as Setting<Any?>?
+                ?: throw IllegalArgumentException("Unknown setting '$settingName'")
+
+            // Update the value of the setting.
+            this[setting] = value
+        }
     }
 }
 

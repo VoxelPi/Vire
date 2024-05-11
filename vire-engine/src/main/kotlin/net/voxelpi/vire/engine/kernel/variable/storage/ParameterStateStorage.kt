@@ -22,7 +22,7 @@ internal interface ParameterStateStorage : ParameterStateProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: Parameter<T>): T {
         // Check that a parameter with the given name exists.
-        require(variableProvider.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
+        require(variableProvider.hasParameter(parameter)) { "Unknown parameter ${parameter.name}" }
 
         // Return the value of the parameter.
         return data[parameter.name] as T
@@ -42,13 +42,25 @@ internal class MutableParameterStateStorage(
 
     override fun <T> set(parameter: Parameter<T>, value: T) {
         // Check that a parameter with the given name exists.
-        require(variableProvider.hasParameter(parameter.name)) { "Unknown parameter ${parameter.name}" }
+        require(variableProvider.hasParameter(parameter)) { "Unknown parameter ${parameter.name}" }
 
         // Check that the value is valid for the specified parameter.
         require(parameter.isValidValue(value)) { "Value $parameter does not meet the requirements for the parameter ${parameter.name}" }
 
         // Update the value of the parameter.
         data[parameter.name] = value
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun update(data: ParameterStateMap) {
+        for ((parameterName, value) in data) {
+            // Check that only existing parameters are specified.
+            val parameter = variableProvider.parameter(parameterName) as Parameter<Any?>?
+                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
+
+            // Update the value of the parameter.
+            this[parameter] = value
+        }
     }
 }
 

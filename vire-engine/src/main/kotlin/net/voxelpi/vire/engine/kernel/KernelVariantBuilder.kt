@@ -60,16 +60,8 @@ internal class KernelVariantBuilderImpl(
         parameterStateStorage[parameter] = value
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun apply(values: Map<String, Any?>): KernelVariantBuilderImpl {
-        for ((parameterName, value) in values) {
-            // Check that only existing parameters are specified.
-            val parameter = kernel.parameter(parameterName) as Parameter<Any?>?
-                ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
-
-            // Update the value of the parameter.
-            parameterStateStorage[parameter] = value
-        }
+    fun update(values: Map<String, Any?>): KernelVariantBuilderImpl {
+        parameterStateStorage.update(values)
         return this
     }
 

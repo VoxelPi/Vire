@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.kernel.variable.storage
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
+import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
@@ -23,7 +24,7 @@ internal interface InputStateStorage : InputStateProvider {
 
     override fun get(input: InputScalar): LogicState {
         // Check that an input with the given name exists.
-        require(variableProvider.hasInput(input.name)) { "Unknown input ${input.name}" }
+        require(variableProvider.hasInput(input)) { "Unknown input ${input.name}" }
 
         // Return the value of the input.
         return data[input.name]!![0]
@@ -31,7 +32,7 @@ internal interface InputStateStorage : InputStateProvider {
 
     override fun get(inputVector: InputVector): Array<LogicState> {
         // Check that an input with the given name exists.
-        require(variableProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
+        require(variableProvider.hasInput(inputVector)) { "Unknown input vector ${inputVector.name}" }
 
         // Return the value of the input.
         return data[inputVector.name]!!
@@ -55,7 +56,7 @@ internal class MutableInputStateStorage(
 
     override fun set(input: InputScalar, value: LogicState) {
         // Check that an input with the given name exists.
-        require(variableProvider.hasInput(input.name)) { "Unknown input ${input.name}" }
+        require(variableProvider.hasInput(input)) { "Unknown input ${input.name}" }
 
         // Update the value of the input.
         data[input.name]!![0] = value
@@ -63,7 +64,7 @@ internal class MutableInputStateStorage(
 
     override fun set(inputVector: InputVector, value: Array<LogicState>) {
         // Check that an input with the given name exists.
-        require(variableProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
+        require(variableProvider.hasInput(inputVector)) { "Unknown input vector ${inputVector.name}" }
 
         // Update the value of the input.
         data[inputVector.name] = value
@@ -71,10 +72,25 @@ internal class MutableInputStateStorage(
 
     override fun set(inputVector: InputVector, index: Int, value: LogicState) {
         // Check that an input with the given name exists.
-        require(variableProvider.hasInput(inputVector.name)) { "Unknown input vector ${inputVector.name}" }
+        require(variableProvider.hasInput(inputVector)) { "Unknown input vector ${inputVector.name}" }
 
         // Return the value of the input.
         data[inputVector.name]!![index] = value
+    }
+
+    fun update(data: InputStateMap) {
+        for ((inputName, value) in data) {
+            // Check that only existing inputs are specified.
+            val input = variableProvider.input(inputName)
+                ?: throw IllegalArgumentException("Unknown input '$inputName'")
+
+            // Update the value of the input.
+            when (input) {
+                is InputScalar -> this[input] = value[0]
+                is InputVector -> this[input] = value
+                is InputVectorElement -> throw IllegalArgumentException("Input vector elements may not be specified ('$inputName')")
+            }
+        }
     }
 }
 
@@ -111,7 +127,7 @@ internal fun mutableInputStateStorage(variableProvider: VariableProvider, dataPr
         val value = when (input) {
             is InputScalar -> arrayOf(dataProvider[input])
             is InputVector -> dataProvider[input]
-            else -> throw IllegalStateException()
+            is InputVectorElement -> throw IllegalArgumentException("Input vector elements may not be specified ('${input.name}')")
         }
 
         // Put value into map.

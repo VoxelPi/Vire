@@ -66,16 +66,8 @@ internal class KernelInstanceBuilderImpl(
         settingStateStorage[setting] = value
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun apply(values: Map<String, Any?>): KernelInstanceBuilderImpl {
-        for ((settingName, value) in values) {
-            // Check that only existing settings are specified.
-            val setting = kernel.setting(settingName) as Setting<Any?>?
-                ?: throw IllegalArgumentException("Unknown setting '$settingName'")
-
-            // Update the value of the setting.
-            settingStateStorage[setting] = value
-        }
+        settingStateStorage.update(values)
         return this
     }
 

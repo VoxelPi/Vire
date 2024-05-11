@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.kernel.variable.storage
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
+import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
@@ -23,7 +24,7 @@ internal interface OutputStateStorage : OutputStateProvider {
 
     override fun get(output: OutputScalar): LogicState {
         // Check that an output with the given name exists.
-        require(variableProvider.hasOutput(output.name)) { "Unknown output ${output.name}" }
+        require(variableProvider.hasOutput(output)) { "Unknown output ${output.name}" }
 
         // Return the value of the output.
         return data[output.name]!![0]
@@ -31,7 +32,7 @@ internal interface OutputStateStorage : OutputStateProvider {
 
     override fun get(outputVector: OutputVector): Array<LogicState> {
         // Check that an output with the given name exists.
-        require(variableProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
+        require(variableProvider.hasOutput(outputVector)) { "Unknown output vector ${outputVector.name}" }
 
         // Return the value of the output.
         return data[outputVector.name]!!
@@ -55,7 +56,7 @@ internal class MutableOutputStateStorage(
 
     override fun set(output: OutputScalar, value: LogicState) {
         // Check that an output with the given name exists.
-        require(variableProvider.hasOutput(output.name)) { "Unknown output ${output.name}" }
+        require(variableProvider.hasOutput(output)) { "Unknown output ${output.name}" }
 
         // Update the value of the output.
         data[output.name]!![0] = value
@@ -63,7 +64,7 @@ internal class MutableOutputStateStorage(
 
     override fun set(outputVector: OutputVector, value: Array<LogicState>) {
         // Check that an output with the given name exists.
-        require(variableProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
+        require(variableProvider.hasOutput(outputVector)) { "Unknown output vector ${outputVector.name}" }
 
         // Update the value of the output.
         data[outputVector.name] = value
@@ -71,10 +72,25 @@ internal class MutableOutputStateStorage(
 
     override fun set(outputVector: OutputVector, index: Int, value: LogicState) {
         // Check that an output with the given name exists.
-        require(variableProvider.hasOutput(outputVector.name)) { "Unknown output vector ${outputVector.name}" }
+        require(variableProvider.hasOutput(outputVector)) { "Unknown output vector ${outputVector.name}" }
 
         // Return the value of the output.
         data[outputVector.name]!![index] = value
+    }
+
+    fun update(data: OutputStateMap) {
+        for ((outputName, value) in data) {
+            // Check that only existing outputs are specified.
+            val output = variableProvider.output(outputName)
+                ?: throw IllegalArgumentException("Unknown output '$outputName'")
+
+            // Update the value of the output.
+            when (output) {
+                is OutputScalar -> this[output] = value[0]
+                is OutputVector -> this[output] = value
+                is OutputVectorElement -> throw IllegalArgumentException("Output vector elements may not be specified ('$outputName')")
+            }
+        }
     }
 }
 

@@ -107,7 +107,7 @@ internal abstract class KernelImpl(
     }
 
     override fun createVariant(values: ParameterStateMap, base: ParameterStateProvider): Result<KernelVariantImpl> {
-        val config = KernelVariantBuilderImpl(this, base).apply(values).build()
+        val config = KernelVariantBuilderImpl(this, base).update(values).build()
         return generateVariant(config)
     }
 
