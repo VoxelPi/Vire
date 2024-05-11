@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.kernel.circuit
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.CircuitState
@@ -20,7 +19,6 @@ import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.fieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.outputStateStorage
-import net.voxelpi.vire.engine.kernel.variable.parameterStateStorage
 import net.voxelpi.vire.engine.kernel.variable.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
@@ -29,11 +27,8 @@ public interface CircuitKernel : Kernel {
 }
 
 internal class CircuitKernelImpl(
-    id: Identifier,
-    tags: Set<Identifier>,
-    properties: Map<Identifier, String>,
     override val circuit: CircuitImpl,
-) : KernelImpl(id, tags, properties), CircuitKernel {
+) : KernelImpl(circuit.id, circuit.tags.toSet(), circuit.properties.toMap()), CircuitKernel {
 
     override val variables: Map<String, Variable<*>>
 

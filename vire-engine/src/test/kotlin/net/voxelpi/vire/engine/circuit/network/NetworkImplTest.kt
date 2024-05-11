@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.circuit.network
 
 import net.voxelpi.event.on
+import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.event.network.NetworkCreateEvent
@@ -21,7 +22,7 @@ class NetworkImplTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironmentImpl()
-        circuit = environment.createCircuit()
+        circuit = environment.createCircuit(Identifier("vire-test", "test"))
     }
 
     @Test

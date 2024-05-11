@@ -2,6 +2,7 @@ package net.voxelpi.vire.engine.circuit
 
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.post
+import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.component.Component
 import net.voxelpi.vire.engine.circuit.component.ComponentImpl
@@ -29,6 +30,8 @@ import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
+import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
+import net.voxelpi.vire.engine.kernel.circuit.CircuitKernelImpl
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
@@ -50,6 +53,26 @@ public interface Circuit : VariableProvider {
      * The event scope of the environment.
      */
     public val eventScope: EventScope
+
+    /**
+     * The id of the circuit.
+     */
+    public val id: Identifier
+
+    /**
+     * The tags of the circuit.
+     */
+    public val tags: MutableSet<Identifier>
+
+    /**
+     * The properties of the circuit.
+     */
+    public val properties: MutableMap<Identifier, String>
+
+    /**
+     * Creates a circuit kernel from this circuit.
+     */
+    public fun createKernel(): CircuitKernel
 
     /**
      * Creates a new simulation of this circuit.
@@ -186,6 +209,7 @@ public interface Circuit : VariableProvider {
 
 internal class CircuitImpl(
     override val environment: EnvironmentImpl,
+    override val id: Identifier,
 ) : Circuit {
 
     override val eventScope: EventScope = environment.eventScope.createSubScope()
@@ -198,6 +222,9 @@ internal class CircuitImpl(
 
     private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
 
+    override val tags: MutableSet<Identifier> = mutableSetOf()
+    override val properties: MutableMap<Identifier, String> = mutableMapOf()
+
     override fun variables(): Collection<Variable<*>> {
         return variables.values
     }
@@ -206,8 +233,13 @@ internal class CircuitImpl(
         return variables[name]
     }
 
+    override fun createKernel(): CircuitKernelImpl {
+        val kernel = CircuitKernelImpl(this)
+        return kernel
+    }
+
     override fun createSimulation(): Simulation {
-        return SimulationImpl(environment, TODO())
+        return SimulationImpl(environment, createKernel().createVariant().getOrThrow())
     }
 
     override fun components(): Collection<ComponentImpl> {
