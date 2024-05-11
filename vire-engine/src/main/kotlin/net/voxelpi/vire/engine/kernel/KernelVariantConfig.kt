@@ -1,10 +1,10 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorage
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.parameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.parameterStateStorage
 
 internal data class KernelVariantConfig(
     val kernel: KernelImpl,

@@ -4,14 +4,14 @@ import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
-import net.voxelpi.vire.engine.kernel.variable.MutableInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
 public interface SimulationInputConfiguration :
     ParameterStateProvider,

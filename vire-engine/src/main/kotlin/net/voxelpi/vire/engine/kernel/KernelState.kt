@@ -1,21 +1,21 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.FieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.InputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.MutableInputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableInputStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableInputStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorageWrapper
 
 public interface KernelState :
     VectorSizeProvider,

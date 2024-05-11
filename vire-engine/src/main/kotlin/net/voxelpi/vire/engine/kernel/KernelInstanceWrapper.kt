@@ -1,8 +1,8 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
 internal interface KernelInstanceWrapper : KernelVariantWrapper, SettingStateProvider {
 

@@ -1,10 +1,10 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
 internal interface KernelVariantWrapper : ParameterStateProvider, VectorSizeProvider {
 

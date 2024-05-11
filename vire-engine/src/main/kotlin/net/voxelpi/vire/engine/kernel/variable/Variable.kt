@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel.variable
 
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import kotlin.reflect.KType
 
 /**

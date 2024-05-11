@@ -1,11 +1,11 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.mutableSettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableSettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableSettingStateStorage
 
 /**
  * A builder for a kernel instance.

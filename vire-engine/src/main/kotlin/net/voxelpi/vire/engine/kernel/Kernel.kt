@@ -4,10 +4,10 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.script.ScriptKernel
 import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilder
 import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilderImpl
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateMap
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.

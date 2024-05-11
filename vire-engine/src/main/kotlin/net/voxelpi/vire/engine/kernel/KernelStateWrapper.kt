@@ -2,17 +2,17 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.Field
-import net.voxelpi.vire.engine.kernel.variable.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
-import net.voxelpi.vire.engine.kernel.variable.InputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.InputVector
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableInputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
 
 internal interface KernelStateWrapper : KernelInstanceWrapper, FieldStateProvider, InputStateProvider, OutputStateProvider {
 

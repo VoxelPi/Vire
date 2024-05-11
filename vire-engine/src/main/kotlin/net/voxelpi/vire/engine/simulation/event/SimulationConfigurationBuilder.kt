@@ -2,9 +2,9 @@ package net.voxelpi.vire.engine.simulation.event
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelVariant
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableSettingStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableSettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateStorageWrapper
 
 public interface SimulationConfigurationBuilder : MutableSettingStateProvider {
 

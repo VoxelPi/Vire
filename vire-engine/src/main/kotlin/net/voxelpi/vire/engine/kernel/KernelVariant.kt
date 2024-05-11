@@ -1,15 +1,15 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorage
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.SettingStateMap
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeStorage
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
+import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeStorageWrapper
 
 /**
  * An instance of a kernel.

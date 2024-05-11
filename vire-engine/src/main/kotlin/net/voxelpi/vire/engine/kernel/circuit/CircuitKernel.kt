@@ -18,10 +18,10 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.kernel.variable.fieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.outputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.setting
-import net.voxelpi.vire.engine.kernel.variable.vectorSizeStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.fieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.outputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
 

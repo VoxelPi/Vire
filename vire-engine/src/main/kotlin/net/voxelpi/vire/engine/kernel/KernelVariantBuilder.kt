@@ -1,11 +1,11 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.MutableParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableParameterStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableParameterStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.mutableParameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableParameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableParameterStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableParameterStateStorage
 
 /**
  * A builder for a kernel variant.

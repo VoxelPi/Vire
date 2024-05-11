@@ -3,15 +3,15 @@ package net.voxelpi.vire.engine.kernel.script
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableVectorSizeStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableVectorSizeStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableVectorSizeStorageWrapper
 
 public interface ConfigurationContext : VariableProvider, MutableVectorSizeProvider, ParameterStateProvider {
 

@@ -6,21 +6,21 @@ import net.voxelpi.vire.engine.kernel.KernelInitializationException
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableFieldStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorage
-import net.voxelpi.vire.engine.kernel.variable.MutableOutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
-import net.voxelpi.vire.engine.kernel.variable.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorSizeProvider
-import net.voxelpi.vire.engine.kernel.variable.mutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.mutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableOutputStateStorage
 
 public interface InitializationContext :
     ParameterStateProvider,

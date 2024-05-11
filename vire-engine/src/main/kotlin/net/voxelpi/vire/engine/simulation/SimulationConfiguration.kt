@@ -2,8 +2,8 @@ package net.voxelpi.vire.engine.simulation
 
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
 public interface SimulationConfiguration : SettingStateProvider {
 
