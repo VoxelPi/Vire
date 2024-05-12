@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel.variable.provider
 
+import net.voxelpi.vire.engine.BooleanState
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
@@ -85,6 +86,47 @@ public interface MutableInputStateProvider : InputStateProvider {
      * @param value the new value of the input.
      */
     public operator fun set(inputVectorElement: InputVectorElement, value: LogicState) {
+        set(inputVectorElement.vector, inputVectorElement.index, value)
+    }
+
+    /**
+     * Sets the value of the given [input] to the given [value].
+     *
+     * @param input the input of which the value should be modified.
+     * @param value the new value of the input.
+     */
+    public operator fun set(input: InputScalar, value: BooleanState) {
+        set(input, value.logicState())
+    }
+
+    /**
+     * Sets the value of all entries of the given [inputVector] to the given [value].
+     *
+     * @param inputVector the input vector of which the value should be modified.
+     * @param value the new value of the input.
+     */
+    public operator fun set(inputVector: InputVector, value: Array<BooleanState>) {
+        set(inputVector, value.map { it.logicState() }.toTypedArray())
+    }
+
+    /**
+     * Sets the value of the entry at the given [index] of the given [inputVector] to the given [value].
+     *
+     * @param inputVector the input vector of which the value should be modified.
+     * @param index the index in the input vector of the entry.
+     * @param value the new value of the input.
+     */
+    public operator fun set(inputVector: InputVector, index: Int, value: BooleanState) {
+        set(inputVector, index, value.logicState())
+    }
+
+    /**
+     * Sets the value of the given [inputVectorElement] to the given [value].
+     *
+     * @param inputVectorElement the input vector element of which the value should be modified.
+     * @param value the new value of the input.
+     */
+    public operator fun set(inputVectorElement: InputVectorElement, value: BooleanState) {
         set(inputVectorElement.vector, inputVectorElement.index, value)
     }
 }

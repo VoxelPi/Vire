@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel.variable.provider
 
+import net.voxelpi.vire.engine.BooleanState
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
@@ -85,6 +86,47 @@ public interface MutableOutputStateProvider : OutputStateProvider {
      * @param value the new value of the output.
      */
     public operator fun set(outputVectorElement: OutputVectorElement, value: LogicState) {
+        set(outputVectorElement.vector, outputVectorElement.index, value)
+    }
+
+    /**
+     * Sets the value of the given [output] to the given [value].
+     *
+     * @param output the output of which the value should be modified.
+     * @param value the new value of the output.
+     */
+    public operator fun set(output: OutputScalar, value: BooleanState) {
+        set(output, value.logicState())
+    }
+
+    /**
+     * Sets the value of all entries of the given [outputVector] to the given [value].
+     *
+     * @param outputVector the output vector of which the value should be modified.
+     * @param value the new value of the output.
+     */
+    public operator fun set(outputVector: OutputVector, value: Array<BooleanState>) {
+        set(outputVector, value.map { it.logicState() }.toTypedArray())
+    }
+
+    /**
+     * Sets the value of the entry at the given [index] of the given [outputVector] to the given [value].
+     *
+     * @param outputVector the output vector of which the value should be modified.
+     * @param index the index in the output vector of the entry.
+     * @param value the new value of the output.
+     */
+    public operator fun set(outputVector: OutputVector, index: Int, value: BooleanState) {
+        set(outputVector, index, value.logicState())
+    }
+
+    /**
+     * Sets the value of the given [outputVectorElement] to the given [value].
+     *
+     * @param outputVectorElement the output vector element of which the value should be modified.
+     * @param value the new value of the output.
+     */
+    public operator fun set(outputVectorElement: OutputVectorElement, value: BooleanState) {
         set(outputVectorElement.vector, outputVectorElement.index, value)
     }
 }
