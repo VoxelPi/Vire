@@ -12,8 +12,7 @@ This project contains the following modules:
 
 | Name          | Description                                                |
 |---------------|------------------------------------------------------------|
-| `vire-api`    | The api of vire simulation library.                        |
-| `vire-engine` | The default implementation of the vire simulation library. |
+| `vire-engine` | The vire circuit, kernel and simulation engine.            |
 | `vire-stdlib` | A standard library with definitions for common components. |
 
 ## Simulation
