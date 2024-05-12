@@ -30,11 +30,6 @@ public interface ScriptKernelBuilder {
      * Declares the given [variable] on the kernel.
      */
     public fun <V : Variable<*>> declare(variable: V): V
-
-    /**
-     * Builds the kernel.
-     */
-    public fun build(): ScriptKernel
 }
 
 internal class ScriptKernelBuilderImpl(
@@ -53,13 +48,17 @@ internal class ScriptKernelBuilderImpl(
 
     private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
 
+    private var finished: Boolean = false
+
     override fun <V : Variable<*>> declare(variable: V): V {
+        check(!finished) { "Can't register a variable on a kernel after it has been build." }
         require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists" }
         variables[variable.name] = variable
         return variable
     }
 
-    override fun build(): ScriptKernelImpl {
+    fun build(): ScriptKernelImpl {
+        finished = true
         return ScriptKernelImpl(
             id,
             tags.toSet(),
