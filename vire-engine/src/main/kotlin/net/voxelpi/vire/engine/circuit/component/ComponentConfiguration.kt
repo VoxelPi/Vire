@@ -19,7 +19,13 @@ public interface ComponentConfiguration {
 
 internal class ComponentConfigurationImpl(private val settingProvider: VariableProvider) : ComponentConfiguration {
 
-    private val settingEntries: MutableMap<String, ComponentConfiguration.Entry<*>> = mutableMapOf()
+    val settingEntries: MutableMap<String, ComponentConfiguration.Entry<*>> = mutableMapOf()
+
+    init {
+        for (setting in settingProvider.settings()) {
+            settingEntries[setting.name] = ComponentConfiguration.Entry.Value(setting.initialization())
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(setting: Setting<T>): ComponentConfiguration.Entry<T> {
