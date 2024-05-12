@@ -93,7 +93,7 @@ public interface Circuit : VariableProvider {
     /**
      * Creates a new component in the circuit.
      */
-    public fun createComponent(configuration: KernelVariant, uniqueId: UUID = UUID.randomUUID()): Component
+    public fun createComponent(kernelVariant: KernelVariant, uniqueId: UUID = UUID.randomUUID()): Component
 
     /**
      * Removes the given [component] from the circuit.
@@ -250,11 +250,11 @@ internal class CircuitImpl(
         return components[uniqueId]
     }
 
-    override fun createComponent(configuration: KernelVariant, uniqueId: UUID): ComponentImpl {
-        require(configuration is KernelVariantImpl)
+    override fun createComponent(kernelVariant: KernelVariant, uniqueId: UUID): ComponentImpl {
+        require(kernelVariant is KernelVariantImpl)
 
         // Create the component.
-        val component = ComponentImpl(this, configuration, uniqueId)
+        val component = ComponentImpl(this, kernelVariant, uniqueId)
         registerComponent(component)
 
         // Post event.

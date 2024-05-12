@@ -5,9 +5,9 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 
 public interface ComponentConfiguration {
 
-    public fun <T> get(setting: Setting<T>): Entry<T>
+    public operator fun <T> get(setting: Setting<T>): Entry<T>
 
-    public fun <T> set(setting: Setting<T>, value: Entry<T>)
+    public operator fun <T> set(setting: Setting<T>, value: Entry<T>)
 
     public sealed interface Entry<T> {
 

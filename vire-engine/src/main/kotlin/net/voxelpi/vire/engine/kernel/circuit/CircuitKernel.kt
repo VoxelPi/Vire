@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel.circuit
 
+import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.CircuitState
@@ -80,8 +81,8 @@ internal class CircuitKernelImpl(
         val instance = KernelInstanceImpl(
             config.kernelVariant,
             settingStateStorage,
-            fieldStateStorage(config.kernelVariant, emptyMap()),
-            outputStateStorage(config.kernelVariant, emptyMap()),
+            fieldStateStorage(config.kernelVariant, fields().associate { it.name to it.initialization() }),
+            outputStateStorage(config.kernelVariant, outputs().associate { it.name to arrayOf(LogicState.EMPTY) }),
         )
         return Result.success(instance)
     }
