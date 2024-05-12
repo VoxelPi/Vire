@@ -37,9 +37,13 @@ public interface Simulation {
      */
     public fun simulateSteps(steps: Int)
 
+    public fun simulateStep(): Unit = simulateSteps(1)
+
     public fun stepBack(steps: Int): KernelState
 
     public fun stepForward(steps: Int): KernelState
+
+    public fun reset(): KernelState
 
     public fun modifyInputs(lambda: SimulationInputConfiguration.() -> Unit)
 
@@ -110,13 +114,23 @@ internal class SimulationImpl(
         return states[currentStep]
     }
 
+    override fun reset(): KernelState {
+        currentStep = 0
+        state = states[0].mutableCopy()
+        return states[currentStep]
+    }
+
     override fun modifyInputs(lambda: SimulationInputConfiguration.() -> Unit) {
         val configuration = SimulationInputConfigurationImpl(state, (state as MutableKernelStateImpl).inputStateStorage)
         configuration.apply(lambda)
+        states.add(state.copy())
+        currentStep++
     }
 
     override fun modifyInputs(data: InputStateMap) {
         (state as MutableKernelStateImpl).inputStateStorage.update(data)
+        states.add(state.copy())
+        currentStep++
     }
 
     override val simulatedSteps: Int
