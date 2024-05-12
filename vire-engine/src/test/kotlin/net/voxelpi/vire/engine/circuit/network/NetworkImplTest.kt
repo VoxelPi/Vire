@@ -21,7 +21,7 @@ class NetworkImplTest {
 
     @BeforeEach
     fun setUp() {
-        environment = Vire.createEnvironmentImpl()
+        environment = Vire.createEnvironmentImpl(emptyList())
         circuit = environment.createCircuit(Identifier("vire-test", "test"))
     }
 

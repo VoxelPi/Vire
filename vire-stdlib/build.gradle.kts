@@ -7,7 +7,7 @@ dependencies {
     compileOnly(kotlin("stdlib"))
 
     // Project
-    compileOnly(projects.vireApi)
+    compileOnly(projects.vireEngine)
 
     // Tests
     testImplementation(projects.vireEngine)

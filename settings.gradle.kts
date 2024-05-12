@@ -8,6 +8,6 @@ pluginManagement {
 
 rootProject.name = "vire"
 include("vire-engine")
-//include("vire-stdlib")
+include("vire-stdlib")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

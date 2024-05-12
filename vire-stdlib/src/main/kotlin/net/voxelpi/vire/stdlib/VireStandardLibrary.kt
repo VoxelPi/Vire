@@ -1,24 +1,24 @@
 package net.voxelpi.vire.stdlib
 
-import net.voxelpi.vire.api.circuit.library.Library
-import net.voxelpi.vire.stdlib.statemachine.AndGate
-import net.voxelpi.vire.stdlib.statemachine.BufferGate
-import net.voxelpi.vire.stdlib.statemachine.Clock
-import net.voxelpi.vire.stdlib.statemachine.FullAdder
-import net.voxelpi.vire.stdlib.statemachine.HalfAdder
-import net.voxelpi.vire.stdlib.statemachine.Input
-import net.voxelpi.vire.stdlib.statemachine.Memory
-import net.voxelpi.vire.stdlib.statemachine.NandGate
-import net.voxelpi.vire.stdlib.statemachine.NorGate
-import net.voxelpi.vire.stdlib.statemachine.NotGate
-import net.voxelpi.vire.stdlib.statemachine.OrGate
-import net.voxelpi.vire.stdlib.statemachine.Output
-import net.voxelpi.vire.stdlib.statemachine.Packager
-import net.voxelpi.vire.stdlib.statemachine.Unpackager
-import net.voxelpi.vire.stdlib.statemachine.XnorGate
-import net.voxelpi.vire.stdlib.statemachine.XorGate
+import net.voxelpi.vire.engine.environment.library.KotlinLibrary
+import net.voxelpi.vire.stdlib.kernel.AndGate
+import net.voxelpi.vire.stdlib.kernel.BufferGate
+import net.voxelpi.vire.stdlib.kernel.Clock
+import net.voxelpi.vire.stdlib.kernel.FullAdder
+import net.voxelpi.vire.stdlib.kernel.HalfAdder
+import net.voxelpi.vire.stdlib.kernel.Input
+import net.voxelpi.vire.stdlib.kernel.Memory
+import net.voxelpi.vire.stdlib.kernel.NandGate
+import net.voxelpi.vire.stdlib.kernel.NorGate
+import net.voxelpi.vire.stdlib.kernel.NotGate
+import net.voxelpi.vire.stdlib.kernel.OrGate
+import net.voxelpi.vire.stdlib.kernel.Output
+import net.voxelpi.vire.stdlib.kernel.Packager
+import net.voxelpi.vire.stdlib.kernel.Unpackager
+import net.voxelpi.vire.stdlib.kernel.XnorGate
+import net.voxelpi.vire.stdlib.kernel.XorGate
 
-object VireStandardLibrary : Library(VIRE_STDLIB_ID, "Vire", "The vire standard library", emptyList()) {
+public object VireStandardLibrary : KotlinLibrary(VIRE_STDLIB_ID, "Vire", "The vire standard library") {
 
     init {
         // IO
@@ -40,7 +40,7 @@ object VireStandardLibrary : Library(VIRE_STDLIB_ID, "Vire", "The vire standard 
         register(HalfAdder)
         register(Clock)
         register(Memory)
-        register(Packager.stateMachine)
-        register(Unpackager.stateMachine)
+        register(Packager)
+        register(Unpackager)
     }
 }
