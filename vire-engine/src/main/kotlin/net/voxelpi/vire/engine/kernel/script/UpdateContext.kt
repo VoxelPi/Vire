@@ -3,9 +3,9 @@ package net.voxelpi.vire.engine.kernel.script
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.MutableKernelStateWrapper
-import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
@@ -14,9 +14,9 @@ public interface UpdateContext :
     VectorSizeProvider,
     ParameterStateProvider,
     SettingStateProvider,
-    FieldStateProvider,
+    MutableFieldStateProvider,
     InputStateProvider,
-    OutputStateProvider {
+    MutableOutputStateProvider {
 
     public val kernel: Kernel
 }

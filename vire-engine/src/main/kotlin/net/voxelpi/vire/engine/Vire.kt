@@ -2,6 +2,7 @@ package net.voxelpi.vire.engine
 
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
+import net.voxelpi.vire.engine.environment.library.Library
 
 /**
  * The vire engine.
@@ -23,11 +24,11 @@ public object Vire {
     /**
      * Creates a new environment.
      */
-    public fun createEnvironment(): Environment {
-        return createEnvironmentImpl()
+    public fun createEnvironment(libraries: List<Library>): Environment {
+        return createEnvironmentImpl(libraries)
     }
 
-    internal fun createEnvironmentImpl(): EnvironmentImpl {
-        return EnvironmentImpl()
+    internal fun createEnvironmentImpl(libraries: List<Library>): EnvironmentImpl {
+        return EnvironmentImpl(libraries)
     }
 }
