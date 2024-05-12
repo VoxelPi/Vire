@@ -40,7 +40,7 @@ internal class MutableCircuitStateImpl(
 
     override fun mutableClone(): MutableCircuitStateImpl {
         return MutableCircuitStateImpl(
-            componentStates.mapValues { (_, state) -> state.mutableClone() }.toMutableMap(),
+            componentStates.mapValues { (_, state) -> state.mutableCopy() }.toMutableMap(),
             networkStates.mapValues { (_, state) -> state.clone() }.toMutableMap(),
         )
     }

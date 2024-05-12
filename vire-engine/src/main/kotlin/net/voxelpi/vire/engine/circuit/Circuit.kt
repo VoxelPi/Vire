@@ -35,8 +35,6 @@ import net.voxelpi.vire.engine.kernel.circuit.CircuitKernelImpl
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.simulation.Simulation
-import net.voxelpi.vire.engine.simulation.SimulationImpl
 import java.util.UUID
 
 /**
@@ -73,11 +71,6 @@ public interface Circuit : VariableProvider {
      * Creates a circuit kernel from this circuit.
      */
     public fun createKernel(): CircuitKernel
-
-    /**
-     * Creates a new simulation of this circuit.
-     */
-    public fun createSimulation(): Simulation
 
     /**
      * Returns all registered components.
@@ -236,10 +229,6 @@ internal class CircuitImpl(
     override fun createKernel(): CircuitKernelImpl {
         val kernel = CircuitKernelImpl(this)
         return kernel
-    }
-
-    override fun createSimulation(): Simulation {
-        return SimulationImpl(environment, createKernel().createVariant().getOrThrow())
     }
 
     override fun components(): Collection<ComponentImpl> {

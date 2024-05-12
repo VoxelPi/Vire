@@ -31,14 +31,14 @@ public interface KernelState :
 
     public val kernelInstance: KernelInstance
 
-    public fun clone(): KernelState
+    public fun copy(): KernelState
 
-    public fun mutableClone(): MutableKernelState
+    public fun mutableCopy(): MutableKernelState
 }
 
 public interface MutableKernelState : KernelState, MutableFieldStateProvider, MutableInputStateProvider, MutableOutputStateProvider
 
-internal class KernelStateImpl(
+internal class MutableKernelStateImpl(
     override val kernelInstance: KernelInstanceImpl,
     override val fieldStateStorage: MutableFieldStateStorage,
     override val inputStateStorage: MutableInputStateStorage,
@@ -58,11 +58,21 @@ internal class KernelStateImpl(
     override val variableProvider: VariableProvider
         get() = kernelVariant
 
-    override fun clone(): KernelState {
-        TODO("Not yet implemented")
+    override fun copy(): KernelState {
+        return MutableKernelStateImpl(
+            kernelInstance,
+            fieldStateStorage.mutableCopy(),
+            inputStateStorage.mutableCopy(),
+            outputStateStorage.mutableCopy()
+        )
     }
 
-    override fun mutableClone(): MutableKernelState {
-        TODO("Not yet implemented")
+    override fun mutableCopy(): MutableKernelStateImpl {
+        return MutableKernelStateImpl(
+            kernelInstance,
+            fieldStateStorage.mutableCopy(),
+            inputStateStorage.mutableCopy(),
+            outputStateStorage.mutableCopy()
+        )
     }
 }

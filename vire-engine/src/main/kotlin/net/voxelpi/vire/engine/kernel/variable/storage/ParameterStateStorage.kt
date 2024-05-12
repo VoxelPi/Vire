@@ -34,7 +34,7 @@ internal class MutableParameterStateStorage(
     override val data: MutableParameterStateMap,
 ) : ParameterStateStorage, MutableParameterStateProvider {
 
-    override fun copy(): MutableParameterStateStorage = mutableCopy()
+    override fun copy(): ParameterStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableParameterStateStorage {
         return MutableParameterStateStorage(variableProvider, data.toMutableMap())

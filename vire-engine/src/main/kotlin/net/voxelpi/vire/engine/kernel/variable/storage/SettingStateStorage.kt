@@ -34,7 +34,7 @@ internal class MutableSettingStateStorage(
     override val data: MutableSettingStateMap,
 ) : SettingStateStorage, MutableSettingStateProvider {
 
-    override fun copy(): MutableSettingStateStorage = mutableCopy()
+    override fun copy(): SettingStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableSettingStateStorage {
         return MutableSettingStateStorage(variableProvider, data.toMutableMap())

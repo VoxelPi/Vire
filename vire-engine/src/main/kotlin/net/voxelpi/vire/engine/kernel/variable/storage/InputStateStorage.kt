@@ -48,7 +48,7 @@ internal class MutableInputStateStorage(
     override val data: MutableInputStateMap,
 ) : InputStateStorage, MutableInputStateProvider {
 
-    override fun copy(): MutableInputStateStorage = mutableCopy()
+    override fun copy(): InputStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableInputStateStorage {
         return MutableInputStateStorage(variableProvider, data.toMutableMap())

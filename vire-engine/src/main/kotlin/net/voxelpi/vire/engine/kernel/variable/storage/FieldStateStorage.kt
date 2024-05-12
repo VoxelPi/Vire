@@ -34,7 +34,7 @@ internal class MutableFieldStateStorage(
     override val data: MutableFieldStateMap,
 ) : FieldStateStorage, MutableFieldStateProvider {
 
-    override fun copy(): MutableFieldStateStorage = mutableCopy()
+    override fun copy(): FieldStateStorage = mutableCopy()
 
     override fun mutableCopy(): MutableFieldStateStorage {
         return MutableFieldStateStorage(variableProvider, data.toMutableMap())
