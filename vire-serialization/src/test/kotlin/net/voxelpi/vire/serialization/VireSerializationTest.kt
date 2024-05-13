@@ -85,7 +85,11 @@ class VireSerializationTest {
         val component2 = circuit2.components().first()
         assertEquals(component.kernel, component2.kernel)
         for (parameter in component.kernel.parameters()) {
-            assertEquals(component.kernelVariant[parameter], component2.kernelVariant[parameter], "Invalid state of parameter ${parameter.name}")
+            assertEquals(
+                component.kernelVariant[parameter],
+                component2.kernelVariant[parameter],
+                "Invalid state of parameter ${parameter.name}",
+            )
         }
     }
 }
