@@ -142,6 +142,18 @@ public interface Circuit : VariableProvider {
     public fun createNetwork(initialization: LogicState = LogicState.EMPTY, uniqueId: UUID = UUID.randomUUID()): Network
 
     /**
+     * Creates a new network with a node for each entry in [nodes] and a connection for each entry in [connections].
+     * If a unique id is already used by an existing node, that node is used instead of creating a new node.
+     * Note that all nodes have to be connected with each other by some path.
+     */
+    public fun createNetwork(
+        nodes: Collection<UUID>,
+        connections: Collection<Pair<UUID, UUID>>,
+        initialization: LogicState = LogicState.EMPTY,
+        uniqueId: UUID = UUID.randomUUID(),
+    ): Network
+
+    /**
      * Removes the given [network] and all its nodes from the simulation.
      */
     public fun removeNetwork(network: Network)
@@ -355,6 +367,50 @@ internal class CircuitImpl(
 
         // Publish event.
         eventScope.post(NetworkCreateEvent(network))
+
+        // Return the created network.
+        return network
+    }
+
+    override fun createNetwork(
+        nodes: Collection<UUID>,
+        connections: Collection<Pair<UUID, UUID>>,
+        initialization: LogicState,
+        uniqueId: UUID,
+    ): Network {
+        val network = createNetwork()
+
+        // Check that only specified nodes are used in connections.
+        for ((node1UniqueId, node2UniqueId) in connections) {
+            require(node1UniqueId in nodes) { "All nodes that are used in connections must be specified in the node set (node1)" }
+            require(node2UniqueId in nodes) { "All nodes that are used in connections must be specified in the node set (node2)" }
+        }
+
+        // TODO: Check if resulting network is valid (all nodes are connected via some path).
+
+        // Find existing nodes and networks.
+        val existingNodes = nodes.mapNotNull { networkNodes[it] }.toSet()
+        val existingNetworks = existingNodes.map(NetworkNodeImpl::network).distinct()
+
+        // Merge all existing networks.
+        for (existingNetwork in existingNetworks) {
+            mergeNetworksIntoFirst(network, existingNetwork)
+        }
+
+        // Create missing network nodes.
+        for (nodeUniqueId in nodes) {
+            if (networkNodes[nodeUniqueId] == null) {
+                createNetworkNode(network, nodeUniqueId)
+            }
+        }
+
+        // Create all connections
+        for ((node1UniqueId, node2UniqueId) in connections) {
+            // Get nodes (existence has already been checked)
+            val node1 = networkNodes[node1UniqueId]!!
+            val node2 = networkNodes[node2UniqueId]!!
+            createNetworkConnection(node1, node2)
+        }
 
         // Return the created network.
         return network
@@ -719,5 +775,24 @@ internal class CircuitImpl(
         // network.pushPortOutputs()
 
         return network
+    }
+
+    private fun mergeNetworksIntoFirst(network1: NetworkImpl, network2: NetworkImpl): NetworkImpl {
+        // Check if the two networks are the same.
+        if (network1 == network2) {
+            return network1
+        }
+
+        // Update the network initialization.
+        network1.initialization = LogicState.merge(network1.initialization, network2.initialization)
+
+        // Add all nodes of the previous two networks to the new network.
+        network2.nodes().forEach(network1::registerNode)
+        // TODO: Register existing connections
+
+        // Unregister other networks.
+        unregisterNetwork(network2)
+
+        return network1
     }
 }

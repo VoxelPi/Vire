@@ -18,7 +18,7 @@ public interface Network : CircuitElement {
     /**
      * The initial state of the network when a new simulation is initialized.
      */
-    public val initialization: LogicState
+    public var initialization: LogicState
 
     /**
      * Returns all nodes that are part of the network.
@@ -69,7 +69,7 @@ public interface Network : CircuitElement {
 internal class NetworkImpl(
     override val circuit: CircuitImpl,
     override val uniqueId: UUID,
-    override val initialization: LogicState,
+    override var initialization: LogicState,
 ) : CircuitElementImpl(), Network {
 
     private val nodes: MutableSet<NetworkNode> = mutableSetOf()
