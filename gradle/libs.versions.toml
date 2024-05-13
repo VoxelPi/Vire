@@ -1,10 +1,10 @@
 [versions]
 coroutine = "1.8.0"
 event = "0.6.2"
+gson = "2.10.1"
 junit = "5.10.2"
 log4j = "2.23.1"
 kotlinLogging = "6.0.9"
-moshi = "1.15.1"
 slf4j = "1.7.36"
 
 # Plugins
@@ -27,9 +27,7 @@ log4j-slf4j-impl = { module = "org.apache.logging.log4j:log4j-slf4j-impl", versi
 kotlin-logging-jvm = { module = "io.github.oshai:kotlin-logging-jvm", version.ref = "kotlinLogging" }
 
 event = { module = "net.voxelpi.event:event", version.ref = "event" }
-moshi-core = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
-moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
-moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
@@ -44,7 +42,6 @@ ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref =
 
 [bundles]
 kotlinx-coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kotlinx-coroutines-reactive"]
-moshi = ["moshi-core", "moshi-kotlin"]
 buildsrc-plugins = [
     "blossom",
     "dokka-plugin",
@@ -56,7 +53,6 @@ buildsrc-plugins = [
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
