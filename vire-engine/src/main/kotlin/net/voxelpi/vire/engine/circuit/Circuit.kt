@@ -32,9 +32,12 @@ import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernelImpl
+import net.voxelpi.vire.engine.kernel.variable.IOVariable
+import net.voxelpi.vire.engine.kernel.variable.IOVectorVariable
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorVariableSize
 import java.util.UUID
 
 /**
@@ -66,6 +69,16 @@ public interface Circuit : VariableProvider {
      * The properties of the circuit.
      */
     public val properties: MutableMap<Identifier, String>
+
+    /**
+     * Add a new io variable on the circuit.
+     */
+    public fun <V : IOVariable> declareVariable(variable: V): V
+
+    /**
+     * Remove am io variable from the circuit.
+     */
+    public fun <V : IOVariable> removeVariable(variable: V): V?
 
     /**
      * Creates a circuit kernel from this circuit.
@@ -224,6 +237,22 @@ internal class CircuitImpl(
 
     override fun variable(name: String): Variable<*>? {
         return variables[name]
+    }
+
+    override fun <V : IOVariable> declareVariable(variable: V): V {
+        require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists for this circuit" }
+        if (variable is IOVectorVariable) {
+            require(variable.size is VectorVariableSize.Value) { "Circuits can only have fixed size io vectors" }
+        }
+        variables[variable.name] = variable
+        return variable
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <V : IOVariable> removeVariable(variable: V): V? {
+        val existing = variables[variable.name] ?: return null
+        require(existing == variable) { "Variable has different definition" }
+        return variables.remove(variable.name) as V?
     }
 
     override fun createKernel(): CircuitKernelImpl {

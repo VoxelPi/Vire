@@ -27,4 +27,4 @@ public sealed interface IOVectorVariableElement : VectorVariableElement<LogicSta
         get() = super<VectorVariableElement>.type
 }
 
-public sealed interface InterfaceVariable
+public sealed interface InterfaceVariable : IOVariable
