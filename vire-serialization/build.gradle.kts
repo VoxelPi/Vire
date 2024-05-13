@@ -1,7 +1,6 @@
 plugins {
     id("vire.module")
     id("vire.publishing")
-    alias(libs.plugins.ksp)
 }
 
 dependencies {
@@ -9,15 +8,11 @@ dependencies {
 
     // Project
     compileOnly(projects.vireEngine)
-    implementation(libs.bundles.moshi)
 
     // Annotation processors
-    ksp(libs.moshi.codegen)
+    api(libs.gson)
 
     // Tests
     testImplementation(projects.vireEngine)
     testImplementation(projects.vireStdlib)
-}
-
-ktlint {
 }
