@@ -3,7 +3,11 @@ package net.voxelpi.vire.serialization
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
+import net.voxelpi.vire.engine.circuit.component.ComponentConfiguration
 import net.voxelpi.vire.engine.environment.Environment
+import net.voxelpi.vire.engine.kernel.variable.InputScalar
+import net.voxelpi.vire.engine.kernel.variable.InputVector
+import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.stdlib.VireStandardLibrary
 import net.voxelpi.vire.stdlib.kernel.BufferGate
 import net.voxelpi.vire.stdlib.kernel.Memory
@@ -11,6 +15,7 @@ import net.voxelpi.vire.stdlib.kernel.NotGate
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import kotlin.test.assertContentEquals
 
 class VireSerializationTest {
 
@@ -37,7 +42,7 @@ class VireSerializationTest {
         circuit.createNetworkConnection(port11.networkNode, port22.networkNode)
 
         // Serialize the circuit
-        val serializedCircuit = VireSerialization.serialize(environment, circuit, "  ")
+        val serializedCircuit = VireSerialization.serialize(circuit, true)
 
         // Deserialize the circuit
         val circuit2 = VireSerialization.deserialize(environment, serializedCircuit).getOrThrow()
@@ -47,6 +52,7 @@ class VireSerializationTest {
         assertEquals(circuit.networks().size, circuit2.networks().size)
     }
 
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun `complex component`() {
         val kernelVariant = Memory.createVariant {
@@ -72,7 +78,7 @@ class VireSerializationTest {
         circuit.createNetworkConnection(port3.networkNode, terminal3.networkNode)
 
         // Serialize the circuit
-        val serializedCircuit = VireSerialization.serialize(environment, circuit, "  ")
+        val serializedCircuit = VireSerialization.serialize(circuit, true)
 //        print(serializedCircuit)
 
         // Deserialize the circuit
@@ -90,6 +96,45 @@ class VireSerializationTest {
                 component2.kernelVariant[parameter],
                 "Invalid state of parameter ${parameter.name}",
             )
+        }
+
+        // Create the instance of the component kernel variant.
+        val settingStates = kernelVariant.settings().associate { setting ->
+            val value = component.configuration[setting]
+            setting.name to when (value) {
+                is ComponentConfiguration.Entry.CircuitSetting -> throw UnsupportedOperationException()
+                is ComponentConfiguration.Entry.Value -> value.value
+            }
+        }
+        val kernelInstance = kernelVariant.createInstance(settingStates).getOrThrow()
+        val kernelState = kernelInstance.initialKernelState()
+
+        val serializedKernelState = VireSerialization.serialize(kernelState, true)
+//        println(serializedKernelState)
+
+        val kernelState2 = VireSerialization.deserialize(kernelInstance, serializedKernelState).getOrThrow()
+        for (field in kernelVariant.fields()) {
+            val value1 = kernelState[field]
+            val value2 = kernelState2[field]
+            if (value1 is Array<*> && value2 is Array<*>) {
+                assertContentEquals(value1 as Array<Any?>, value2 as Array<Any?>, "Invalid value in field ${field.name}")
+            } else {
+                assertEquals(kernelState[field], kernelState2[field], "Invalid value in field ${field.name}")
+            }
+        }
+        for (input in kernelVariant.inputs()) {
+            when (input) {
+                is InputScalar -> assertEquals(kernelState[input], kernelState2[input], "Invalid value in input ${input.name}")
+                is InputVector -> assertEquals(kernelState[input], kernelState2[input], "Invalid value in input ${input.name}")
+                is InputVectorElement -> assertEquals(kernelState[input], kernelState2[input], "Invalid value in input ${input.name}")
+            }
+        }
+        for (output in kernelVariant.inputs()) {
+            when (output) {
+                is InputScalar -> assertEquals(kernelState[output], kernelState2[output], "Invalid value in output ${output.name}")
+                is InputVector -> assertEquals(kernelState[output], kernelState2[output], "Invalid value in output ${output.name}")
+                is InputVectorElement -> assertEquals(kernelState[output], kernelState2[output], "Invalid value in output ${output.name}")
+            }
         }
     }
 }
