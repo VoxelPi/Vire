@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.circuit.CircuitElementImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
