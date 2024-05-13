@@ -49,5 +49,10 @@ tasks {
         reporters {
             reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
         }
+
+        // Exclude generated files.
+        filter {
+            exclude { projectDir.toURI().relativize(it.file.toURI()).path.contains("/generated/") }
+        }
     }
 }
