@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.circuit.CircuitElementImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
@@ -10,6 +11,7 @@ import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorageWrap
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeStorageWrapper
+import java.util.Objects
 
 /**
  * An instance of a kernel.
@@ -143,5 +145,21 @@ internal class KernelVariantImpl(
             settingStates[setting.name] = setting.initialization()
         }
         return KernelInstanceConfig(this, settingStates)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as KernelVariantImpl
+
+        if (this.kernel != other.kernel) return false
+        if (this.parameterStateStorage.data != other.parameterStateStorage.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return Objects.hash(kernel, parameterStateStorage.data)
     }
 }
