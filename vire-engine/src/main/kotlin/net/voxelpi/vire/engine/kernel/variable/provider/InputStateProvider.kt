@@ -2,6 +2,7 @@ package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.BooleanState
 import net.voxelpi.vire.engine.LogicState
+import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
@@ -46,6 +47,21 @@ public interface InputStateProvider {
      */
     public operator fun get(inputVectorElement: InputVectorElement): LogicState {
         return get(inputVectorElement.vector, inputVectorElement.index)
+    }
+
+    /**
+     * Returns the value of the given [input] as a logic state vector.
+     * If the input is a vector, the vector value is returned directly.
+     * If the input is a scalar, then an array with the value as its only entry is returned.
+     *
+     * @param input the input of which the value should be returned.
+     */
+    public fun vector(input: Input): Array<LogicState> {
+        return when (input) {
+            is InputScalar -> arrayOf(this[input])
+            is InputVector -> this[input]
+            is InputVectorElement -> arrayOf(this[input])
+        }
     }
 }
 
@@ -128,5 +144,21 @@ public interface MutableInputStateProvider : InputStateProvider {
      */
     public operator fun set(inputVectorElement: InputVectorElement, value: BooleanState) {
         set(inputVectorElement.vector, inputVectorElement.index, value)
+    }
+
+    /**
+     * Sets the value of the given [input] to the given logic state vector [value].
+     * If the input is a vector, the vector value is used directly.
+     * If the input is a scalar, then the first element of the array is used.
+     *
+     * @param input the input of which the value should be modified.
+     * @param value the value that should be used.
+     */
+    public fun vector(input: Input, value: Array<LogicState>) {
+        when (input) {
+            is InputScalar -> this[input] = value[0]
+            is InputVector -> this[input] = value
+            is InputVectorElement -> this[input] = value[0]
+        }
     }
 }
