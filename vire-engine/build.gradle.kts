@@ -1,6 +1,7 @@
 plugins {
     id("vire.module")
     id("vire.publishing")
+    alias(libs.plugins.kover)
 }
 
 dependencies {
