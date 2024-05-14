@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
@@ -139,9 +140,10 @@ internal class KernelVariantImpl(
     }
 
     override fun generateDefaultSettingStates(): SettingStateProvider {
+        val settingInitializationContext = SettingInitializationContextImpl(this)
         val settingStates = mutableMapOf<String, Any?>()
         for (setting in settings()) {
-            settingStates[setting.name] = setting.initialization()
+            settingStates[setting.name] = setting.initialization.invoke(settingInitializationContext)
         }
         return KernelInstanceConfig(this, settingStates)
     }

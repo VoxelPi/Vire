@@ -3,10 +3,12 @@ package net.voxelpi.vire.engine.kernel.circuit
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
+import net.voxelpi.vire.engine.circuit.CircuitInstance
 import net.voxelpi.vire.engine.circuit.CircuitState
 import net.voxelpi.vire.engine.circuit.MutableCircuitInstanceImpl
-import net.voxelpi.vire.engine.circuit.MutableCircuitStateImpl
 import net.voxelpi.vire.engine.circuit.component.ComponentConfiguration
+import net.voxelpi.vire.engine.circuit.emptyCircuitInstance
+import net.voxelpi.vire.engine.circuit.emptyCircuitState
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.KernelInstanceConfig
@@ -14,21 +16,32 @@ import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantConfig
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
+import net.voxelpi.vire.engine.kernel.variable.Field
+import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
+import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
+import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.setting
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
-import net.voxelpi.vire.engine.kernel.variable.storage.fieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.outputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableOutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
 
     public val circuit: Circuit
+
+    public companion object {
+        public val CIRCUIT_INSTANCE: Setting<CircuitInstance> = setting("__instance__", initialization = { emptyCircuitInstance() })
+        public val CIRCUIT_STATE: Field<CircuitState> = field("__state__", initialization = { emptyCircuitState() })
+    }
 }
 
 internal class CircuitKernelImpl(
@@ -39,8 +52,8 @@ internal class CircuitKernelImpl(
 
     init {
         val variables: MutableMap<String, Variable<*>> = circuit.variables().associateBy { it.name }.toMutableMap()
-        variables[CIRCUIT_INSTANCE_SETTING.name] = CIRCUIT_INSTANCE_SETTING
-        variables[CIRCUIT_STATE_FIELD.name] = CIRCUIT_STATE_FIELD
+        variables[CircuitKernel.CIRCUIT_INSTANCE.name] = CircuitKernel.CIRCUIT_INSTANCE
+        variables[CircuitKernel.CIRCUIT_STATE.name] = CircuitKernel.CIRCUIT_STATE
         this.variables = variables
     }
 
@@ -55,6 +68,7 @@ internal class CircuitKernelImpl(
     }
 
     override fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
+        val circuitKernelVariant = config.kernelVariant
         val settingStateStorage = config.settingStateStorage.mutableCopy()
 
         // Create instances for all component kernels.
@@ -75,21 +89,36 @@ internal class CircuitKernelImpl(
             }
             circuitInstance[component] = kernelInstance
         }
-        settingStateStorage[CIRCUIT_INSTANCE_SETTING] = circuitInstance
+        settingStateStorage[CircuitKernel.CIRCUIT_INSTANCE] = circuitInstance
+
+        // Generate initial field states.
+        val fieldInitializationContext = FieldInitializationContextImpl(circuitKernelVariant, config.settingStateStorage)
+        val fieldStateStorage: MutableFieldStateStorage = mutableFieldStateStorage(
+            circuitKernelVariant,
+            circuitKernelVariant.fields().associate { it.name to (it.initialization(fieldInitializationContext)) },
+        )
+
+        // Generate initial output states.
+        val outputStateStorage: MutableOutputStateStorage = mutableOutputStateStorage(
+            circuitKernelVariant,
+            circuitKernelVariant.outputs().associate {
+                it.name to Array(if (it is OutputVector) circuitKernelVariant.size(it) else 1) { LogicState.EMPTY }
+            },
+        )
 
         // Create the instance.
         val instance = KernelInstanceImpl(
             config.kernelVariant,
             settingStateStorage,
-            fieldStateStorage(config.kernelVariant, fields().associate { it.name to it.initialization() }),
-            outputStateStorage(config.kernelVariant, outputs().associate { it.name to arrayOf(LogicState.EMPTY) }),
+            fieldStateStorage.copy(),
+            outputStateStorage.copy(),
         )
         return Result.success(instance)
     }
 
     override fun updateKernel(state: MutableKernelState) {
         // Create a copy of the previous circuit state.
-        val circuitState = state[CIRCUIT_STATE_FIELD].mutableClone()
+        val circuitState = state[CircuitKernel.CIRCUIT_STATE].mutableClone()
 
         // Push all terminal inputs -> network states.
         // This is where the input variables of the circuit kernel are read.
@@ -145,11 +174,6 @@ internal class CircuitKernelImpl(
         }
 
         // Store the new circuit state.
-        state[CIRCUIT_STATE_FIELD] = circuitState
-    }
-
-    companion object {
-        private val CIRCUIT_INSTANCE_SETTING = setting("__instance__", initialization = { MutableCircuitInstanceImpl(mutableMapOf()) })
-        private val CIRCUIT_STATE_FIELD = field<CircuitState>("__state__", initialization = { MutableCircuitStateImpl() })
+        state[CircuitKernel.CIRCUIT_STATE] = circuitState
     }
 }

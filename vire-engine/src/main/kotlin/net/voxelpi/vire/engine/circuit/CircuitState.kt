@@ -32,8 +32,8 @@ public interface MutableCircuitState : CircuitState {
 }
 
 internal class MutableCircuitStateImpl(
-    val componentStates: MutableMap<UUID, MutableKernelState> = mutableMapOf(),
-    val networkStates: MutableMap<UUID, LogicState> = mutableMapOf(),
+    val componentStates: MutableMap<UUID, MutableKernelState>,
+    val networkStates: MutableMap<UUID, LogicState>,
 ) : MutableCircuitState {
 
     override fun clone(): MutableCircuitStateImpl = mutableClone()
@@ -65,4 +65,8 @@ internal class MutableCircuitStateImpl(
     override fun resetNetworkStates() {
         TODO("Not yet implemented")
     }
+}
+
+internal fun emptyCircuitState(): MutableCircuitStateImpl {
+    return MutableCircuitStateImpl(mutableMapOf(), mutableMapOf())
 }

@@ -81,8 +81,10 @@ internal fun mutableFieldStateStorage(variableProvider: VariableProvider, data: 
         // Get the value from the map.
         val value = data[field.name]
 
-        // Check that the assigned value is valid for the given field.
-        require(field.isValidTypeAndValue(value)) { "Invalid value for the field ${field.name}" }
+        // Check that the assigned value is valid for the given field. (Allow null for uninitialized fields).
+        if (value != null) {
+            require(field.isValidTypeAndValue(value)) { "Invalid value for the field ${field.name}" }
+        }
 
         // Put value into map.
         processedData[field.name] = value
@@ -99,8 +101,10 @@ internal fun mutableFieldStateStorage(variableProvider: VariableProvider, dataPr
         // Get the value from the provider.
         val value = dataProvider[field]
 
-        // Check that the assigned value is valid for the given field.
-        require(field.isValidTypeAndValue(value)) { "Invalid value for the field ${field.name}" }
+        // Check that the assigned value is valid for the given field. (Allow null for uninitialized fields).
+        if (value != null) {
+            require(field.isValidTypeAndValue(value)) { "Invalid value for the field ${field.name}" }
+        }
 
         // Put value into map.
         processedData[field.name] = value

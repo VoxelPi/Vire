@@ -1,5 +1,11 @@
 package net.voxelpi.vire.engine.kernel.variable
 
+import net.voxelpi.vire.engine.kernel.KernelVariant
+import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -8,7 +14,7 @@ import kotlin.reflect.typeOf
 public data class Field<T> internal constructor(
     override val name: String,
     override val type: KType,
-    public val initialization: () -> T,
+    public val initialization: FieldInitializationContext.() -> T,
 ) : ScalarVariable<T>, VariantVariable<T> {
 
     /**
@@ -26,12 +32,29 @@ public data class Field<T> internal constructor(
     }
 }
 
+public interface FieldInitializationContext : VariableProvider, ParameterStateProvider, SettingStateProvider, VectorSizeProvider {
+    public val kernelVariant: KernelVariant
+}
+
+internal class FieldInitializationContextImpl(
+    override val kernelVariant: KernelVariant,
+    override val settingStateProvider: SettingStateProvider,
+) : FieldInitializationContext, KernelVariantWrapper, SettingStateProviderWrapper {
+
+    override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
+
+    override fun variable(name: String): Variable<*>? = kernelVariant.variable(name)
+
+    override val variableProvider: VariableProvider
+        get() = kernelVariant
+}
+
 /**
  * Creates a new field with the given [name] that is initialized to the value provided by [initialization].
  */
 public inline fun <reified T> field(
     name: String,
-    noinline initialization: () -> T,
+    noinline initialization: FieldInitializationContext.() -> T,
 ): Field<T> {
     return field(name, typeOf<T>(), initialization)
 }
@@ -42,7 +65,7 @@ public inline fun <reified T> field(
 public fun <T> field(
     name: String,
     type: KType,
-    initialization: () -> T,
+    initialization: FieldInitializationContext.() -> T,
 ): Field<T> {
     return Field(name, type, initialization)
 }

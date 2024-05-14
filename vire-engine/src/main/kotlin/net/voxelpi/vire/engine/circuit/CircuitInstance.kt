@@ -26,3 +26,7 @@ internal class MutableCircuitInstanceImpl(
         componentInstances[component.uniqueId] = instance
     }
 }
+
+internal fun emptyCircuitInstance(): MutableCircuitInstanceImpl {
+    return MutableCircuitInstanceImpl(mutableMapOf())
+}

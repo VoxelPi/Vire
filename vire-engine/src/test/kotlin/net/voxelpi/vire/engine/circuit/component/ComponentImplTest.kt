@@ -4,12 +4,13 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.environment.Environment
+import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.kernel
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.setting
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import kotlin.test.assertEquals
 
 class ComponentImplTest {
 
@@ -43,6 +44,8 @@ class ComponentImplTest {
         val circuitKernel = circuit.createKernel()
         val circuitKernelInstance = circuitKernel.createVariant().getOrThrow().createInstance().getOrThrow()
 
-        assertEquals(5, circuitKernelInstance[field1])
+        val circuitInstance = circuitKernelInstance[CircuitKernel.CIRCUIT_INSTANCE]
+        val componentKernelInstance = circuitInstance[component]
+        assertEquals(5, componentKernelInstance[field1])
     }
 }

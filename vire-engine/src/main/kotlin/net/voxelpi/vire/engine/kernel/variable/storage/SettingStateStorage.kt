@@ -81,8 +81,10 @@ internal fun mutableSettingStateStorage(variableProvider: VariableProvider, data
         // Get the value from the map.
         val value = data[setting.name]
 
-        // Check that the assigned value is valid for the given setting.
-        require(setting.isValidTypeAndValue(value)) { "Invalid value for the setting ${setting.name}" }
+        // Check that the assigned value is valid for the given setting. (Allow null for uninitialized settings).
+        if (value != null) {
+            require(setting.isValidTypeAndValue(value)) { "Invalid value for the setting ${setting.name}" }
+        }
 
         // Put value into map.
         processedData[setting.name] = value
@@ -102,8 +104,10 @@ internal fun mutableSettingStateStorage(
         // Get the value from the provider.
         val value = dataProvider[setting]
 
-        // Check that the assigned value is valid for the given setting.
-        require(setting.isValidTypeAndValue(value)) { "Invalid value for the setting ${setting.name}" }
+        // Check that the assigned value is valid for the given setting (Allow null for uninitialized settings).
+        if (value != null) {
+            require(setting.isValidTypeAndValue(value)) { "Invalid value for the setting ${setting.name}" }
+        }
 
         // Put value into map.
         processedData[setting.name] = value

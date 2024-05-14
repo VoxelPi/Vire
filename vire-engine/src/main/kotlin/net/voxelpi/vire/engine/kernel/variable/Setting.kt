@@ -1,5 +1,9 @@
 package net.voxelpi.vire.engine.kernel.variable
 
+import net.voxelpi.vire.engine.kernel.KernelVariant
+import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -8,7 +12,7 @@ import kotlin.reflect.typeOf
 public data class Setting<T> internal constructor(
     override val name: String,
     override val type: KType,
-    public val initialization: () -> T,
+    public val initialization: SettingInitializationContext.() -> T,
     public val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T>, VariantVariable<T> {
 
@@ -38,12 +42,28 @@ public data class Setting<T> internal constructor(
     }
 }
 
+public interface SettingInitializationContext : VariableProvider, ParameterStateProvider, VectorSizeProvider {
+    public val kernelVariant: KernelVariant
+}
+
+internal class SettingInitializationContextImpl(
+    override val kernelVariant: KernelVariant,
+) : SettingInitializationContext, KernelVariantWrapper {
+
+    override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
+
+    override fun variable(name: String): Variable<*>? = kernelVariant.variable(name)
+
+    override val variableProvider: VariableProvider
+        get() = kernelVariant
+}
+
 /**
  * Creates a new unconstrained setting with the given [name], [initialization] and [constraint].
  */
 public inline fun <reified T> setting(
     name: String,
-    noinline initialization: () -> T,
+    noinline initialization: SettingInitializationContext.() -> T,
     constraint: VariableConstraint<T> = VariableConstraint.Always,
 ): Setting<T> = setting(name, typeOf<T>(), initialization, constraint)
 
@@ -53,7 +73,7 @@ public inline fun <reified T> setting(
  */
 public inline fun <reified T> setting(
     name: String,
-    noinline initialization: () -> T,
+    noinline initialization: SettingInitializationContext.() -> T,
     noinline constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
 ): Setting<T> = setting(name, typeOf<T>(), initialization, constraintBuilder)
 
@@ -63,7 +83,7 @@ public inline fun <reified T> setting(
 public fun <T> setting(
     name: String,
     type: KType,
-    initialization: () -> T,
+    initialization: SettingInitializationContext.() -> T,
     constraint: VariableConstraint<T> = VariableConstraint.Always,
 ): Setting<T> = Setting(name, type, initialization, constraint)
 
@@ -74,6 +94,6 @@ public fun <T> setting(
 public fun <T> setting(
     name: String,
     type: KType,
-    initialization: () -> T,
+    initialization: SettingInitializationContext.() -> T,
     constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
 ): Setting<T> = Setting(name, type, initialization, AllVariableConstraintBuilder<T>().apply(constraintBuilder).build())
