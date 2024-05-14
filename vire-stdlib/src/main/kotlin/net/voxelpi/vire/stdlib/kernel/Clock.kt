@@ -30,7 +30,7 @@ public object Clock : KernelProvider {
         declare(ticks)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             // Update output
             context[output] = LogicState.value(context[ticks] < context[ticksHigh])
 

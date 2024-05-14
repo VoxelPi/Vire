@@ -22,7 +22,7 @@ public object HalfAdder : KernelProvider {
         declare(sum)
         declare(carryOut)
 
-        update = { context ->
+        onUpdate { context ->
             val a = context[inputA].booleanState()
             val b = context[inputB].booleanState()
 
@@ -46,7 +46,7 @@ public object FullAdder : KernelProvider {
         declare(sum)
         declare(carryOut)
 
-        update = { context ->
+        onUpdate { context ->
             val a = context[inputA].booleanState()
             val b = context[inputB].booleanState()
             val c = context[carryIn].booleanState()

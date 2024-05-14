@@ -27,7 +27,7 @@ class KernelImplTest {
             declare(parameter1)
             declare(parameter2)
 
-            configure = { context ->
+            onConfiguration { context ->
                 if (context[parameter1] == "mode_b" && context[parameter2] > 2.5) {
                     context.signalInvalidConfiguration()
                 }
@@ -81,7 +81,7 @@ class KernelImplTest {
             declare(input1)
             declare(output1)
 
-            configure = { context ->
+            onConfiguration { context ->
                 if (context[parameter1] == "mode_b" && context[parameter2] > 2.5) {
                     context.signalInvalidConfiguration()
                 }

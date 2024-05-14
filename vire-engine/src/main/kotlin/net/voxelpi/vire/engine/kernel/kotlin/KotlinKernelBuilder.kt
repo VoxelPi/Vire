@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.script
+package net.voxelpi.vire.engine.kernel.kotlin
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.Variable
@@ -14,17 +14,17 @@ public interface ScriptKernelBuilder {
     /**
      * The configuration action of the kernel.
      */
-    public var configure: (ConfigurationContext) -> Unit
+    public fun onConfiguration(action: (ConfigurationContext) -> Unit)
 
     /**
      * The initialization action of the kernel.
      */
-    public var initialize: (InitializationContext) -> Unit
+    public fun onInitialization(action: (InitializationContext) -> Unit)
 
     /**
      * The update action of the kernel.
      */
-    public var update: (UpdateContext) -> Unit
+    public fun onUpdate(action: (UpdateContext) -> Unit)
 
     /**
      * Declares the given [variable] on the kernel.
@@ -40,15 +40,30 @@ internal class ScriptKernelBuilderImpl(
 
     override val properties: MutableMap<Identifier, String> = mutableMapOf()
 
-    override var configure: (ConfigurationContext) -> Unit = {}
+    private var configurationAction: (ConfigurationContext) -> Unit = {}
 
-    override var initialize: (InitializationContext) -> Unit = {}
+    private var initializationAction: (InitializationContext) -> Unit = {}
 
-    override var update: (UpdateContext) -> Unit = {}
+    private var updateAction: (UpdateContext) -> Unit = {}
 
     private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
 
     private var finished: Boolean = false
+
+    override fun onConfiguration(action: (ConfigurationContext) -> Unit) {
+        check(!finished) { "Can't modify the configuration action an of already build kernel." }
+        configurationAction = action
+    }
+
+    override fun onInitialization(action: (InitializationContext) -> Unit) {
+        check(!finished) { "Can't modify the initialization action an of already build kernel." }
+        initializationAction = action
+    }
+
+    override fun onUpdate(action: (UpdateContext) -> Unit) {
+        check(!finished) { "Can't modify the update action of an already build kernel." }
+        updateAction = action
+    }
 
     override fun <V : Variable<*>> declare(variable: V): V {
         check(!finished) { "Can't register a variable on a kernel after it has been build." }
@@ -57,16 +72,16 @@ internal class ScriptKernelBuilderImpl(
         return variable
     }
 
-    fun build(): ScriptKernelImpl {
+    fun build(): KotlinKernelImpl {
         finished = true
-        return ScriptKernelImpl(
+        return KotlinKernelImpl(
             id,
             tags.toSet(),
             properties.toMap(),
             variables.toMap(),
-            configure,
-            initialize,
-            update,
+            configurationAction,
+            initializationAction,
+            updateAction,
         )
     }
 }

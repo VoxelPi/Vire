@@ -27,7 +27,7 @@ public object Input : KernelProvider {
         declare(channels)
         declare(output)
 
-        initialize = { context ->
+        onInitialization { context ->
             context[output] = LogicState.value(context[value], context[channels])
         }
     }

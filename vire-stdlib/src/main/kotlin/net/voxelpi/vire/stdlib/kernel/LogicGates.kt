@@ -24,7 +24,7 @@ public object BufferGate : KernelProvider {
         declare(input)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = context[input].booleanState()
         }
     }
@@ -38,7 +38,7 @@ public object NotGate : KernelProvider {
         declare(BufferGate.input)
         declare(BufferGate.output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = !context[input].booleanState()
         }
     }
@@ -56,7 +56,7 @@ public object AndGate : KernelProvider {
         declare(inputs)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = BooleanState.and(context[OrGate.inputs].booleanStates())
         }
     }
@@ -74,7 +74,7 @@ public object OrGate : KernelProvider {
         declare(inputs)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = BooleanState.or(context[inputs].booleanStates())
         }
     }
@@ -92,7 +92,7 @@ public object XorGate : KernelProvider {
         declare(inputs)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = BooleanState.xor(context[OrGate.inputs].booleanStates())
         }
     }
@@ -110,7 +110,7 @@ public object NandGate : KernelProvider {
         declare(inputs)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = BooleanState.nand(context[OrGate.inputs].booleanStates())
         }
     }
@@ -128,7 +128,7 @@ public object NorGate : KernelProvider {
         declare(inputs)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = BooleanState.nor(context[OrGate.inputs].booleanStates())
         }
     }
@@ -146,7 +146,7 @@ public object XnorGate : KernelProvider {
         declare(inputs)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             context[output] = BooleanState.xnor(context[OrGate.inputs].booleanStates())
         }
     }

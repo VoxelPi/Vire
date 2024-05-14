@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.script
+package net.voxelpi.vire.engine.kernel.kotlin
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
@@ -12,38 +12,38 @@ import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
-public interface ScriptKernel : Kernel {
+public interface KotlinKernel : Kernel {
 
     /**
      * The configuration action of the kernel.
      */
-    public val configure: (ConfigurationContext) -> Unit
+    public val configurationAction: (ConfigurationContext) -> Unit
 
     /**
      * The initialization action of the kernel.
      */
-    public val initialize: (InitializationContext) -> Unit
+    public val initializationAction: (InitializationContext) -> Unit
 
     /**
      * The update action fo the kernel.
      */
-    public val update: (UpdateContext) -> Unit
+    public val updateAction: (UpdateContext) -> Unit
 }
 
-internal class ScriptKernelImpl(
+internal class KotlinKernelImpl(
     id: Identifier,
     tags: Set<Identifier>,
     properties: Map<Identifier, String>,
     override val variables: Map<String, Variable<*>>,
-    override val configure: (ConfigurationContext) -> Unit,
-    override val initialize: (InitializationContext) -> Unit,
-    override val update: (UpdateContext) -> Unit,
-) : KernelImpl(id, tags, properties), ScriptKernel {
+    override val configurationAction: (ConfigurationContext) -> Unit,
+    override val initializationAction: (InitializationContext) -> Unit,
+    override val updateAction: (UpdateContext) -> Unit,
+) : KernelImpl(id, tags, properties), KotlinKernel {
 
     override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
         val context = ConfigurationContextImpl(this, config)
         try {
-            configure(context)
+            configurationAction(context)
         } catch (exception: KernelConfigurationException) {
             return Result.failure(exception)
         }
@@ -60,7 +60,7 @@ internal class ScriptKernelImpl(
     override fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
         val context = InitializationContextImpl(config.kernelVariant, config)
         try {
-            initialize(context)
+            initializationAction(context)
         } catch (exception: KernelInitializationException) {
             return Result.failure(exception)
         }
@@ -76,6 +76,6 @@ internal class ScriptKernelImpl(
 
     override fun updateKernel(state: MutableKernelState) {
         val context = UpdateContextImpl(state)
-        update(context)
+        updateAction(context)
     }
 }

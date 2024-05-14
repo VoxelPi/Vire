@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.script
+package net.voxelpi.vire.engine.kernel.kotlin
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException

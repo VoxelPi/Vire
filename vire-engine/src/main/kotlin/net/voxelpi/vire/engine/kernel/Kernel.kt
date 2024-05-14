@@ -1,9 +1,9 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.kernel.script.ScriptKernel
-import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilder
-import net.voxelpi.vire.engine.kernel.script.ScriptKernelBuilderImpl
+import net.voxelpi.vire.engine.kernel.kotlin.KotlinKernel
+import net.voxelpi.vire.engine.kernel.kotlin.ScriptKernelBuilder
+import net.voxelpi.vire.engine.kernel.kotlin.ScriptKernelBuilderImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
@@ -72,9 +72,9 @@ public interface Kernel : VariableProvider {
 }
 
 /**
- * Creates a new [ScriptKernel] with the given [id] using the given [lambda].
+ * Creates a new [KotlinKernel] with the given [id] using the given [lambda].
  */
-public fun kernel(id: Identifier, lambda: ScriptKernelBuilder.() -> Unit): ScriptKernel {
+public fun kernel(id: Identifier, lambda: ScriptKernelBuilder.() -> Unit): KotlinKernel {
     val builder = ScriptKernelBuilderImpl(id)
     builder.lambda()
     return builder.build()

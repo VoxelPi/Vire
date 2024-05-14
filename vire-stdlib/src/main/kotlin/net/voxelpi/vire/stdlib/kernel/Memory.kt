@@ -46,7 +46,7 @@ public object Memory : KernelProvider {
         declare(readAddress)
         declare(readValue)
 
-        configure = { context ->
+        onConfiguration { context ->
             // Declare write io state variables if read only is set to false.
             if (!context[readOnly]) {
                 context.declare(writeActive)
@@ -55,14 +55,14 @@ public object Memory : KernelProvider {
             }
         }
 
-        initialize = { context ->
+        onInitialization { context ->
             // Create the internal memory.
             val size = 1 shl context[addressBits]
             val entrySize = context[wordSize]
             context[memory] = Array(size) { BooleanState(entrySize) { false } }
         }
 
-        update = { context ->
+        onUpdate { context ->
             // Output the read value if the readActive bit is set. Otherwise, leave the output value unassigned.
             if (context[readActive].toBoolean()) {
                 context[readValue] = context[memory][context[readAddress].booleanState().toInt()]

@@ -22,7 +22,7 @@ class KernelVariantImplTest {
         val kernel = kernel(Identifier("test", "test")) {
             declare(parameter1)
 
-            configure = { context ->
+            onConfiguration { context ->
                 if (context[parameter1] == "mode_b") {
                     context.declare(setting1)
                 }
@@ -57,7 +57,7 @@ class KernelVariantImplTest {
         val field1 = field("field_1", initialization = { "test" })
 
         val kernel = kernel(Identifier("test", "test")) {
-            configure = { _ ->
+            onConfiguration { _ ->
                 // Check if an exception is being thrown when accidentally registering the variable using the wrong declare method.
                 assertThrows<Exception> { declare(field1) }
             }

@@ -32,7 +32,7 @@ public object Packager : KernelProvider {
         declare(input)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             val count = context[blockCount]
             val size = context[blockSize]
             context[output] = LogicState(count * size) { index ->
@@ -60,7 +60,7 @@ public object Unpackager : KernelProvider {
         declare(input)
         declare(output)
 
-        update = { context ->
+        onUpdate { context ->
             val count = context[blockCount]
             val size = context[blockSize]
             for (index in 0..<(count * size)) {
