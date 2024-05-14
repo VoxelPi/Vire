@@ -433,6 +433,7 @@ internal class CircuitImpl(
                 // TODO: Originally, here the output of the port was pushed onto the network.
             } else {
                 unregisterNetworkNode(node)
+                node.destroy()
             }
         }
 
@@ -553,6 +554,7 @@ internal class CircuitImpl(
         }
 
         eventScope.post(NetworkSplitEvent(node.network, networks))
+        node.destroy()
     }
 
     private fun registerNetworkNode(node: NetworkNodeImpl) {

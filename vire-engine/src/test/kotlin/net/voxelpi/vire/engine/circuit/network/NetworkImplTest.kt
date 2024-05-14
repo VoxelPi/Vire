@@ -9,9 +9,12 @@ import net.voxelpi.vire.engine.circuit.event.network.NetworkDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeCreateEvent
 import net.voxelpi.vire.engine.circuit.event.network.NetworkNodeDestroyEvent
 import net.voxelpi.vire.engine.environment.Environment
+import net.voxelpi.vire.engine.kernel.kernel
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.util.UUID
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -32,7 +35,9 @@ class NetworkImplTest {
         var destroyCounter = 0
         environment.eventScope.on<NetworkDestroyEvent> { destroyCounter++ }
 
-        val network = circuit.createNetwork()
+        val uniqueId = UUID.randomUUID()
+        val network = circuit.createNetwork(uniqueId = uniqueId)
+        assertEquals(network, circuit.network(uniqueId))
         network.remove()
 
         // Try removing the network again.
@@ -63,7 +68,20 @@ class NetworkImplTest {
     }
 
     @Test
-    fun createDestroyNetworkNode() {
+    fun `network node list`() {
+        val networkA = circuit.createNetwork()
+        val networkB = circuit.createNetwork()
+
+        val nodeA1 = circuit.createNetworkNode(networkA)
+        val nodeA2 = circuit.createNetworkNode(nodeA1)
+        val nodeB1 = circuit.createNetworkNode(networkB)
+
+        assertContentEquals(setOf(nodeA1, nodeA2), networkA.nodes())
+        assertContentEquals(setOf(nodeB1), networkB.nodes())
+    }
+
+    @Test
+    fun `create and destroy network node`() {
         var createCounter = 0
         environment.eventScope.on<NetworkNodeCreateEvent> { createCounter++ }
         var destroyCounter = 0
@@ -78,6 +96,73 @@ class NetworkImplTest {
         assertThrows<Exception> { node.remove() }
 
         assertEquals(1, createCounter)
+        assertEquals(1, destroyCounter)
+    }
+
+    @Test
+    fun `terminal nodes`() {
+        var createCounter = 0
+        environment.eventScope.on<NetworkNodeCreateEvent> { createCounter++ }
+        var destroyCounter = 0
+        environment.eventScope.on<NetworkNodeDestroyEvent> { destroyCounter++ }
+
+        val terminal1 = circuit.createTerminal(null)
+        val terminal2 = circuit.createTerminal(null)
+        circuit.createNetworkConnection(terminal1.networkNode, terminal2.networkNode)
+        assertTrue(terminal1.networkNode.isConnectedTo(terminal2.networkNode))
+        val network = terminal1.network
+
+        assertContentEquals(setOf(terminal1, terminal2), network.terminals())
+        assertEquals(1, circuit.networks().size)
+        assertEquals(1, circuit.networkConnections().size)
+        assertEquals(2, createCounter)
+        assertEquals(0, destroyCounter)
+
+        createCounter = 0
+        destroyCounter = 0
+        terminal2.remove()
+        assertEquals(1, circuit.networks().size)
+        assertEquals(0, circuit.networkConnections().size)
+        assertEquals(0, createCounter)
+        assertEquals(1, destroyCounter)
+    }
+
+    @Test
+    fun `port nodes`() {
+        var createCounter = 0
+        environment.eventScope.on<NetworkNodeCreateEvent> { createCounter++ }
+        var destroyCounter = 0
+        environment.eventScope.on<NetworkNodeDestroyEvent> { destroyCounter++ }
+
+        val kernel = kernel(Identifier("vire-test", "test1")) {}
+        val kernelVariant = kernel.createVariant().getOrThrow()
+        val component1 = circuit.createComponent(kernelVariant)
+        val component2 = circuit.createComponent(kernelVariant)
+
+        val port11 = component1.createPort(null)
+        val port12 = component1.createPort(null)
+        val port21 = component2.createPort(null)
+        circuit.createNetworkConnection(port11.networkNode, port21.networkNode)
+
+        assertContentEquals(setOf(port11, port21), port11.network.componentPorts())
+        assertContentEquals(setOf(port12), port12.network.componentPorts())
+        assertEquals(3, createCounter)
+        assertEquals(0, destroyCounter)
+
+        createCounter = 0
+        destroyCounter = 0
+        component2.remove()
+        assertContentEquals(setOf(port11), port11.network.componentPorts())
+        assertContentEquals(setOf(port12), port12.network.componentPorts())
+        assertEquals(0, createCounter)
+        assertEquals(1, destroyCounter)
+
+        createCounter = 0
+        destroyCounter = 0
+        port12.remove()
+        assertContentEquals(setOf(port11), port11.network.componentPorts())
+        assertEquals(1, circuit.networks().size)
+        assertEquals(0, createCounter)
         assertEquals(1, destroyCounter)
     }
 }
