@@ -38,7 +38,7 @@ internal class NetworkConnectionImpl(
         }
     }
 
-    override val network: Network
+    override val network: NetworkImpl
         get() = node1.network
 
     override fun equals(other: Any?): Boolean {

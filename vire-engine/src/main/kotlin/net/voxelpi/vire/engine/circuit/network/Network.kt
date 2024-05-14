@@ -73,7 +73,6 @@ internal class NetworkImpl(
 ) : CircuitElementImpl(), Network {
 
     private val nodes: MutableSet<NetworkNode> = mutableSetOf()
-    private val connections: MutableSet<NetworkConnection> = mutableSetOf()
 
     override fun nodes(): Collection<NetworkNodeImpl> {
         return circuit.networkNodes().filter { it.network == this }
@@ -137,6 +136,5 @@ internal class NetworkImpl(
 
     fun destroy() {
         nodes.clear()
-        connections.clear()
     }
 }
