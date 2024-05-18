@@ -21,7 +21,7 @@ public data class OutputVector internal constructor(
     public val initialization: VectorOutputElementInitializationContext.() -> LogicState,
 ) : IOVectorVariable, Output {
 
-    override fun get(index: Int): IOVectorVariableElement {
+    override fun get(index: Int): OutputVectorElement {
         return OutputVectorElement(this, index)
     }
 }
