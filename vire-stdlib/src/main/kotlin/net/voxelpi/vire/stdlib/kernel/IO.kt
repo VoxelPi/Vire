@@ -15,25 +15,21 @@ import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
-public object Input : KernelProvider {
+public object Output : KernelProvider {
     public val value: Parameter<LogicValue> = parameter("value", initialization = { LogicValue.NONE })
     public val channels: Parameter<Int> = parameter("channels", initialization = { 1 }) {
         min(1)
     }
-    public val output: OutputScalar = output("output")
+    public val output: OutputScalar = output("output") { LogicState.value(this[value], this[channels]) }
 
     override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "input")) {
         declare(value)
         declare(channels)
         declare(output)
-
-        onInitialization { context ->
-            context[output] = LogicState.value(context[value], context[channels])
-        }
     }
 }
 
-public object Output : KernelProvider {
+public object Input : KernelProvider {
     public val input: InputScalar = input("input")
 
     override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "output")) {
