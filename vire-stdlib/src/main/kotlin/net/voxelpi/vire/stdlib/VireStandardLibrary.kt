@@ -4,10 +4,12 @@ import net.voxelpi.vire.engine.environment.library.KotlinLibrary
 import net.voxelpi.vire.stdlib.kernel.AndGate
 import net.voxelpi.vire.stdlib.kernel.BufferGate
 import net.voxelpi.vire.stdlib.kernel.Clock
+import net.voxelpi.vire.stdlib.kernel.Demultiplexer
 import net.voxelpi.vire.stdlib.kernel.FullAdder
 import net.voxelpi.vire.stdlib.kernel.HalfAdder
 import net.voxelpi.vire.stdlib.kernel.Input
 import net.voxelpi.vire.stdlib.kernel.Memory
+import net.voxelpi.vire.stdlib.kernel.Multiplexer
 import net.voxelpi.vire.stdlib.kernel.NandGate
 import net.voxelpi.vire.stdlib.kernel.NorGate
 import net.voxelpi.vire.stdlib.kernel.NotGate
@@ -42,5 +44,7 @@ public object VireStandardLibrary : KotlinLibrary(VIRE_STDLIB_ID, "Vire", "The v
         register(Memory)
         register(Packager)
         register(Unpackager)
+        register(Multiplexer)
+        register(Demultiplexer)
     }
 }
