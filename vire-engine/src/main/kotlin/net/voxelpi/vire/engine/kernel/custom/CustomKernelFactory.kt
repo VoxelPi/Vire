@@ -135,7 +135,7 @@ internal object CustomKernelFactory {
             val initialization = parameterInitializations[name]
 
             // Create the parameter.
-            parameter(name, initialization = { initialization }) { buildConstraints(property, this) }
+            parameter(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
         }
 
         // Collect vector sizes
@@ -183,14 +183,14 @@ internal object CustomKernelFactory {
             val initialization = settingInitializations[name]
 
             // Create the setting.
-            setting(name, initialization = { initialization }) { buildConstraints(property, this) }
+            setting(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
         }
-        val fields = fieldProperties.map { (name, _) ->
+        val fields = fieldProperties.map { (name, property) ->
             // Get the initialization of the parameter.
             val initialization = fieldInitializations[name]
 
             // Create the field.
-            field(name, initialization = { initialization })
+            field(name, property.returnType, initialization = { initialization })
         }
         val scalarInputs = scalarInputProperties.map { (name, _) ->
             // Create the scalar input.
