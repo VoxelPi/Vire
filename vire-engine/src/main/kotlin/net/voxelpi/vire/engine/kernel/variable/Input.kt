@@ -11,7 +11,7 @@ public data class InputVector internal constructor(
     override val size: VectorVariableSize,
 ) : IOVectorVariable, Input {
 
-    override fun get(index: Int): IOVectorVariableElement {
+    override fun get(index: Int): InputVectorElement {
         return InputVectorElement(this, index)
     }
 }

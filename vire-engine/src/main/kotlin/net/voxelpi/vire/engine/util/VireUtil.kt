@@ -13,3 +13,8 @@ internal fun isInstanceOfType(value: Any?, type: KType): Boolean {
         else -> classifier == value::class
     }
 }
+
+internal fun <K, V> Map<K, V>.partition(predicate: (Map.Entry<K, V>) -> Boolean): Pair<Map<K, V>, Map<K, V>> {
+    val (matching, nonMatching) = entries.partition(predicate)
+    return matching.associate { it.toPair() } to nonMatching.associate { it.toPair() }
+}
