@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test
 class CustomKernelFactoryTest {
 
     @Test
-    fun `test kernel generation`() {
+    fun `test scalar buffer kernel generation`() {
+        val kernel = generateKernel<ScalarBuffer>()
     }
 
     @KernelDefinition("vire", "buffer/scalar")

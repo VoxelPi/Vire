@@ -329,7 +329,7 @@ internal object CustomKernelFactory {
         return type.memberProperties
             .filter { it.findAnnotation<A>() != null }
             .filterIsInstance<KMutableProperty1<CustomKernel, *>>()
-            .associateBy { naming(it.findAnnotation<A>()!!) } as Map<String, KMutableProperty1<CustomKernel, Any?>>
+            .associateBy { naming(it.findAnnotation<A>()!!).ifEmpty { it.name } } as Map<String, KMutableProperty1<CustomKernel, Any?>>
     }
 
     private inline fun <reified A : Annotation> collectVariableProperties(
@@ -339,7 +339,7 @@ internal object CustomKernelFactory {
         return type.memberProperties
             .filter { it.findAnnotation<A>() != null }
             .filterIsInstance<KProperty1<CustomKernel, *>>()
-            .associateBy { naming(it.findAnnotation<A>()!!) }
+            .associateBy { naming(it.findAnnotation<A>()!!).ifEmpty { it.name } }
     }
 
     @Suppress("UNCHECKED_CAST")
