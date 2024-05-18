@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel.generated
 
+import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.environment.Environment
@@ -27,6 +28,41 @@ class GeneratedKernelFactoryTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironmentImpl(emptyList())
+    }
+
+    @KernelDefinition("vire", "unit")
+    @Tagged("vire:test1", "vire:test2")
+    @Tagged("test:test3", "vire:test1")
+    @WithProperty("vire:p1", "Hello")
+    @WithProperty("vire:p2", "World!")
+    @WithProperty("vire:p1", "Hello, World!")
+    class UnitKernel : GeneratedKernel()
+
+    @Test
+    fun `test unit kernel generation`() {
+        val kernel = generateKernel<UnitKernel>()
+
+        // Verify id.
+        assertEquals(Identifier("vire", "unit"), kernel.id)
+
+        // Verify tags.
+        assertEquals(
+            setOf(
+                Identifier("vire", "test1"),
+                Identifier("vire", "test2"),
+                Identifier("test", "test3"),
+            ),
+            kernel.tags
+        )
+
+        // Verify properties
+        assertEquals(
+            mapOf(
+                Identifier("vire", "p1") to "Hello, World!",
+                Identifier("vire", "p2") to "World!",
+            ),
+            kernel.properties
+        )
     }
 
     @Test
