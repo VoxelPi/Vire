@@ -60,7 +60,6 @@ import kotlin.reflect.KProperty1
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.findAnnotations
-import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.typeOf
@@ -121,7 +120,7 @@ internal object CustomKernelFactory {
         }.toMap()
         val vectorOutputInitializations = vectorOutputProperties.map { (name, property) ->
             if (property is KMutableProperty1 && property.isLateinit) {
-                name to Array(1) { LogicState.EMPTY }
+                name to null
             } else {
                 name to property.get(initializationInstance) as Array<LogicState>
             }
@@ -212,10 +211,10 @@ internal object CustomKernelFactory {
             val size = vectorOutputSizes[name]!!
 
             // Get the initialization of the output vector.
-            val initialization = vectorOutputInitializations[name]!!
+            val initialization = vectorOutputInitializations[name]
 
             // Create the vector input.
-            output(name, size, initialization = { initialization[index] })
+            output(name, size, initialization = { initialization?.get(index) ?: LogicState.EMPTY })
         }
 
         return kernel(id) {
@@ -332,7 +331,7 @@ internal object CustomKernelFactory {
 
                 // Update all vector output variables.
                 for (output in vectorOutputs) {
-                    val property = scalarOutputProperties[output.name]!! as KMutableProperty1<CustomKernel, Array<LogicState>>
+                    val property = vectorOutputProperties[output.name]!! as KMutableProperty1<CustomKernel, Array<LogicState>>
                     context[output] = property.get(instance)
                 }
             }
