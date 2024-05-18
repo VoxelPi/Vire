@@ -1,8 +1,8 @@
 # Vire
 
 [![GitHub CI Status](https://img.shields.io/github/actions/workflow/status/voxelpi/vire/ci.yml?branch=main&label=CI&style=for-the-badge)]()
-[![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/net.voxelpi.vire/vire-api?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=stable&color=blue)]()
-[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/net.voxelpi.vire/vire-api?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=dev)]()
+[![Sonatype Nexus (Releases)](https://img.shields.io/nexus/r/net.voxelpi.vire/vire-engine?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=stable&color=blue)]()
+[![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/net.voxelpi.vire/vire-engine?server=https%3A%2F%2Frepo.voxelpi.net&nexusVersion=3&style=for-the-badge&label=dev)]()
 
 Vire is a simple but powerful logic simulation library.
 
