@@ -91,14 +91,14 @@ internal object CustomKernelFactory {
         val inputProperties = collectVariableMutableProperties<InputDeclaration>(type, InputDeclaration::name)
         val (vectorInputProperties, scalarInputProperties) = inputProperties
             .partition { (_, property) ->
-                val propertyType = property.returnType.classifier
-                propertyType is KClass<*> && propertyType.isSubclassOf(Array::class)
+                val propertyType = property.returnType
+                propertyType.isSubtypeOf(typeOf<Array<*>>())
             }
         val outputProperties = collectVariableProperties<OutputDeclaration>(type, OutputDeclaration::name)
         val (vectorOutputProperties, scalarOutputProperties) = outputProperties
             .partition { (_, property) ->
-                val propertyType = property.returnType.classifier
-                propertyType is KClass<*> && propertyType.isSubclassOf(Array::class)
+                val propertyType = property.returnType
+                propertyType.isSubtypeOf(typeOf<Array<*>>())
             }
 
         // Generate instance to check initial values.
