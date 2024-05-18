@@ -250,7 +250,16 @@ internal object CustomKernelFactory {
                     property.set(instance, context[setting])
                 }
 
-                // Update all input vectors that have not yet been initialized.
+                // Update all inputs that have not yet been initialized.
+                for (input in scalarInputs) {
+                    val property = scalarInputProperties[input.name]!! as KMutableProperty1<CustomKernel, LogicState>
+                    if (!property.isLateinit) {
+                        continue
+                    }
+
+                    // Set property.
+                    property.set(instance, LogicState.EMPTY)
+                }
                 for (input in vectorInputs) {
                     val property = vectorInputProperties[input.name]!! as KMutableProperty1<CustomKernel, Array<LogicState>>
                     if (!property.isLateinit) {
@@ -261,7 +270,16 @@ internal object CustomKernelFactory {
                     property.set(instance, Array(context.size(input)) { LogicState.EMPTY })
                 }
 
-                // Update all output vectors that have not yet been initialized.
+                // Update all outputs that have not yet been initialized.
+                for (output in scalarOutputs) {
+                    val property = scalarOutputProperties[output.name]!! as KMutableProperty1<CustomKernel, LogicState>
+                    if (!property.isLateinit) {
+                        continue
+                    }
+
+                    // Set property.
+                    property.set(instance, LogicState.EMPTY)
+                }
                 for (output in vectorOutputs) {
                     val property = vectorOutputProperties[output.name]!! as KMutableProperty1<CustomKernel, Array<LogicState>>
                     if (!property.isLateinit) {
