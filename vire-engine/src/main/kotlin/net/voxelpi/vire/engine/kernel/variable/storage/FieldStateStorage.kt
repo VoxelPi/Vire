@@ -1,9 +1,12 @@
 package net.voxelpi.vire.engine.kernel.variable.storage
 
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.Field
+import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
 internal typealias FieldStateMap = Map<String, Any?>
 
@@ -110,4 +113,18 @@ internal fun mutableFieldStateStorage(variableProvider: VariableProvider, dataPr
         processedData[field.name] = value
     }
     return MutableFieldStateStorage(variableProvider, processedData)
+}
+
+internal fun generateInitialFieldStateStorage(
+    kernelVariant: KernelVariantImpl,
+    settingStateProvider: SettingStateProvider,
+): MutableFieldStateStorage {
+    val fieldInitializationContext = FieldInitializationContextImpl(kernelVariant, settingStateProvider)
+    val fieldStateStorage = mutableFieldStateStorage(
+        kernelVariant,
+        kernelVariant.fields().associate { field ->
+            field.name to field.initialization(fieldInitializationContext)
+        },
+    )
+    return fieldStateStorage
 }

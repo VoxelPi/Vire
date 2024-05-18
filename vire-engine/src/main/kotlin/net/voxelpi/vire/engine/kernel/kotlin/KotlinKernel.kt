@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.kernel.kotlin
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
@@ -11,13 +10,9 @@ import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantConfig
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
-import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContextImpl
-import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialOutputStateStorage
 
 public interface KotlinKernel : Kernel {
 
@@ -68,19 +63,10 @@ internal class KotlinKernelImpl(
         val kernelVariant = config.kernelVariant
 
         // Generate initial field states.
-        val fieldInitializationContext = FieldInitializationContextImpl(kernelVariant, config.settingStateStorage)
-        val fieldStateStorage: MutableFieldStateStorage = mutableFieldStateStorage(
-            kernelVariant,
-            kernelVariant.fields().associate { it.name to (it.initialization(fieldInitializationContext)) },
-        )
+        val fieldStateStorage = generateInitialFieldStateStorage(kernelVariant, config)
 
         // Generate initial output states.
-        val outputStateStorage: MutableOutputStateStorage = mutableOutputStateStorage(
-            kernelVariant,
-            kernelVariant.outputs().associate {
-                it.name to Array(if (it is OutputVector) kernelVariant.size(it) else 1) { LogicState.EMPTY }
-            },
-        )
+        val outputStateStorage = generateInitialOutputStateStorage(kernelVariant, config)
 
         // Initialize the kernel instance.
         val context = InitializationContextImpl(config.kernelVariant, config.settingStateStorage, fieldStateStorage, outputStateStorage)

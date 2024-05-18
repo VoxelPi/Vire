@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.kernel.circuit
 
-import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.CircuitInstance
@@ -17,21 +16,17 @@ import net.voxelpi.vire.engine.kernel.KernelVariantConfig
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.variable.Field
-import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.setting
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableOutputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialOutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
@@ -92,19 +87,10 @@ internal class CircuitKernelImpl(
         settingStateStorage[CircuitKernel.CIRCUIT_INSTANCE] = circuitInstance
 
         // Generate initial field states.
-        val fieldInitializationContext = FieldInitializationContextImpl(circuitKernelVariant, config.settingStateStorage)
-        val fieldStateStorage: MutableFieldStateStorage = mutableFieldStateStorage(
-            circuitKernelVariant,
-            circuitKernelVariant.fields().associate { it.name to (it.initialization(fieldInitializationContext)) },
-        )
+        val fieldStateStorage = generateInitialFieldStateStorage(circuitKernelVariant, config)
 
         // Generate initial output states.
-        val outputStateStorage: MutableOutputStateStorage = mutableOutputStateStorage(
-            circuitKernelVariant,
-            circuitKernelVariant.outputs().associate {
-                it.name to Array(if (it is OutputVector) circuitKernelVariant.size(it) else 1) { LogicState.EMPTY }
-            },
-        )
+        val outputStateStorage = generateInitialOutputStateStorage(circuitKernelVariant, config)
 
         // Create the instance.
         val instance = KernelInstanceImpl(

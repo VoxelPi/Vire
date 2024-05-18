@@ -1,12 +1,16 @@
 package net.voxelpi.vire.engine.kernel.variable.storage
 
 import net.voxelpi.vire.engine.LogicState
+import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
+import net.voxelpi.vire.engine.kernel.variable.ScalarOutputInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorOutputInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
 internal typealias OutputStateMap = Map<String, Array<LogicState>>
 
@@ -134,4 +138,33 @@ internal fun mutableOutputStateStorage(variableProvider: VariableProvider, dataP
         processedData[output.name] = value
     }
     return MutableOutputStateStorage(variableProvider, processedData)
+}
+
+internal fun generateInitialOutputStateStorage(
+    kernelVariant: KernelVariantImpl,
+    settingStateProvider: SettingStateProvider,
+): MutableOutputStateStorage {
+    val scalarInitializationContext = ScalarOutputInitializationContextImpl(kernelVariant, settingStateProvider)
+    val vectorInitializationContext = VectorOutputInitializationContextImpl(kernelVariant, settingStateProvider)
+    val outputStateStorage = mutableOutputStateStorage(
+        kernelVariant,
+        kernelVariant.outputs().associate { output ->
+            when (output) {
+                is OutputScalar -> {
+                    output.name to arrayOf(
+                        output.initialization(scalarInitializationContext)
+                    )
+                }
+                is OutputVector -> {
+                    output.name to Array(kernelVariant.size(output)) { index ->
+                        output.initialization(vectorInitializationContext[index])
+                    }
+                }
+                is OutputVectorElement -> {
+                    throw UnsupportedOperationException("Vector elements cannot be initialized directly")
+                }
+            }
+        }
+    )
+    return outputStateStorage
 }
