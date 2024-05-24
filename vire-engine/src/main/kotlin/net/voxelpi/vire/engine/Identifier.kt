@@ -33,5 +33,21 @@ public data class Identifier(val namespace: String, val value: String) {
             require(index >= 0) { "$identifier is not a valid Identifier" }
             return Identifier(identifier.substring(0, index), identifier.substring(index + 1))
         }
+
+        /**
+         * Try parsing an identifier from the given [identifier] string.
+         */
+        public fun tryParse(identifier: String): Result<Identifier> {
+            val index = identifier.indexOf(':')
+            if (index < 0) {
+                return Result.failure(IllegalArgumentException("'$identifier' is not a valid identifier"))
+            }
+            try {
+                val id = Identifier(identifier.substring(0, index), identifier.substring(index + 1))
+                return Result.success(id)
+            } catch (exception: IllegalArgumentException) {
+                return Result.failure(exception)
+            }
+        }
     }
 }
