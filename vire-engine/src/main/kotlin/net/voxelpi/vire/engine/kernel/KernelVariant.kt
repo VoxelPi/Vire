@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
@@ -83,6 +84,11 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
      * Generates a new [SettingStateProvider] with the default value of each setting.
      */
     public fun generateDefaultSettingStates(): SettingStateProvider
+
+    /**
+     * Generates a new [SettingInitializationContext] for the initialization of all settings.
+     */
+    public fun settingInitializationContext(): SettingInitializationContext
 }
 
 internal class KernelVariantImpl(
@@ -140,12 +146,16 @@ internal class KernelVariantImpl(
     }
 
     override fun generateDefaultSettingStates(): SettingStateProvider {
-        val settingInitializationContext = SettingInitializationContextImpl(this)
+        val settingInitializationContext = settingInitializationContext()
         val settingStates = mutableMapOf<String, Any?>()
         for (setting in settings()) {
             settingStates[setting.name] = setting.initialization.invoke(settingInitializationContext)
         }
         return KernelInstanceConfig(this, settingStates)
+    }
+
+    override fun settingInitializationContext(): SettingInitializationContext {
+        return SettingInitializationContextImpl(this)
     }
 
     override fun equals(other: Any?): Boolean {
