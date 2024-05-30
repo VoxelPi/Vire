@@ -6,31 +6,14 @@ import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
-import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
 public data class Field<T> internal constructor(
     override val name: String,
     override val type: KType,
     public val initialization: FieldInitializationContext.() -> T,
-) : ScalarVariable<T>, VariantVariable<T> {
-
-    /**
-     * Returns if the given [type] is valid for the parameter.
-     */
-    public fun isValidType(type: KType): Boolean {
-        return type.isSubtypeOf(this.type)
-    }
-
-    /**
-     * Returns if the given [value] is valid for the parameter.
-     */
-    public fun isValidTypeAndValue(value: Any?): Boolean {
-        return isInstanceOfType(value, type)
-    }
-}
+) : ScalarVariable<T>, VariantVariable<T>
 
 public interface FieldInitializationContext : VariableProvider, ParameterStateProvider, SettingStateProvider, VectorSizeProvider {
     public val kernelVariant: KernelVariant

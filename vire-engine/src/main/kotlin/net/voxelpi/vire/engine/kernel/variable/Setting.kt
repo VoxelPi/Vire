@@ -4,43 +4,15 @@ import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
-import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
 public data class Setting<T> internal constructor(
     override val name: String,
     override val type: KType,
     public val initialization: SettingInitializationContext.() -> T,
-    public val constraint: VariableConstraint<T>,
-) : ScalarVariable<T>, VariantVariable<T> {
-
-    /**
-     * Returns if the given [value] is valid for the setting.
-     */
-    public fun isValidValue(value: T): Boolean {
-        return constraint.isValidValue(value)
-    }
-
-    /**
-     * Returns if the given [type] is valid for the setting.
-     */
-    public fun isValidType(type: KType): Boolean {
-        return type.isSubtypeOf(this.type)
-    }
-
-    /**
-     * Returns if the given [value] is valid for the setting.
-     */
-    @Suppress("UNCHECKED_CAST")
-    public fun isValidTypeAndValue(value: Any?): Boolean {
-        if (!isInstanceOfType(value, type)) {
-            return false
-        }
-        return isValidValue(value as T)
-    }
-}
+    override val constraint: VariableConstraint<T>,
+) : ScalarVariable<T>, VariantVariable<T>, ConstrainedVariable<T>
 
 public interface SettingInitializationContext : VariableProvider, ParameterStateProvider, VectorSizeProvider {
     public val kernelVariant: KernelVariant

@@ -1,42 +1,14 @@
 package net.voxelpi.vire.engine.kernel.variable
 
-import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
-import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.typeOf
 
 public data class Parameter<T> internal constructor(
     override val name: String,
     override val type: KType,
     public val initialization: () -> T,
-    public val constraint: VariableConstraint<T>,
-) : ScalarVariable<T> {
-
-    /**
-     * Returns if the given [value] is valid for the parameter.
-     */
-    public fun isValidValue(value: T): Boolean {
-        return constraint.isValidValue(value)
-    }
-
-    /**
-     * Returns if the given [type] is valid for the parameter.
-     */
-    public fun isValidType(type: KType): Boolean {
-        return type.isSubtypeOf(this.type)
-    }
-
-    /**
-     * Returns if the given [value] is valid for the parameter.
-     */
-    @Suppress("UNCHECKED_CAST")
-    public fun isValidTypeAndValue(value: Any?): Boolean {
-        if (!isInstanceOfType(value, type)) {
-            return false
-        }
-        return isValidValue(value as T)
-    }
-}
+    override val constraint: VariableConstraint<T>,
+) : ScalarVariable<T>, ConstrainedVariable<T>
 
 /**
  * Creates a new unconstrained parameter with the given [name], [initialization] and [constraint].
