@@ -10,23 +10,26 @@ import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.min
 import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.engine.kernel.variable.range
+import net.voxelpi.vire.engine.kernel.variable.setting
 import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object Memory : KernelProvider {
 
-    public val addressBits: Parameter<Int> = parameter("address_bits", initialization = { 8 }) {
+    public val readOnly: Parameter<Boolean> = parameter("read_only", initialization = { true })
+
+    public val addressBits: Setting<Int> = setting("address_bits", initialization = { 8 }) {
         range(1..31)
     }
-    public val wordSize: Parameter<Int> = parameter("word_size", initialization = { 8 }) {
+    public val wordSize: Setting<Int> = setting("word_size", initialization = { 8 }) {
         min(1)
     }
-    public val readOnly: Parameter<Boolean> = parameter("read_only", initialization = { true })
 
     public val readActive: InputScalar = input("read_active")
     public val readAddress: InputScalar = input("read_address")

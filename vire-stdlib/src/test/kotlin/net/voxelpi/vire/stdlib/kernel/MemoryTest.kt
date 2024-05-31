@@ -24,11 +24,14 @@ class MemoryTest {
 
     @Test
     fun readWriteMemory() {
-        val memory = Memory.createVariant {
-            this[Memory.readOnly] = false
-            this[Memory.wordSize] = 8 // Each address stores one byte
-            this[Memory.addressBits] = 8 // 8 address bits (256 different addresses)
-        }.getOrThrow().createInstance().getOrThrow()
+        val memory = Memory
+            .createVariant {
+                this[Memory.readOnly] = false
+            }.getOrThrow()
+            .createInstance {
+                this[Memory.wordSize] = 8 // Each address stores one byte
+                this[Memory.addressBits] = 8 // 8 address bits (256 different addresses)
+            }.getOrThrow()
 
         val simulation = environment.createSimulation(memory)
 
