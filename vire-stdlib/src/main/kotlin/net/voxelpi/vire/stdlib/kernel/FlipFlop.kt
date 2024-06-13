@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.LogicValue
 import net.voxelpi.vire.engine.SignalEdge
@@ -16,7 +15,6 @@ import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.setting
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object DFlipFlop : KernelProvider {
 
@@ -27,7 +25,7 @@ public object DFlipFlop : KernelProvider {
     public val clock: InputScalar = input("clock")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "d_flip_flop")) {
+    override val kernel: Kernel = kernel {
         declare(clockEdge)
         declare(clockPrevious)
 
@@ -58,7 +56,7 @@ public object TFlipFlop : KernelProvider {
     public val clock: InputScalar = input("clock")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "t_flip_flop")) {
+    override val kernel: Kernel = kernel {
         declare(clockEdge)
         declare(clockPrevious)
 
@@ -92,7 +90,7 @@ public object SRFlipFlop : KernelProvider {
     public val clock: InputScalar = input("clock")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "sr_flip_flop")) {
+    override val kernel: Kernel = kernel {
         declare(clockEdge)
         declare(clockPrevious)
 
@@ -136,7 +134,7 @@ public object JKFlipFlop : KernelProvider {
     public val clock: InputScalar = input("clock")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "jk_flip_flop")) {
+    override val kernel: Kernel = kernel {
         declare(clockEdge)
         declare(clockPrevious)
 

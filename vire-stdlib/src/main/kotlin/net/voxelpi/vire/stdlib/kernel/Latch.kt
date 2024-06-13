@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.LogicValue
 import net.voxelpi.vire.engine.SignalActivation
@@ -14,7 +13,6 @@ import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.setting
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object DLatch : KernelProvider {
 
@@ -24,7 +22,7 @@ public object DLatch : KernelProvider {
     public val data: InputScalar = input("data")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "d_latch")) {
+    override val kernel: Kernel = kernel {
         declare(gateActivation)
         declare(gate)
 
@@ -48,7 +46,7 @@ public object SRLatch : KernelProvider {
     public val reset: InputScalar = input("reset")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "sr_latch")) {
+    override val kernel: Kernel = kernel {
         declare(gateActivation)
         declare(gate)
 
@@ -87,7 +85,7 @@ public object JKLatch : KernelProvider {
     public val k: InputScalar = input("k")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "jk_latch")) {
+    override val kernel: Kernel = kernel {
         declare(gateActivation)
         declare(gate)
 

@@ -1,6 +1,5 @@
 package net.voxelpi.vire.stdlib.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
@@ -28,7 +27,7 @@ public object Multiplexer : KernelProvider {
     public val inputs: InputVector = input("inputs", 0)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier("vire", "mux")) {
+    override val kernel: Kernel = kernel {
         declare(addressBits)
         declare(address)
         declare(inputs)
@@ -59,7 +58,7 @@ public object Demultiplexer : KernelProvider {
     public val input: InputScalar = input("input")
     public val outputs: OutputVector = output("outputs", 0)
 
-    override val kernel: Kernel = kernel(Identifier("vire", "demux")) {
+    override val kernel: Kernel = kernel {
         declare(addressBits)
         declare(address)
         declare(input)

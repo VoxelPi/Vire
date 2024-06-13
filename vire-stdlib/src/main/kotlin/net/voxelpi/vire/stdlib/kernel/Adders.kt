@@ -1,6 +1,5 @@
 package net.voxelpi.vire.stdlib.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
 import net.voxelpi.vire.engine.kernel.kernel
@@ -8,7 +7,6 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object HalfAdder : KernelProvider {
     public val inputA: InputScalar = input("input_a")
@@ -16,7 +14,7 @@ public object HalfAdder : KernelProvider {
     public val sum: OutputScalar = output("output")
     public val carryOut: OutputScalar = output("carry_out")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "half_adder")) {
+    override val kernel: Kernel = kernel {
         declare(inputA)
         declare(inputB)
         declare(sum)
@@ -39,7 +37,7 @@ public object FullAdder : KernelProvider {
     public val sum: OutputScalar = output("output")
     public val carryOut: OutputScalar = output("carry_out")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "full_adder")) {
+    override val kernel: Kernel = kernel {
         declare(inputA)
         declare(inputB)
         declare(carryIn)

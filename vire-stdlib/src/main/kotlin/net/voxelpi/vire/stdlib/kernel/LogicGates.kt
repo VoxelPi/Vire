@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.booleanStates
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
@@ -14,13 +13,12 @@ import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.min
 import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.parameter
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object BufferGate : KernelProvider {
     public val input: InputScalar = input("input")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "buffer")) {
+    override val kernel: Kernel = kernel {
         declare(input)
         declare(output)
 
@@ -34,7 +32,7 @@ public object NotGate : KernelProvider {
     public val input: InputScalar = input("input")
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "not")) {
+    override val kernel: Kernel = kernel {
         declare(BufferGate.input)
         declare(BufferGate.output)
 
@@ -51,7 +49,7 @@ public object AndGate : KernelProvider {
     public val inputs: InputVector = input("inputs", inputSize)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "and")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -69,7 +67,7 @@ public object OrGate : KernelProvider {
     public val inputs: InputVector = input("inputs", inputSize)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "or")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -87,7 +85,7 @@ public object XorGate : KernelProvider {
     public val inputs: InputVector = input("inputs", inputSize)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "xor")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -105,7 +103,7 @@ public object NandGate : KernelProvider {
     public val inputs: InputVector = input("inputs", inputSize)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "nand")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -123,7 +121,7 @@ public object NorGate : KernelProvider {
     public val inputs: InputVector = input("inputs", inputSize)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "nor")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -141,7 +139,7 @@ public object XnorGate : KernelProvider {
     public val inputs: InputVector = input("inputs", inputSize)
     public val output: OutputScalar = output("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "xnor")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)

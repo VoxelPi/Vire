@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
@@ -18,7 +17,6 @@ import net.voxelpi.vire.engine.kernel.variable.output
 import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.engine.kernel.variable.range
 import net.voxelpi.vire.engine.kernel.variable.setting
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object Memory : KernelProvider {
 
@@ -40,7 +38,7 @@ public object Memory : KernelProvider {
 
     public val memory: Field<Array<BooleanState>> = field("memory", initialization = { emptyArray() })
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "memory")) {
+    override val kernel: Kernel = kernel {
         declare(memory)
         declare(addressBits)
         declare(wordSize)

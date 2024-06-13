@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
@@ -19,7 +18,7 @@ class MemoryTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironment(emptyList())
-        circuit = environment.createCircuit(Identifier("vire-test", "test"))
+        circuit = environment.createCircuit()
     }
 
     @Test

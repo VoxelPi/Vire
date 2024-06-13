@@ -1,6 +1,7 @@
 package net.voxelpi.vire.stdlib
 
 import net.voxelpi.vire.engine.environment.library.KotlinLibrary
+import net.voxelpi.vire.engine.kernel.library.LibraryKernel
 import net.voxelpi.vire.stdlib.kernel.AndGate
 import net.voxelpi.vire.stdlib.kernel.BufferGate
 import net.voxelpi.vire.stdlib.kernel.Clock
@@ -29,40 +30,38 @@ import net.voxelpi.vire.stdlib.kernel.XorGate
 
 public object VireStandardLibrary : KotlinLibrary(VIRE_STDLIB_ID, "Vire", "The vire standard library") {
 
-    init {
-        // IO
-        register(Input)
-        register(Output)
+    // IO
+    public val INPUT_KERNEL: LibraryKernel = register("input", Input)
+    public val OUTPUT_KERNEL: LibraryKernel = register("output", Output)
 
-        // Logic gates
-        register(BufferGate)
-        register(NotGate)
-        register(AndGate)
-        register(OrGate)
-        register(XorGate)
-        register(NandGate)
-        register(NorGate)
-        register(XnorGate)
+    // Logic gates
+    public val BUFFER_GATE_KERNEL: LibraryKernel = register("buffer", BufferGate)
+    public val NOT_GATE_KERNEL: LibraryKernel = register("not", NotGate)
+    public val AND_GATE_KERNEL: LibraryKernel = register("and", AndGate)
+    public val OR_GATE_KERNEL: LibraryKernel = register("or", OrGate)
+    public val XOR_GATE_KERNEL: LibraryKernel = register("xor", XorGate)
+    public val NAND_GATE_KERNEL: LibraryKernel = register("nand", NandGate)
+    public val NOR_GATE_KERNEL: LibraryKernel = register("nor", NorGate)
+    public val XNOR_GATE_KERNEL: LibraryKernel = register("xnor", XnorGate)
 
-        // Latches
-        register(DLatch)
-        register(SRLatch)
-        register(JKLatch)
+    // Latches
+    public val D_LATCH_KERNEL: LibraryKernel = register("d_latch", DLatch)
+    public val SR_LATCH_KERNEL: LibraryKernel = register("sr_latch", SRLatch)
+    public val JK_LATCH_KERNEL: LibraryKernel = register("jk_latch", JKLatch)
 
-        // Flip-Flops
-        register(DFlipFlop)
-        register(TFlipFlop)
-        register(SRFlipFlop)
-        register(JKFlipFlop)
+    // Flip-Flops
+    public val D_FLIP_FLOP_KERNEL: LibraryKernel = register("d_flip_flop", DFlipFlop)
+    public val T_FLIP_FLOP_KERNEL: LibraryKernel = register("t_flip_flop", TFlipFlop)
+    public val SR_FLIP_FLOP_KERNEL: LibraryKernel = register("sr_flip_flop", SRFlipFlop)
+    public val JK_FLIP_FLOP_KERNEL: LibraryKernel = register("jk_flip_flop", JKFlipFlop)
 
-        // Utilities
-        register(FullAdder)
-        register(HalfAdder)
-        register(Clock)
-        register(Memory)
-        register(Packager)
-        register(Unpackager)
-        register(Multiplexer)
-        register(Demultiplexer)
-    }
+    // Utilities
+    public val FULL_ADDER_KERNEL: LibraryKernel = register("full_adder", FullAdder)
+    public val HALF_ADDER_KERNEL: LibraryKernel = register("half_adder", HalfAdder)
+    public val CLOCK_KERNEL: LibraryKernel = register("clock", Clock)
+    public val MEMORY_KERNEL: LibraryKernel = register("memory", Memory)
+    public val PACKAGER_KERNEL: LibraryKernel = register("packager", Packager)
+    public val UNPACKAGER_KERNEL: LibraryKernel = register("unpackager", Unpackager)
+    public val MULTIPLEXER_KERNEL: LibraryKernel = register("mux", Multiplexer)
+    public val DEMULTIPLEXER_KERNEL: LibraryKernel = register("demux", Demultiplexer)
 }
