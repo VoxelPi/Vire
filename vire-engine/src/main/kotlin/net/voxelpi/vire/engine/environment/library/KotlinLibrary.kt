@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.environment.library
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
+import net.voxelpi.vire.engine.kernel.library.LibraryKernel
 
 /**
  * A library for a vire environment that was defined in kotlin source code.
@@ -14,22 +15,33 @@ public abstract class KotlinLibrary(
     override val dependencies: List<String> = emptyList(),
 ) : Library {
 
-    private val kernels: MutableMap<Identifier, Kernel> = mutableMapOf()
+    private val kernels: MutableMap<Identifier, LibraryKernel> = mutableMapOf()
 
-    override fun kernels(): Collection<Kernel> {
+    override fun kernels(): Collection<LibraryKernel> {
         return kernels.values
     }
 
-    override fun kernel(id: Identifier): Kernel? {
+    override fun kernel(id: Identifier): LibraryKernel? {
         return kernels[id]
     }
 
-    protected fun register(kernel: Kernel) {
-        require(kernel.id !in kernels)
-        kernels[kernel.id] = kernel
+    protected fun register(name: String, kernel: Kernel): LibraryKernel {
+        return register(Identifier(this.id, name), kernel)
     }
 
-    protected fun register(kernelProvider: KernelProvider) {
-        register(kernelProvider.kernel)
+    protected fun register(id: Identifier, kernel: Kernel): LibraryKernel {
+        require(id !in kernels)
+        val registration = LibraryKernel(id, this, kernel)
+
+        kernels[id] = registration
+        return registration
+    }
+
+    protected fun register(id: Identifier, kernelProvider: KernelProvider): LibraryKernel {
+        return register(id, kernelProvider.kernel)
+    }
+
+    protected fun register(name: String, kernelProvider: KernelProvider): LibraryKernel {
+        return register(Identifier(this.id, name), kernelProvider.kernel)
     }
 }

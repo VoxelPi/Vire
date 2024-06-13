@@ -9,6 +9,7 @@ import net.voxelpi.vire.engine.environment.library.Library
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
+import net.voxelpi.vire.engine.kernel.library.LibraryKernel
 import net.voxelpi.vire.engine.simulation.Simulation
 import net.voxelpi.vire.engine.simulation.SimulationImpl
 
@@ -40,12 +41,12 @@ public interface Environment {
     /**
      * Returns the kernel with the given [id].
      */
-    public fun kernel(id: Identifier): Kernel?
+    public fun kernel(id: Identifier): LibraryKernel?
 
     /**
      * Creates a new circuit.
      */
-    public fun createCircuit(id: Identifier): Circuit
+    public fun createCircuit(): Circuit
 
     /**
      * Creates a new simulation.
@@ -58,7 +59,7 @@ internal class EnvironmentImpl(libraries: List<Library>) : Environment {
     override val eventScope: EventScope = eventScope()
 
     private val libraries = libraries.associateBy { it.id }
-    private val kernels: Map<Identifier, Kernel> = libraries.map { it.kernels() }.flatten().associateBy { it.id }
+    private val kernels: Map<Identifier, LibraryKernel> = libraries.map { it.kernels() }.flatten().associateBy { it.id }
 
     override fun libraries(): Collection<Library> {
         return libraries.values
@@ -72,12 +73,12 @@ internal class EnvironmentImpl(libraries: List<Library>) : Environment {
         return kernels.values
     }
 
-    override fun kernel(id: Identifier): Kernel? {
+    override fun kernel(id: Identifier): LibraryKernel? {
         return kernels[id]
     }
 
-    override fun createCircuit(id: Identifier): Circuit {
-        return CircuitImpl(this, id)
+    override fun createCircuit(): Circuit {
+        return CircuitImpl(this)
     }
 
     override fun createSimulation(kernelInstance: KernelInstance): Simulation {

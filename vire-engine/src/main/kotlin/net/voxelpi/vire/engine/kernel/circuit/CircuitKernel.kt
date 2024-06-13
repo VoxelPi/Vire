@@ -41,7 +41,7 @@ public interface CircuitKernel : Kernel {
 
 internal class CircuitKernelImpl(
     override val circuit: CircuitImpl,
-) : KernelImpl(circuit.id, circuit.tags.toSet(), circuit.properties.toMap()), CircuitKernel {
+) : KernelImpl(circuit.tags.toSet(), circuit.properties.toMap()), CircuitKernel {
 
     override val variables: Map<String, Variable<*>>
 

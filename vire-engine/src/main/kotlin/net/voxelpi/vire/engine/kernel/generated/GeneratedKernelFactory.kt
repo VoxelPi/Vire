@@ -75,7 +75,6 @@ internal object CustomKernelFactory {
         // Get kernel definition
         val definition = type.findAnnotation<KernelDefinition>()
             ?: throw IllegalArgumentException("Custom kernels must be annotated with the KernelDefinition annotation.")
-        val id = Identifier(definition.namespace, definition.key)
 
         // Get all kernel tags.
         val tags = type.findAnnotations<Tagged>().map { it.tags.toList().map(Identifier::parse) }.flatten()
@@ -217,7 +216,7 @@ internal object CustomKernelFactory {
             output(name, size, initialization = { initialization?.get(index) ?: LogicState.EMPTY })
         }
 
-        return kernel(id) {
+        return kernel {
             // Add tags.
             this.tags.addAll(tags)
 

@@ -15,11 +15,6 @@ import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
 public interface Kernel : VariableProvider {
 
     /**
-     * The id of the kernel.
-     */
-    public val id: Identifier
-
-    /**
      * The tags of the kernel.
      */
     public val tags: Set<Identifier>
@@ -72,16 +67,15 @@ public interface Kernel : VariableProvider {
 }
 
 /**
- * Creates a new [KotlinKernel] with the given [id] using the given [lambda].
+ * Creates a new [KotlinKernel] using the given [lambda].
  */
-public fun kernel(id: Identifier, lambda: ScriptKernelBuilder.() -> Unit): KotlinKernel {
-    val builder = ScriptKernelBuilderImpl(id)
+public fun kernel(lambda: ScriptKernelBuilder.() -> Unit): KotlinKernel {
+    val builder = ScriptKernelBuilderImpl()
     builder.lambda()
     return builder.build()
 }
 
 internal abstract class KernelImpl(
-    override val id: Identifier,
     override val tags: Set<Identifier>,
     override val properties: Map<Identifier, String>,
 ) : Kernel {

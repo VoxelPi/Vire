@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.input
 import net.voxelpi.vire.engine.kernel.variable.output
@@ -23,7 +22,7 @@ class KernelImplTest {
             range(2.0..3.0)
         }
 
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             declare(parameter1)
             declare(parameter2)
 
@@ -74,7 +73,7 @@ class KernelImplTest {
         val input1 = input("input_1")
         val output1 = output("output_1", 10)
 
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             declare(parameter1)
             declare(setting1)
             declare(field1)

@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.field
 import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.engine.kernel.variable.setting
@@ -19,7 +18,7 @@ class KernelVariantImplTest {
         }
         val setting1 = setting("setting_1", { 0.0 })
 
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             declare(parameter1)
 
             onConfiguration { context ->
@@ -43,7 +42,7 @@ class KernelVariantImplTest {
     @Test
     fun `create instance`() {
         val setting1 = setting("setting_1", { 10.0 })
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             declare(setting1)
         }
 
@@ -56,7 +55,7 @@ class KernelVariantImplTest {
     fun `throw on variable declaration after a kernel has been build`() {
         val field1 = field("field_1", initialization = { "test" })
 
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             onConfiguration { _ ->
                 // Check if an exception is being thrown when accidentally registering the variable using the wrong declare method.
                 assertThrows<Exception> { declare(field1) }

@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.circuit.component
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.environment.Environment
@@ -20,7 +19,7 @@ class ComponentImplTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironmentImpl(emptyList())
-        circuit = environment.createCircuit(Identifier("vire-test", "test"))
+        circuit = environment.createCircuit()
     }
 
     @Test
@@ -28,7 +27,7 @@ class ComponentImplTest {
         val setting1 = setting("setting_1", initialization = { 3 })
         val field1 = field("field_1", initialization = { 24 })
 
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             declare(setting1)
             declare(field1)
 

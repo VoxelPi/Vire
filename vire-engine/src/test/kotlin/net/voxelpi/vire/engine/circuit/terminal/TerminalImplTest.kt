@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.circuit.terminal
 
 import net.voxelpi.event.on
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalCreateEvent
@@ -26,7 +25,7 @@ class TerminalImplTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironmentImpl(emptyList())
-        circuit = environment.createCircuit(Identifier("vire-test", "test"))
+        circuit = environment.createCircuit()
     }
 
     @Test
