@@ -33,14 +33,13 @@ public interface KotlinKernel : Kernel {
 }
 
 internal class KotlinKernelImpl(
-    id: Identifier,
     tags: Set<Identifier>,
     properties: Map<Identifier, String>,
     override val variables: Map<String, Variable<*>>,
     override val configurationAction: (ConfigurationContext) -> Unit,
     override val initializationAction: (InitializationContext) -> Unit,
     override val updateAction: (UpdateContext) -> Unit,
-) : KernelImpl(id, tags, properties), KotlinKernel {
+) : KernelImpl(tags, properties), KotlinKernel {
 
     override fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
         val context = ConfigurationContextImpl(this, config)

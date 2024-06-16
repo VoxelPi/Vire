@@ -1,6 +1,5 @@
 package net.voxelpi.vire.stdlib.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
@@ -10,23 +9,22 @@ import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.input
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.min
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.parameter
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object Packager : KernelProvider {
-    public val blockCount: Parameter<Int> = parameter("block_count", initialization = { 2 }) {
+    public val blockCount: Parameter<Int> = createParameter("block_count", initialization = { 2 }) {
         min(1)
     }
-    public val blockSize: Parameter<Int> = parameter("block_size", initialization = { 1 }) {
+    public val blockSize: Parameter<Int> = createParameter("block_size", initialization = { 1 }) {
         min(1)
     }
-    public val input: InputVector = input("input", blockCount)
-    public val output: OutputScalar = output("output")
+    public val input: InputVector = createInput("input", blockCount)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "packager")) {
+    override val kernel: Kernel = kernel {
         declare(blockCount)
         declare(blockSize)
         declare(input)
@@ -45,16 +43,16 @@ public object Packager : KernelProvider {
 }
 
 public object Unpackager : KernelProvider {
-    public val blockCount: Parameter<Int> = parameter("block_count", initialization = { 2 }) {
+    public val blockCount: Parameter<Int> = createParameter("block_count", initialization = { 2 }) {
         min(1)
     }
-    public val blockSize: Parameter<Int> = parameter("block_size", initialization = { 1 }) {
+    public val blockSize: Parameter<Int> = createParameter("block_size", initialization = { 1 }) {
         min(1)
     }
-    public val input: InputScalar = input("input")
-    public val output: OutputVector = output("output", blockCount)
+    public val input: InputScalar = createInput("input")
+    public val output: OutputVector = createOutput("output", blockCount)
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "unpackager")) {
+    override val kernel: Kernel = kernel {
         declare(blockCount)
         declare(blockSize)
         declare(input)

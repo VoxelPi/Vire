@@ -1,13 +1,12 @@
 package net.voxelpi.vire.engine.circuit.component
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.kernel
-import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.kernel.variable.setting
+import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,15 +19,15 @@ class ComponentImplTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironmentImpl(emptyList())
-        circuit = environment.createCircuit(Identifier("vire-test", "test"))
+        circuit = environment.createCircuit()
     }
 
     @Test
     fun `create component`() {
-        val setting1 = setting("setting_1", initialization = { 3 })
-        val field1 = field("field_1", initialization = { 24 })
+        val setting1 = createSetting("setting_1", initialization = { 3 })
+        val field1 = createField("field_1", initialization = { 24 })
 
-        val kernel = kernel(Identifier("test", "test")) {
+        val kernel = kernel {
             declare(setting1)
             declare(field1)
 

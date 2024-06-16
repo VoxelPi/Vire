@@ -1,22 +1,20 @@
 package net.voxelpi.vire.stdlib.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
 import net.voxelpi.vire.engine.kernel.kernel
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.input
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
 
 public object HalfAdder : KernelProvider {
-    public val inputA: InputScalar = input("input_a")
-    public val inputB: InputScalar = input("input_b")
-    public val sum: OutputScalar = output("output")
-    public val carryOut: OutputScalar = output("carry_out")
+    public val inputA: InputScalar = createInput("input_a")
+    public val inputB: InputScalar = createInput("input_b")
+    public val sum: OutputScalar = createOutput("output")
+    public val carryOut: OutputScalar = createOutput("carry_out")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "half_adder")) {
+    override val kernel: Kernel = kernel {
         declare(inputA)
         declare(inputB)
         declare(sum)
@@ -33,13 +31,13 @@ public object HalfAdder : KernelProvider {
 }
 
 public object FullAdder : KernelProvider {
-    public val inputA: InputScalar = input("input_a")
-    public val inputB: InputScalar = input("input_b")
-    public val carryIn: InputScalar = input("carry_in")
-    public val sum: OutputScalar = output("output")
-    public val carryOut: OutputScalar = output("carry_out")
+    public val inputA: InputScalar = createInput("input_a")
+    public val inputB: InputScalar = createInput("input_b")
+    public val carryIn: InputScalar = createInput("carry_in")
+    public val sum: OutputScalar = createOutput("output")
+    public val carryOut: OutputScalar = createOutput("carry_out")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "full_adder")) {
+    override val kernel: Kernel = kernel {
         declare(inputA)
         declare(inputB)
         declare(carryIn)

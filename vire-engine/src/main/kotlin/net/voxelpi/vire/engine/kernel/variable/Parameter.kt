@@ -11,28 +11,28 @@ public data class Parameter<T> internal constructor(
 ) : ScalarVariable<T>, ConstrainedVariable<T>
 
 /**
- * Creates a new unconstrained parameter with the given [name], [initialization] and [constraint].
+ * Creates a new parameter with the given [name], [initialization] and [constraint].
  */
-public inline fun <reified T> parameter(
+public inline fun <reified T> createParameter(
     name: String,
     noinline initialization: () -> T,
     constraint: VariableConstraint<T> = VariableConstraint.Always,
-): Parameter<T> = parameter(name, typeOf<T>(), initialization, constraint)
+): Parameter<T> = createParameter(name, typeOf<T>(), initialization, constraint)
 
 /**
- * Creates a new unconstrained parameter with the given [name], [initialization] and [constraintBuilder].
+ * Creates a new parameter with the given [name], [initialization] and [constraintBuilder].
  * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
  */
-public inline fun <reified T> parameter(
+public inline fun <reified T> createParameter(
     name: String,
     noinline initialization: () -> T,
     noinline constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
-): Parameter<T> = parameter(name, typeOf<T>(), initialization, constraintBuilder)
+): Parameter<T> = createParameter(name, typeOf<T>(), initialization, constraintBuilder)
 
 /**
- * Creates a new unconstrained parameter with the given [name], [type], [initialization] and [constraint].
+ * Creates a new parameter with the given [name], [type], [initialization] and [constraint].
  */
-public fun <T> parameter(
+public fun <T> createParameter(
     name: String,
     type: KType,
     initialization: () -> T,
@@ -40,10 +40,10 @@ public fun <T> parameter(
 ): Parameter<T> = Parameter(name, type, initialization, constraint)
 
 /**
- * Creates a new unconstrained parameter with the given [name], [type], [initialization] and [constraintBuilder].
+ * Creates a new parameter with the given [name], [type], [initialization] and [constraintBuilder].
  * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
  */
-public fun <T> parameter(
+public fun <T> createParameter(
     name: String,
     type: KType,
     initialization: () -> T,

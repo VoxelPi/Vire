@@ -97,7 +97,7 @@ internal class VectorOutputInitializationContextImpl(
 /**
  * Creates a new scalar output variable with the given [name] and [initialization].
  */
-public fun output(
+public fun createOutput(
     name: String,
     initialization: ScalarOutputInitializationContext.() -> LogicState = { LogicState.EMPTY },
 ): OutputScalar {
@@ -107,7 +107,7 @@ public fun output(
 /**
  * Creates a new scalar output variable with the given [name] and [initialization].
  */
-public fun output(
+public fun createOutput(
     name: String,
     initialization: LogicState,
 ): OutputScalar {
@@ -117,7 +117,7 @@ public fun output(
 /**
  * Creates a new vector output variable with the given [name] and [size].
  */
-public fun output(
+public fun createOutput(
     name: String,
     size: VectorVariableSize,
     initialization: VectorOutputElementInitializationContext.() -> LogicState = { LogicState.EMPTY },
@@ -128,7 +128,7 @@ public fun output(
 /**
  * Creates a new vector output variable with the given [name] and [size].
  */
-public fun output(
+public fun createOutput(
     name: String,
     size: VectorVariableSize,
     initialization: LogicState,
@@ -139,35 +139,35 @@ public fun output(
 /**
  * Creates a new vector output variable with the given [name] and default [size].
  */
-public fun output(
+public fun createOutput(
     name: String,
     size: Int,
     initialization: VectorOutputElementInitializationContext.() -> LogicState = { LogicState.EMPTY },
-): OutputVector = output(name, VectorVariableSize.Value(size), initialization)
+): OutputVector = createOutput(name, VectorVariableSize.Value(size), initialization)
 
 /**
  * Creates a new vector output variable with the given [name] and default [size].
  */
-public fun output(
+public fun createOutput(
     name: String,
     size: Int,
     initialization: LogicState,
-): OutputVector = output(name, VectorVariableSize.Value(size), initialization)
+): OutputVector = createOutput(name, VectorVariableSize.Value(size), initialization)
 
 /**
  * Creates a new vector output variable with the given [name] using the given [parameter] as default size.
  */
-public fun output(
+public fun createOutput(
     name: String,
     parameter: Parameter<Int>,
     initialization: VectorOutputElementInitializationContext.() -> LogicState = { LogicState.EMPTY },
-): OutputVector = output(name, VectorVariableSize.Parameter(parameter), initialization)
+): OutputVector = createOutput(name, VectorVariableSize.Parameter(parameter), initialization)
 
 /**
  * Creates a new vector output variable with the given [name] using the given [parameter] as default size.
  */
-public fun output(
+public fun createOutput(
     name: String,
     parameter: Parameter<Int>,
     initialization: LogicState,
-): OutputVector = output(name, VectorVariableSize.Parameter(parameter), initialization)
+): OutputVector = createOutput(name, VectorVariableSize.Parameter(parameter), initialization)

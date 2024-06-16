@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.circuit.network
 
 import net.voxelpi.event.on
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.event.network.NetworkCreateEvent
@@ -25,7 +24,7 @@ class NetworkImplTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironmentImpl(emptyList())
-        circuit = environment.createCircuit(Identifier("vire-test", "test"))
+        circuit = environment.createCircuit()
     }
 
     @Test
@@ -134,7 +133,7 @@ class NetworkImplTest {
         var destroyCounter = 0
         environment.eventScope.on<NetworkNodeDestroyEvent> { destroyCounter++ }
 
-        val kernel = kernel(Identifier("vire-test", "test1")) {}
+        val kernel = kernel {}
         val kernelVariant = kernel.createVariant().getOrThrow()
         val component1 = circuit.createComponent(kernelVariant)
         val component2 = circuit.createComponent(kernelVariant)

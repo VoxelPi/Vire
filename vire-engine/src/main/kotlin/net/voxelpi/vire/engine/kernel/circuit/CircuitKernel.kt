@@ -22,8 +22,8 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.kernel.variable.setting
+import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialFieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialOutputStateStorage
@@ -34,14 +34,14 @@ public interface CircuitKernel : Kernel {
     public val circuit: Circuit
 
     public companion object {
-        public val CIRCUIT_INSTANCE: Setting<CircuitInstance> = setting("__instance__", initialization = { emptyCircuitInstance() })
-        public val CIRCUIT_STATE: Field<CircuitState> = field("__state__", initialization = { emptyCircuitState() })
+        public val CIRCUIT_INSTANCE: Setting<CircuitInstance> = createSetting("__instance__", initialization = { emptyCircuitInstance() })
+        public val CIRCUIT_STATE: Field<CircuitState> = createField("__state__", initialization = { emptyCircuitState() })
     }
 }
 
 internal class CircuitKernelImpl(
     override val circuit: CircuitImpl,
-) : KernelImpl(circuit.id, circuit.tags.toSet(), circuit.properties.toMap()), CircuitKernel {
+) : KernelImpl(circuit.tags.toSet(), circuit.properties.toMap()), CircuitKernel {
 
     override val variables: Map<String, Variable<*>>
 

@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.booleanStates
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
@@ -10,17 +9,16 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.input
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.min
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.parameter
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object BufferGate : KernelProvider {
-    public val input: InputScalar = input("input")
-    public val output: OutputScalar = output("output")
+    public val input: InputScalar = createInput("input")
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "buffer")) {
+    override val kernel: Kernel = kernel {
         declare(input)
         declare(output)
 
@@ -31,10 +29,10 @@ public object BufferGate : KernelProvider {
 }
 
 public object NotGate : KernelProvider {
-    public val input: InputScalar = input("input")
-    public val output: OutputScalar = output("output")
+    public val input: InputScalar = createInput("input")
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "not")) {
+    override val kernel: Kernel = kernel {
         declare(BufferGate.input)
         declare(BufferGate.output)
 
@@ -45,13 +43,13 @@ public object NotGate : KernelProvider {
 }
 
 public object AndGate : KernelProvider {
-    public val inputSize: Parameter<Int> = parameter("input_count", initialization = { 2 }) {
+    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
         min(2)
     }
-    public val inputs: InputVector = input("inputs", inputSize)
-    public val output: OutputScalar = output("output")
+    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "and")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -63,13 +61,13 @@ public object AndGate : KernelProvider {
 }
 
 public object OrGate : KernelProvider {
-    public val inputSize: Parameter<Int> = parameter("input_count", initialization = { 2 }) {
+    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
         min(2)
     }
-    public val inputs: InputVector = input("inputs", inputSize)
-    public val output: OutputScalar = output("output")
+    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "or")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -81,13 +79,13 @@ public object OrGate : KernelProvider {
 }
 
 public object XorGate : KernelProvider {
-    public val inputSize: Parameter<Int> = parameter("input_count", initialization = { 2 }) {
+    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
         min(2)
     }
-    public val inputs: InputVector = input("inputs", inputSize)
-    public val output: OutputScalar = output("output")
+    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "xor")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -99,13 +97,13 @@ public object XorGate : KernelProvider {
 }
 
 public object NandGate : KernelProvider {
-    public val inputSize: Parameter<Int> = parameter("input_count", initialization = { 2 }) {
+    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
         min(2)
     }
-    public val inputs: InputVector = input("inputs", inputSize)
-    public val output: OutputScalar = output("output")
+    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "nand")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -117,13 +115,13 @@ public object NandGate : KernelProvider {
 }
 
 public object NorGate : KernelProvider {
-    public val inputSize: Parameter<Int> = parameter("input_count", initialization = { 2 }) {
+    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
         min(2)
     }
-    public val inputs: InputVector = input("inputs", inputSize)
-    public val output: OutputScalar = output("output")
+    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "nor")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)
@@ -135,13 +133,13 @@ public object NorGate : KernelProvider {
 }
 
 public object XnorGate : KernelProvider {
-    public val inputSize: Parameter<Int> = parameter("input_count", initialization = { 2 }) {
+    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
         min(2)
     }
-    public val inputs: InputVector = input("inputs", inputSize)
-    public val output: OutputScalar = output("output")
+    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "xnor")) {
+    override val kernel: Kernel = kernel {
         declare(inputSize)
         declare(inputs)
         declare(output)

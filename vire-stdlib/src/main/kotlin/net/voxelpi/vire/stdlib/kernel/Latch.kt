@@ -1,7 +1,6 @@
 package net.voxelpi.vire.stdlib.kernel
 
 import net.voxelpi.vire.engine.BooleanState
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.LogicValue
 import net.voxelpi.vire.engine.SignalActivation
@@ -11,20 +10,22 @@ import net.voxelpi.vire.engine.kernel.kernel
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.input
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.setting
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 
 public object DLatch : KernelProvider {
 
-    public val gateActivation: Setting<SignalActivation> = setting("gate_activation", initialization = { SignalActivation.ACTIVE_LOW })
-    public val gate: InputScalar = input("gate")
+    public val gateActivation: Setting<SignalActivation> = createSetting(
+        "gate_activation",
+        initialization = { SignalActivation.ACTIVE_LOW },
+    )
+    public val gate: InputScalar = createInput("gate")
 
-    public val data: InputScalar = input("data")
-    public val output: OutputScalar = output("output")
+    public val data: InputScalar = createInput("data")
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "d_latch")) {
+    override val kernel: Kernel = kernel {
         declare(gateActivation)
         declare(gate)
 
@@ -41,14 +42,17 @@ public object DLatch : KernelProvider {
 
 public object SRLatch : KernelProvider {
 
-    public val gateActivation: Setting<SignalActivation> = setting("gate_activation", initialization = { SignalActivation.ACTIVE_LOW })
-    public val gate: InputScalar = input("gate")
+    public val gateActivation: Setting<SignalActivation> = createSetting(
+        "gate_activation",
+        initialization = { SignalActivation.ACTIVE_LOW },
+    )
+    public val gate: InputScalar = createInput("gate")
 
-    public val set: InputScalar = input("set")
-    public val reset: InputScalar = input("reset")
-    public val output: OutputScalar = output("output")
+    public val set: InputScalar = createInput("set")
+    public val reset: InputScalar = createInput("reset")
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "sr_latch")) {
+    override val kernel: Kernel = kernel {
         declare(gateActivation)
         declare(gate)
 
@@ -80,14 +84,17 @@ public object SRLatch : KernelProvider {
 
 public object JKLatch : KernelProvider {
 
-    public val gateActivation: Setting<SignalActivation> = setting("gate_activation", initialization = { SignalActivation.ACTIVE_LOW })
-    public val gate: InputScalar = input("gate")
+    public val gateActivation: Setting<SignalActivation> = createSetting(
+        "gate_activation",
+        initialization = { SignalActivation.ACTIVE_LOW },
+    )
+    public val gate: InputScalar = createInput("gate")
 
-    public val j: InputScalar = input("j")
-    public val k: InputScalar = input("k")
-    public val output: OutputScalar = output("output")
+    public val j: InputScalar = createInput("j")
+    public val k: InputScalar = createInput("k")
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "jk_latch")) {
+    override val kernel: Kernel = kernel {
         declare(gateActivation)
         declare(gate)
 

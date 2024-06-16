@@ -30,7 +30,7 @@ class GeneratedKernelFactoryTest {
         environment = Vire.createEnvironmentImpl(emptyList())
     }
 
-    @KernelDefinition("vire", "unit")
+    @KernelDefinition
     @Tagged("vire:test1", "vire:test2")
     @Tagged("test:test3", "vire:test1")
     @WithProperty("vire:p1", "Hello")
@@ -41,9 +41,6 @@ class GeneratedKernelFactoryTest {
     @Test
     fun `test unit kernel generation`() {
         val kernel = generateKernel<UnitKernel>()
-
-        // Verify id.
-        assertEquals(Identifier("vire", "unit"), kernel.id)
 
         // Verify tags.
         assertEquals(
@@ -81,7 +78,7 @@ class GeneratedKernelFactoryTest {
         assertEquals(state, simulation.state[output])
     }
 
-    @KernelDefinition("vire", "buffer/scalar")
+    @KernelDefinition
     class ScalarBuffer : GeneratedKernel() {
 
         @InputDeclaration
@@ -117,7 +114,7 @@ class GeneratedKernelFactoryTest {
         assertEquals(state2, simulation.state[outputs[1]])
     }
 
-    @KernelDefinition("vire", "buffer/vector")
+    @KernelDefinition
     class VectorBuffer : GeneratedKernel() {
 
         @ParameterDeclaration
@@ -153,7 +150,7 @@ class GeneratedKernelFactoryTest {
         assertEquals(49, simulation.state[counter])
     }
 
-    @KernelDefinition("vire", "counter")
+    @KernelDefinition
     class Counter : GeneratedKernel() {
 
         @SettingDeclaration("counter_step")

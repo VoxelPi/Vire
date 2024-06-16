@@ -31,28 +31,28 @@ internal class SettingInitializationContextImpl(
 }
 
 /**
- * Creates a new unconstrained setting with the given [name], [initialization] and [constraint].
+ * Creates a new setting with the given [name], [initialization] and [constraint].
  */
-public inline fun <reified T> setting(
+public inline fun <reified T> createSetting(
     name: String,
     noinline initialization: SettingInitializationContext.() -> T,
     constraint: VariableConstraint<T> = VariableConstraint.Always,
-): Setting<T> = setting(name, typeOf<T>(), initialization, constraint)
+): Setting<T> = createSetting(name, typeOf<T>(), initialization, constraint)
 
 /**
- * Creates a new unconstrained setting with the given [name], [initialization] and [constraintBuilder].
+ * Creates a new setting with the given [name], [initialization] and [constraintBuilder].
  * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
  */
-public inline fun <reified T> setting(
+public inline fun <reified T> createSetting(
     name: String,
     noinline initialization: SettingInitializationContext.() -> T,
     noinline constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
-): Setting<T> = setting(name, typeOf<T>(), initialization, constraintBuilder)
+): Setting<T> = createSetting(name, typeOf<T>(), initialization, constraintBuilder)
 
 /**
- * Creates a new unconstrained setting with the given [name], [type], [initialization] and [constraint].
+ * Creates a new setting with the given [name], [type], [initialization] and [constraint].
  */
-public fun <T> setting(
+public fun <T> createSetting(
     name: String,
     type: KType,
     initialization: SettingInitializationContext.() -> T,
@@ -60,10 +60,10 @@ public fun <T> setting(
 ): Setting<T> = Setting(name, type, initialization, constraint)
 
 /**
- * Creates a new unconstrained setting with the given [name], [type], [initialization] and [constraintBuilder].
+ * Creates a new setting with the given [name], [type], [initialization] and [constraintBuilder].
  * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
  */
-public fun <T> setting(
+public fun <T> createSetting(
     name: String,
     type: KType,
     initialization: SettingInitializationContext.() -> T,

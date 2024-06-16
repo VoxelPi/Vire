@@ -56,11 +56,6 @@ public interface Circuit : VariableProvider {
     public val eventScope: EventScope
 
     /**
-     * The id of the circuit.
-     */
-    public val id: Identifier
-
-    /**
      * The tags of the circuit.
      */
     public val tags: MutableSet<Identifier>
@@ -227,7 +222,6 @@ public interface Circuit : VariableProvider {
 
 internal class CircuitImpl(
     override val environment: EnvironmentImpl,
-    override val id: Identifier,
 ) : Circuit {
 
     override val eventScope: EventScope = environment.eventScope.createSubScope()

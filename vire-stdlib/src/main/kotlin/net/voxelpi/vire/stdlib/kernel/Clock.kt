@@ -1,30 +1,28 @@
 package net.voxelpi.vire.stdlib.kernel
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelProvider
 import net.voxelpi.vire.engine.kernel.kernel
 import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.field
+import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 import net.voxelpi.vire.engine.kernel.variable.min
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.parameter
-import net.voxelpi.vire.stdlib.VIRE_STDLIB_ID
 
 public object Clock : KernelProvider {
-    public val ticksHigh: Parameter<Long> = parameter("ticks_high", initialization = { 1L }) {
+    public val ticksHigh: Setting<Long> = createSetting("ticks_high", initialization = { 1L }) {
         min(1L)
     }
-    public val ticksLow: Parameter<Long> = parameter("ticks_low", initialization = { 1L }) {
+    public val ticksLow: Setting<Long> = createSetting("ticks_low", initialization = { 1L }) {
         min(1L)
     }
-    public val ticks: Field<Long> = field("ticks", initialization = { 0L })
-    public val output: OutputScalar = output("output")
+    public val ticks: Field<Long> = createField("ticks", initialization = { 0L })
+    public val output: OutputScalar = createOutput("output")
 
-    override val kernel: Kernel = kernel(Identifier(VIRE_STDLIB_ID, "clock")) {
+    override val kernel: Kernel = kernel {
         declare(ticksHigh)
         declare(ticksLow)
         declare(ticks)
