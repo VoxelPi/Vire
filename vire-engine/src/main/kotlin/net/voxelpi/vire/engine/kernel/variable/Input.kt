@@ -24,7 +24,7 @@ public data class InputVectorElement internal constructor(
 /**
  * Creates a new scalar input variable with the given [name].
  */
-public fun input(
+public fun createInput(
     name: String,
 ): InputScalar {
     return InputScalar(name)
@@ -33,7 +33,7 @@ public fun input(
 /**
  * Creates a new vector input variable with the given [name] and [size].
  */
-public fun input(
+public fun createInput(
     name: String,
     size: VectorVariableSize,
 ): InputVector {
@@ -43,15 +43,15 @@ public fun input(
 /**
  * Creates a new vector input variable with the given [name] and default [size].
  */
-public fun input(
+public fun createInput(
     name: String,
     size: Int,
-): InputVector = input(name, VectorVariableSize.Value(size))
+): InputVector = createInput(name, VectorVariableSize.Value(size))
 
 /**
  * Creates a new vector input variable with the given [name] using the given [parameter] as default size.
  */
-public fun input(
+public fun createInput(
     name: String,
     parameter: Parameter<Int>,
-): InputVector = input(name, VectorVariableSize.Parameter(parameter))
+): InputVector = createInput(name, VectorVariableSize.Parameter(parameter))

@@ -45,14 +45,14 @@ import net.voxelpi.vire.engine.kernel.kernel
 import net.voxelpi.vire.engine.kernel.variable.AllVariableConstraintBuilder
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.VectorVariableSize
-import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.kernel.variable.input
+import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createParameter
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 import net.voxelpi.vire.engine.kernel.variable.max
 import net.voxelpi.vire.engine.kernel.variable.min
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.parameter
 import net.voxelpi.vire.engine.kernel.variable.range
-import net.voxelpi.vire.engine.kernel.variable.setting
 import net.voxelpi.vire.engine.util.partition
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -126,14 +126,14 @@ internal object CustomKernelFactory {
         }.toMap()
 
         // Create a field for the instance of the class.
-        val instanceField = field(GeneratedKernel.INSTANCE_FIELD_NAME, initialization = { type.createInstance() })
+        val instanceField = createField(GeneratedKernel.INSTANCE_FIELD_NAME, initialization = { type.createInstance() })
 
         val parameters = parameterProperties.map { (name, property) ->
             // Get the initialization of the parameter.
             val initialization = parameterInitializations[name]
 
             // Create the parameter.
-            parameter(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
+            createParameter(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
         }
 
         // Collect vector sizes
@@ -181,29 +181,29 @@ internal object CustomKernelFactory {
             val initialization = settingInitializations[name]
 
             // Create the setting.
-            setting(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
+            createSetting(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
         }
         val fields = fieldProperties.map { (name, property) ->
             // Get the initialization of the parameter.
             val initialization = fieldInitializations[name]
 
             // Create the field.
-            field(name, property.returnType, initialization = { initialization })
+            createField(name, property.returnType, initialization = { initialization })
         }
         val scalarInputs = scalarInputProperties.map { (name, _) ->
             // Create the scalar input.
-            input(name)
+            createInput(name)
         }
         val vectorInputs = vectorInputProperties.map { (name, _) ->
             // Get the size of the input vector.
             val size = vectorInputSizes[name]!!
 
             // Create the vector input.
-            input(name, size)
+            createInput(name, size)
         }
         val scalarOutputs = scalarOutputProperties.map { (name, _) ->
             // Create the scalar output.
-            output(name, scalarOutputInitializations[name]!!)
+            createOutput(name, scalarOutputInitializations[name]!!)
         }
         val vectorOutputs = vectorOutputProperties.map { (name, _) ->
             // Get the size of the input vector.
@@ -213,7 +213,7 @@ internal object CustomKernelFactory {
             val initialization = vectorOutputInitializations[name]
 
             // Create the vector input.
-            output(name, size, initialization = { initialization?.get(index) ?: LogicState.EMPTY })
+            createOutput(name, size, initialization = { initialization?.get(index) ?: LogicState.EMPTY })
         }
 
         return kernel {

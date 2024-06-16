@@ -11,19 +11,19 @@ import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.kernel.variable.input
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.setting
+import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 
 public object DFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = setting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = field("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
+    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
 
-    public val data: InputScalar = input("data")
-    public val clock: InputScalar = input("clock")
-    public val output: OutputScalar = output("output")
+    public val data: InputScalar = createInput("data")
+    public val clock: InputScalar = createInput("clock")
+    public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
         declare(clockEdge)
@@ -49,12 +49,12 @@ public object DFlipFlop : KernelProvider {
 
 public object TFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = setting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = field("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
+    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
 
-    public val toggle: InputScalar = input("toggle")
-    public val clock: InputScalar = input("clock")
-    public val output: OutputScalar = output("output")
+    public val toggle: InputScalar = createInput("toggle")
+    public val clock: InputScalar = createInput("clock")
+    public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
         declare(clockEdge)
@@ -82,13 +82,13 @@ public object TFlipFlop : KernelProvider {
 
 public object SRFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = setting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = field("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
+    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
 
-    public val set: InputScalar = input("set")
-    public val reset: InputScalar = input("reset")
-    public val clock: InputScalar = input("clock")
-    public val output: OutputScalar = output("output")
+    public val set: InputScalar = createInput("set")
+    public val reset: InputScalar = createInput("reset")
+    public val clock: InputScalar = createInput("clock")
+    public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
         declare(clockEdge)
@@ -126,13 +126,13 @@ public object SRFlipFlop : KernelProvider {
 
 public object JKFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = setting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = field("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
+    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
 
-    public val j: InputScalar = input("j")
-    public val k: InputScalar = input("k")
-    public val clock: InputScalar = input("clock")
-    public val output: OutputScalar = output("output")
+    public val j: InputScalar = createInput("j")
+    public val k: InputScalar = createInput("k")
+    public val clock: InputScalar = createInput("clock")
+    public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
         declare(clockEdge)

@@ -35,17 +35,17 @@ internal class FieldInitializationContextImpl(
 /**
  * Creates a new field with the given [name] that is initialized to the value provided by [initialization].
  */
-public inline fun <reified T> field(
+public inline fun <reified T> createField(
     name: String,
     noinline initialization: FieldInitializationContext.() -> T,
 ): Field<T> {
-    return field(name, typeOf<T>(), initialization)
+    return createField(name, typeOf<T>(), initialization)
 }
 
 /**
  * Creates a new field with the given [name] that is initialized to the value provided by [initialization].
  */
-public fun <T> field(
+public fun <T> createField(
     name: String,
     type: KType,
     initialization: FieldInitializationContext.() -> T,

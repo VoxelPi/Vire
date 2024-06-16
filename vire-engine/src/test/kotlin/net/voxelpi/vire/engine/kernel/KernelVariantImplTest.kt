@@ -1,8 +1,8 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.kernel.variable.field
-import net.voxelpi.vire.engine.kernel.variable.parameter
-import net.voxelpi.vire.engine.kernel.variable.setting
+import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createParameter
+import net.voxelpi.vire.engine.kernel.variable.createSetting
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -13,10 +13,10 @@ class KernelVariantImplTest {
 
     @Test
     fun `test variant variables`() {
-        val parameter1 = parameter("parameter_1", { "mode_a" }) {
+        val parameter1 = createParameter("parameter_1", { "mode_a" }) {
             selection("mode_a", "mode_b", "mode_c")
         }
-        val setting1 = setting("setting_1", { 0.0 })
+        val setting1 = createSetting("setting_1", { 0.0 })
 
         val kernel = kernel {
             declare(parameter1)
@@ -41,7 +41,7 @@ class KernelVariantImplTest {
 
     @Test
     fun `create instance`() {
-        val setting1 = setting("setting_1", { 10.0 })
+        val setting1 = createSetting("setting_1", { 10.0 })
         val kernel = kernel {
             declare(setting1)
         }
@@ -53,7 +53,7 @@ class KernelVariantImplTest {
 
     @Test
     fun `throw on variable declaration after a kernel has been build`() {
-        val field1 = field("field_1", initialization = { "test" })
+        val field1 = createField("field_1", initialization = { "test" })
 
         val kernel = kernel {
             onConfiguration { _ ->

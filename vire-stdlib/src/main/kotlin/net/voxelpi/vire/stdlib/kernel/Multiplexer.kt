@@ -9,9 +9,9 @@ import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.input
-import net.voxelpi.vire.engine.kernel.variable.output
-import net.voxelpi.vire.engine.kernel.variable.parameter
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.range
 
 /**
@@ -19,13 +19,13 @@ import net.voxelpi.vire.engine.kernel.variable.range
  */
 public object Multiplexer : KernelProvider {
 
-    public val addressBits: Parameter<Int> = parameter("address_bits", initialization = { 3 }) {
+    public val addressBits: Parameter<Int> = createParameter("address_bits", initialization = { 3 }) {
         range(0..30)
     }
 
-    public val address: InputScalar = input("address")
-    public val inputs: InputVector = input("inputs", 0)
-    public val output: OutputScalar = output("output")
+    public val address: InputScalar = createInput("address")
+    public val inputs: InputVector = createInput("inputs", 0)
+    public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
         declare(addressBits)
@@ -50,13 +50,13 @@ public object Multiplexer : KernelProvider {
  */
 public object Demultiplexer : KernelProvider {
 
-    public val addressBits: Parameter<Int> = parameter("address_bits", initialization = { 3 }) {
+    public val addressBits: Parameter<Int> = createParameter("address_bits", initialization = { 3 }) {
         range(0..30)
     }
 
-    public val address: InputScalar = input("address")
-    public val input: InputScalar = input("input")
-    public val outputs: OutputVector = output("outputs", 0)
+    public val address: InputScalar = createInput("address")
+    public val input: InputScalar = createInput("input")
+    public val outputs: OutputVector = createOutput("outputs", 0)
 
     override val kernel: Kernel = kernel {
         declare(addressBits)

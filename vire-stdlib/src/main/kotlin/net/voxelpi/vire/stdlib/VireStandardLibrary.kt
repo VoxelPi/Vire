@@ -1,7 +1,7 @@
 package net.voxelpi.vire.stdlib
 
 import net.voxelpi.vire.engine.environment.library.KotlinLibrary
-import net.voxelpi.vire.engine.kernel.library.LibraryKernel
+import net.voxelpi.vire.engine.kernel.registered.LibraryKernel
 import net.voxelpi.vire.stdlib.kernel.AndGate
 import net.voxelpi.vire.stdlib.kernel.BufferGate
 import net.voxelpi.vire.stdlib.kernel.Clock
