@@ -1,7 +1,7 @@
 package net.voxelpi.vire.engine.environment.library
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.kernel.library.LibraryKernel
+import net.voxelpi.vire.engine.kernel.registered.LibraryKernel
 
 /**
  * A library for a vire environment.

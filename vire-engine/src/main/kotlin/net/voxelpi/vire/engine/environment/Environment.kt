@@ -6,10 +6,9 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.environment.library.Library
-import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
-import net.voxelpi.vire.engine.kernel.library.LibraryKernel
+import net.voxelpi.vire.engine.kernel.registered.RegisteredKernel
 import net.voxelpi.vire.engine.simulation.Simulation
 import net.voxelpi.vire.engine.simulation.SimulationImpl
 
@@ -36,12 +35,12 @@ public interface Environment {
     /**
      * All kernels that are registered in the environment.
      */
-    public fun kernels(): Collection<Kernel>
+    public fun kernels(): Collection<RegisteredKernel>
 
     /**
      * Returns the kernel with the given [id].
      */
-    public fun kernel(id: Identifier): LibraryKernel?
+    public fun kernel(id: Identifier): RegisteredKernel?
 
     /**
      * Creates a new circuit.
@@ -59,7 +58,7 @@ internal class EnvironmentImpl(libraries: List<Library>) : Environment {
     override val eventScope: EventScope = eventScope()
 
     private val libraries = libraries.associateBy { it.id }
-    private val kernels: Map<Identifier, LibraryKernel> = libraries.map { it.kernels() }.flatten().associateBy { it.id }
+    private val kernels: Map<Identifier, RegisteredKernel> = libraries.map { it.kernels() }.flatten().associateBy { it.id }
 
     override fun libraries(): Collection<Library> {
         return libraries.values
@@ -69,11 +68,11 @@ internal class EnvironmentImpl(libraries: List<Library>) : Environment {
         return libraries[id]
     }
 
-    override fun kernels(): Collection<Kernel> {
+    override fun kernels(): Collection<RegisteredKernel> {
         return kernels.values
     }
 
-    override fun kernel(id: Identifier): LibraryKernel? {
+    override fun kernel(id: Identifier): RegisteredKernel? {
         return kernels[id]
     }
 
