@@ -10,42 +10,41 @@ public data class Parameter<T> internal constructor(
     override val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T>, ConstrainedVariable<T>
 
-/**
- * Creates a new parameter with the given [name], [initialization] and [constraint].
- */
-public inline fun <reified T> createParameter(
-    name: String,
-    noinline initialization: () -> T,
-    constraint: VariableConstraint<T> = VariableConstraint.Always,
-): Parameter<T> = createParameter(name, typeOf<T>(), initialization, constraint)
+public class ParameterBuilder<T> internal constructor(
+    public val name: String,
+    public val type: KType,
+) {
 
-/**
- * Creates a new parameter with the given [name], [initialization] and [constraintBuilder].
- * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
- */
-public inline fun <reified T> createParameter(
-    name: String,
-    noinline initialization: () -> T,
-    noinline constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
-): Parameter<T> = createParameter(name, typeOf<T>(), initialization, constraintBuilder)
+    public lateinit var initialization: () -> T
 
-/**
- * Creates a new parameter with the given [name], [type], [initialization] and [constraint].
- */
-public fun <T> createParameter(
-    name: String,
-    type: KType,
-    initialization: () -> T,
-    constraint: VariableConstraint<T> = VariableConstraint.Always,
-): Parameter<T> = Parameter(name, type, initialization, constraint)
+    public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
-/**
- * Creates a new parameter with the given [name], [type], [initialization] and [constraintBuilder].
- * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
- */
-public fun <T> createParameter(
-    name: String,
-    type: KType,
-    initialization: () -> T,
-    constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
-): Parameter<T> = Parameter(name, type, initialization, AllVariableConstraintBuilder<T>().apply(constraintBuilder).build())
+    @Suppress("UNCHECKED_CAST")
+    internal fun buildInitialization(): () -> T {
+        // Check if the initialization has been set.
+        val initialized = ::initialization.isInitialized
+        if (initialized) {
+            return initialization
+        }
+
+        // Return null initialization if the type allows it.
+        if (type.isMarkedNullable) {
+            return {
+                null as T
+            }
+        }
+
+        // Otherwise throw.
+        throw IllegalArgumentException("Missing initialization for parameter \"$name\"")
+    }
+}
+
+public inline fun <reified T> createParameter(name: String, noinline lambda: ParameterBuilder<T>.() -> Unit = {}): Parameter<T> {
+    return createParameter(name, typeOf<T>(), lambda)
+}
+
+public fun <T> createParameter(name: String, type: KType, lambda: ParameterBuilder<T>.() -> Unit = {}): Parameter<T> {
+    val builder = ParameterBuilder<T>(name, type)
+    builder.lambda()
+    return Parameter(name, type, builder.buildInitialization(), builder.constraint)
+}

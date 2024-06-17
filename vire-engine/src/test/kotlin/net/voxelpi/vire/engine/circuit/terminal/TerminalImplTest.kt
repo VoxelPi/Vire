@@ -8,7 +8,8 @@ import net.voxelpi.vire.engine.circuit.event.terminal.TerminalDestroyEvent
 import net.voxelpi.vire.engine.circuit.event.terminal.TerminalSelectVariableEvent
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.kernel.variable.createInput
-import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createInputVector
+import net.voxelpi.vire.engine.kernel.variable.createOutputVector
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -67,8 +68,12 @@ class TerminalImplTest {
         environment.eventScope.on<TerminalSelectVariableEvent> { eventCounter++ }
 
         val input1 = createInput("input1")
-        val input2 = createInput("input2", 2)
-        val output = createOutput("output1", 3)
+        val input2 = createInputVector("input2") {
+            size = { 2 }
+        }
+        val output = createOutputVector("output1") {
+            size = { 3 }
+        }
 
         circuit.declareVariable(input1)
         circuit.declareVariable(input2)

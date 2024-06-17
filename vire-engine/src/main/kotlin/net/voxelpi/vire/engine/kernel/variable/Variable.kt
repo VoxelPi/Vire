@@ -39,7 +39,7 @@ public sealed interface ScalarVariable<T> : Variable<T>
 
 public sealed interface VectorVariable<T> : Variable<T> {
 
-    public val size: VectorVariableSize
+    public val size: VectorSizeInitializationContext.() -> Int
 
     public operator fun get(index: Int): VectorVariableElement<T>
 }
@@ -80,35 +80,15 @@ public sealed interface ConstrainedVariable<T> : Variable<T> {
     }
 }
 
-/**
- * The size of a vector variable.
- */
-public sealed interface VectorVariableSize {
+public class VectorSizeInitializationContext internal constructor(
+    private val parameterStateProvider: ParameterStateProvider,
+) : ParameterStateProvider {
 
-    /**
-     * Returns the default size of the vector under the given parameter state.
-     * Note that a dynamic vector size can be changed during the configuration, the returned value in this case is only the default value.
-     */
-    public fun get(state: ParameterStateProvider): Int
+    override val variableProvider: VariableProvider
+        get() = parameterStateProvider.variableProvider
 
-    /**
-     * The size of the vector variable is set to the provided value.
-     *
-     * @param value the size of the vector variable.
-     */
-    public data class Value(val value: Int) : VectorVariableSize {
-
-        override fun get(state: ParameterStateProvider): Int = value
-    }
-
-    /**
-     * The size of the vector variable is set to the value of a parameter during configuration.
-     *
-     * @param parameter the parameter that should be used.
-     */
-    public data class Parameter(val parameter: net.voxelpi.vire.engine.kernel.variable.Parameter<Int>) : VectorVariableSize {
-
-        override fun get(state: ParameterStateProvider): Int = state[parameter]
+    override fun <T> get(parameter: Parameter<T>): T {
+        return parameterStateProvider[parameter]
     }
 }
 

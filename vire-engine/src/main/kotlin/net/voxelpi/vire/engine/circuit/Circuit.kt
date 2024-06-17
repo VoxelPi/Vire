@@ -33,11 +33,9 @@ import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernelImpl
 import net.voxelpi.vire.engine.kernel.variable.IOVariable
-import net.voxelpi.vire.engine.kernel.variable.IOVectorVariable
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSize
 import java.util.UUID
 
 /**
@@ -247,9 +245,9 @@ internal class CircuitImpl(
 
     override fun <V : IOVariable> declareVariable(variable: V): V {
         require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists for this circuit" }
-        if (variable is IOVectorVariable) {
-            require(variable.size is VectorVariableSize.Value) { "Circuits can only have fixed size io vectors" }
-        }
+//        if (variable is IOVectorVariable) { // TODO: Check if needed
+//            require(variable.size is VectorVariableSize.Value) { "Circuits can only have fixed size io vectors" }
+//        }
         variables[variable.name] = variable
         return variable
     }

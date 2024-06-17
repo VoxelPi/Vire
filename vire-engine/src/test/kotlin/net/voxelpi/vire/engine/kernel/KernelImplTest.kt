@@ -2,10 +2,11 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createInput
-import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createOutputVector
 import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.createSetting
-import net.voxelpi.vire.engine.kernel.variable.range
+import net.voxelpi.vire.engine.kernel.variable.inRange
+import net.voxelpi.vire.engine.kernel.variable.inSelection
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertFalse
@@ -15,11 +16,13 @@ class KernelImplTest {
 
     @Test
     fun `create variant`() {
-        val parameter1 = createParameter("parameter_1", { "mode_a" }) {
-            selection("mode_a", "mode_b", "mode_c")
+        val parameter1 = createParameter("parameter_1") {
+            initialization = { "mode_a" }
+            constraint = inSelection("mode_a", "mode_b", "mode_c")
         }
-        val parameter2 = createParameter("parameter_2", { 3.0 }) {
-            range(2.0..3.0)
+        val parameter2 = createParameter("parameter_2") {
+            initialization = { 3.0 }
+            constraint = inRange(2.0..3.0)
         }
 
         val kernel = kernel {
@@ -62,16 +65,24 @@ class KernelImplTest {
 
     @Test
     fun `test variable accessors`() {
-        val parameter1 = createParameter("parameter_1", { "mode_a" }) {
-            selection("mode_a", "mode_b", "mode_c")
+        val parameter1 = createParameter("parameter_1") {
+            initialization = { "mode_a" }
+            constraint = inSelection("mode_a", "mode_b", "mode_c")
         }
-        val parameter2 = createParameter("parameter_2", { 3.0 }) {
-            range(2.0..3.0)
+        val parameter2 = createParameter("parameter_2") {
+            initialization = { 3.0 }
+            constraint = inRange(2.0..3.0)
         }
-        val setting1 = createSetting("setting_1", { 0.0 })
-        val field1 = createField("field_1", initialization = { 0.0 })
+        val setting1 = createSetting<Double>("setting_1") {
+            initialization = { 0.0 }
+        }
+        val field1 = createField<Double>("field_1") {
+            initialization = { 0.0 }
+        }
         val input1 = createInput("input_1")
-        val output1 = createOutput("output_1", 10)
+        val output1 = createOutputVector("output_1") {
+            size = { 10 }
+        }
 
         val kernel = kernel {
             declare(parameter1)

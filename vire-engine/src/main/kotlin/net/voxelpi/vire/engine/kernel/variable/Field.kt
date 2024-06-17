@@ -15,14 +15,10 @@ public data class Field<T> internal constructor(
     public val initialization: FieldInitializationContext.() -> T,
 ) : ScalarVariable<T>, VariantVariable<T>
 
-public interface FieldInitializationContext : VariableProvider, ParameterStateProvider, SettingStateProvider, VectorSizeProvider {
-    public val kernelVariant: KernelVariant
-}
-
-internal class FieldInitializationContextImpl(
+public class FieldInitializationContext internal constructor(
     override val kernelVariant: KernelVariant,
     override val settingStateProvider: SettingStateProvider,
-) : FieldInitializationContext, KernelVariantWrapper, SettingStateProviderWrapper {
+) : VariableProvider, ParameterStateProvider, VectorSizeProvider, KernelVariantWrapper, SettingStateProviderWrapper {
 
     override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
 
@@ -32,23 +28,39 @@ internal class FieldInitializationContextImpl(
         get() = kernelVariant
 }
 
-/**
- * Creates a new field with the given [name] that is initialized to the value provided by [initialization].
- */
-public inline fun <reified T> createField(
-    name: String,
-    noinline initialization: FieldInitializationContext.() -> T,
-): Field<T> {
-    return createField(name, typeOf<T>(), initialization)
+public class FieldBuilder<T> internal constructor(
+    public val name: String,
+    public val type: KType,
+) {
+
+    public lateinit var initialization: FieldInitializationContext.() -> T
+
+    @Suppress("UNCHECKED_CAST")
+    internal fun buildInitialization(): FieldInitializationContext.() -> T {
+        // Check if the initialization has been set.
+        val initialized = ::initialization.isInitialized
+        if (initialized) {
+            return initialization
+        }
+
+        // Return null initialization if the type allows it.
+        if (type.isMarkedNullable) {
+            return {
+                null as T
+            }
+        }
+
+        // Otherwise throw.
+        throw IllegalArgumentException("Missing initialization for field \"$name\"")
+    }
 }
 
-/**
- * Creates a new field with the given [name] that is initialized to the value provided by [initialization].
- */
-public fun <T> createField(
-    name: String,
-    type: KType,
-    initialization: FieldInitializationContext.() -> T,
-): Field<T> {
-    return Field(name, type, initialization)
+public inline fun <reified T> createField(name: String, noinline lambda: FieldBuilder<T>.() -> Unit = {}): Field<T> {
+    return createField(name, typeOf<T>(), lambda)
+}
+
+public fun <T> createField(name: String, type: KType, lambda: FieldBuilder<T>.() -> Unit = {}): Field<T> {
+    val builder = FieldBuilder<T>(name, type)
+    builder.lambda()
+    return Field(name, type, builder.buildInitialization())
 }

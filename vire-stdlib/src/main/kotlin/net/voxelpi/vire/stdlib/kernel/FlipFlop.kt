@@ -18,8 +18,12 @@ import net.voxelpi.vire.engine.kernel.variable.createSetting
 
 public object DFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge") {
+        initialization = { SignalEdge.FALLING_EDGE }
+    }
+    public val clockPrevious: Field<Boolean> = createField("clock_previous") {
+        initialization = { false }
+    }
 
     public val data: InputScalar = createInput("data")
     public val clock: InputScalar = createInput("clock")
@@ -49,8 +53,12 @@ public object DFlipFlop : KernelProvider {
 
 public object TFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge") {
+        initialization = { SignalEdge.FALLING_EDGE }
+    }
+    public val clockPrevious: Field<Boolean> = createField("clock_previous") {
+        initialization = { false }
+    }
 
     public val toggle: InputScalar = createInput("toggle")
     public val clock: InputScalar = createInput("clock")
@@ -82,8 +90,12 @@ public object TFlipFlop : KernelProvider {
 
 public object SRFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge") {
+        initialization = { SignalEdge.FALLING_EDGE }
+    }
+    public val clockPrevious: Field<Boolean> = createField("clock_previous") {
+        initialization = { false }
+    }
 
     public val set: InputScalar = createInput("set")
     public val reset: InputScalar = createInput("reset")
@@ -126,8 +138,12 @@ public object SRFlipFlop : KernelProvider {
 
 public object JKFlipFlop : KernelProvider {
 
-    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge", initialization = { SignalEdge.FALLING_EDGE })
-    public val clockPrevious: Field<Boolean> = createField("clock_previous", initialization = { false })
+    public val clockEdge: Setting<SignalEdge> = createSetting("clock_edge") {
+        initialization = { SignalEdge.FALLING_EDGE }
+    }
+    public val clockPrevious: Field<Boolean> = createField("clock_previous") {
+        initialization = { false }
+    }
 
     public val j: InputScalar = createInput("j")
     public val k: InputScalar = createInput("k")

@@ -8,7 +8,7 @@ public data class InputScalar internal constructor(
 
 public data class InputVector internal constructor(
     override val name: String,
-    override val size: VectorVariableSize,
+    override val size: VectorSizeInitializationContext.() -> Int,
 ) : IOVectorVariable, Input {
 
     override fun get(index: Int): InputVectorElement {
@@ -21,37 +21,25 @@ public data class InputVectorElement internal constructor(
     override val index: Int,
 ) : IOVectorVariableElement, Input
 
-/**
- * Creates a new scalar input variable with the given [name].
- */
-public fun createInput(
-    name: String,
-): InputScalar {
+public class InputScalarBuilder internal constructor(
+    public val name: String,
+)
+
+public class InputVectorBuilder internal constructor(
+    public val name: String,
+) {
+
+    public var size: VectorSizeInitializationContext.() -> Int = { 0 }
+}
+
+public fun createInput(name: String, lambda: InputScalarBuilder.() -> Unit = {}): InputScalar {
+    val builder = InputScalarBuilder(name)
+    builder.lambda()
     return InputScalar(name)
 }
 
-/**
- * Creates a new vector input variable with the given [name] and [size].
- */
-public fun createInput(
-    name: String,
-    size: VectorVariableSize,
-): InputVector {
-    return InputVector(name, size)
+public fun createInputVector(name: String, lambda: InputVectorBuilder.() -> Unit = {}): InputVector {
+    val builder = InputVectorBuilder(name)
+    builder.lambda()
+    return InputVector(name, builder.size)
 }
-
-/**
- * Creates a new vector input variable with the given [name] and default [size].
- */
-public fun createInput(
-    name: String,
-    size: Int,
-): InputVector = createInput(name, VectorVariableSize.Value(size))
-
-/**
- * Creates a new vector input variable with the given [name] using the given [parameter] as default size.
- */
-public fun createInput(
-    name: String,
-    parameter: Parameter<Int>,
-): InputVector = createInput(name, VectorVariableSize.Parameter(parameter))

@@ -34,8 +34,12 @@ public interface CircuitKernel : Kernel {
     public val circuit: Circuit
 
     public companion object {
-        public val CIRCUIT_INSTANCE: Setting<CircuitInstance> = createSetting("__instance__", initialization = { emptyCircuitInstance() })
-        public val CIRCUIT_STATE: Field<CircuitState> = createField("__state__", initialization = { emptyCircuitState() })
+        public val CIRCUIT_INSTANCE: Setting<CircuitInstance> = createSetting("__instance__") {
+            initialization = { emptyCircuitInstance() }
+        }
+        public val CIRCUIT_STATE: Field<CircuitState> = createField("__state__") {
+            initialization = { emptyCircuitState() }
+        }
     }
 }
 

@@ -12,13 +12,13 @@ public sealed interface Output : IOVariable
 
 public data class OutputScalar internal constructor(
     override val name: String,
-    public val initialization: ScalarOutputInitializationContext.() -> LogicState,
+    public val initialization: OutputScalarInitializationContext.() -> LogicState,
 ) : IOScalarVariable, Output
 
 public data class OutputVector internal constructor(
     override val name: String,
-    override val size: VectorVariableSize,
-    public val initialization: VectorOutputElementInitializationContext.() -> LogicState,
+    override val size: VectorSizeInitializationContext.() -> Int,
+    public val initialization: OutputVectorInitializationContext.(index: Int) -> LogicState,
 ) : IOVectorVariable, Output {
 
     override fun get(index: Int): OutputVectorElement {
@@ -31,14 +31,10 @@ public data class OutputVectorElement internal constructor(
     override val index: Int,
 ) : IOVectorVariableElement, Output
 
-public interface ScalarOutputInitializationContext : VariableProvider, ParameterStateProvider, SettingStateProvider, VectorSizeProvider {
-    public val kernelVariant: KernelVariant
-}
-
-internal class ScalarOutputInitializationContextImpl(
+public class OutputScalarInitializationContext internal constructor(
     override val kernelVariant: KernelVariant,
     override val settingStateProvider: SettingStateProvider,
-) : ScalarOutputInitializationContext, KernelVariantWrapper, SettingStateProviderWrapper {
+) : VariableProvider, ParameterStateProvider, SettingStateProviderWrapper, VectorSizeProvider, KernelVariantWrapper {
 
     override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
 
@@ -48,22 +44,10 @@ internal class ScalarOutputInitializationContextImpl(
         get() = kernelVariant
 }
 
-public interface VectorOutputElementInitializationContext :
-    VariableProvider,
-    ParameterStateProvider,
-    SettingStateProvider,
-    VectorSizeProvider {
-
-    public val index: Int
-
-    public val kernelVariant: KernelVariant
-}
-
-internal class VectorOutputElementInitializationContextImpl(
+public class OutputVectorInitializationContext internal constructor(
     override val kernelVariant: KernelVariant,
     override val settingStateProvider: SettingStateProvider,
-    override val index: Int,
-) : VectorOutputElementInitializationContext, KernelVariantWrapper, SettingStateProviderWrapper {
+) : VariableProvider, ParameterStateProvider, SettingStateProviderWrapper, VectorSizeProvider, KernelVariantWrapper {
 
     override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
 
@@ -73,101 +57,30 @@ internal class VectorOutputElementInitializationContextImpl(
         get() = kernelVariant
 }
 
-public interface VectorOutputInitializationContext : VariableProvider, ParameterStateProvider, SettingStateProvider, VectorSizeProvider {
-    public val kernelVariant: KernelVariant
+public class OutputScalarBuilder internal constructor(
+    public val name: String,
+) {
+
+    public var initialization: OutputScalarInitializationContext.() -> LogicState = { LogicState.EMPTY }
 }
 
-internal class VectorOutputInitializationContextImpl(
-    override val kernelVariant: KernelVariant,
-    override val settingStateProvider: SettingStateProvider,
-) : VectorOutputInitializationContext, KernelVariantWrapper, SettingStateProviderWrapper {
+public class OutputVectorBuilder internal constructor(
+    public val name: String,
+) {
 
-    override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
+    public var initialization: OutputVectorInitializationContext.(index: Int) -> LogicState = { LogicState.EMPTY }
 
-    override fun variable(name: String): Variable<*>? = kernelVariant.variable(name)
-
-    override val variableProvider: VariableProvider
-        get() = kernelVariant
-
-    operator fun get(index: Int): VectorOutputElementInitializationContextImpl {
-        return VectorOutputElementInitializationContextImpl(kernelVariant, settingStateProvider, index)
-    }
+    public var size: VectorSizeInitializationContext.() -> Int = { 0 }
 }
 
-/**
- * Creates a new scalar output variable with the given [name] and [initialization].
- */
-public fun createOutput(
-    name: String,
-    initialization: ScalarOutputInitializationContext.() -> LogicState = { LogicState.EMPTY },
-): OutputScalar {
-    return OutputScalar(name, initialization)
+public fun createOutput(name: String, lambda: OutputScalarBuilder.() -> Unit = {}): OutputScalar {
+    val builder = OutputScalarBuilder(name)
+    builder.lambda()
+    return OutputScalar(name, builder.initialization)
 }
 
-/**
- * Creates a new scalar output variable with the given [name] and [initialization].
- */
-public fun createOutput(
-    name: String,
-    initialization: LogicState,
-): OutputScalar {
-    return OutputScalar(name, initialization = { initialization })
+public fun createOutputVector(name: String, lambda: OutputVectorBuilder.() -> Unit = {}): OutputVector {
+    val builder = OutputVectorBuilder(name)
+    builder.lambda()
+    return OutputVector(name, builder.size, builder.initialization)
 }
-
-/**
- * Creates a new vector output variable with the given [name] and [size].
- */
-public fun createOutput(
-    name: String,
-    size: VectorVariableSize,
-    initialization: VectorOutputElementInitializationContext.() -> LogicState = { LogicState.EMPTY },
-): OutputVector {
-    return OutputVector(name, size, initialization)
-}
-
-/**
- * Creates a new vector output variable with the given [name] and [size].
- */
-public fun createOutput(
-    name: String,
-    size: VectorVariableSize,
-    initialization: LogicState,
-): OutputVector {
-    return OutputVector(name, size, initialization = { initialization })
-}
-
-/**
- * Creates a new vector output variable with the given [name] and default [size].
- */
-public fun createOutput(
-    name: String,
-    size: Int,
-    initialization: VectorOutputElementInitializationContext.() -> LogicState = { LogicState.EMPTY },
-): OutputVector = createOutput(name, VectorVariableSize.Value(size), initialization)
-
-/**
- * Creates a new vector output variable with the given [name] and default [size].
- */
-public fun createOutput(
-    name: String,
-    size: Int,
-    initialization: LogicState,
-): OutputVector = createOutput(name, VectorVariableSize.Value(size), initialization)
-
-/**
- * Creates a new vector output variable with the given [name] using the given [parameter] as default size.
- */
-public fun createOutput(
-    name: String,
-    parameter: Parameter<Int>,
-    initialization: VectorOutputElementInitializationContext.() -> LogicState = { LogicState.EMPTY },
-): OutputVector = createOutput(name, VectorVariableSize.Parameter(parameter), initialization)
-
-/**
- * Creates a new vector output variable with the given [name] using the given [parameter] as default size.
- */
-public fun createOutput(
-    name: String,
-    parameter: Parameter<Int>,
-    initialization: LogicState,
-): OutputVector = createOutput(name, VectorVariableSize.Parameter(parameter), initialization)

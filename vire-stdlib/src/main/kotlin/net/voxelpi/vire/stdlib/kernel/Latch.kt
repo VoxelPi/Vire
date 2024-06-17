@@ -16,10 +16,9 @@ import net.voxelpi.vire.engine.kernel.variable.createSetting
 
 public object DLatch : KernelProvider {
 
-    public val gateActivation: Setting<SignalActivation> = createSetting(
-        "gate_activation",
-        initialization = { SignalActivation.ACTIVE_LOW },
-    )
+    public val gateActivation: Setting<SignalActivation> = createSetting("gate_activation") {
+        initialization = { SignalActivation.ACTIVE_LOW }
+    }
     public val gate: InputScalar = createInput("gate")
 
     public val data: InputScalar = createInput("data")
@@ -42,10 +41,9 @@ public object DLatch : KernelProvider {
 
 public object SRLatch : KernelProvider {
 
-    public val gateActivation: Setting<SignalActivation> = createSetting(
-        "gate_activation",
-        initialization = { SignalActivation.ACTIVE_LOW },
-    )
+    public val gateActivation: Setting<SignalActivation> = createSetting("gate_activation") {
+        initialization = { SignalActivation.ACTIVE_LOW }
+    }
     public val gate: InputScalar = createInput("gate")
 
     public val set: InputScalar = createInput("set")
@@ -84,10 +82,9 @@ public object SRLatch : KernelProvider {
 
 public object JKLatch : KernelProvider {
 
-    public val gateActivation: Setting<SignalActivation> = createSetting(
-        "gate_activation",
-        initialization = { SignalActivation.ACTIVE_LOW },
-    )
+    public val gateActivation: Setting<SignalActivation> = createSetting("gate_activation") {
+        initialization = { SignalActivation.ACTIVE_LOW }
+    }
     public val gate: InputScalar = createInput("gate")
 
     public val j: InputScalar = createInput("j")

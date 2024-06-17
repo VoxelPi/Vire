@@ -14,13 +14,9 @@ public data class Setting<T> internal constructor(
     override val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T>, VariantVariable<T>, ConstrainedVariable<T>
 
-public interface SettingInitializationContext : VariableProvider, ParameterStateProvider, VectorSizeProvider {
-    public val kernelVariant: KernelVariant
-}
-
-internal class SettingInitializationContextImpl(
-    override val kernelVariant: KernelVariant,
-) : SettingInitializationContext, KernelVariantWrapper {
+public class SettingInitializationContext internal constructor(
+    public override val kernelVariant: KernelVariant,
+) : VariableProvider, ParameterStateProvider, VectorSizeProvider, KernelVariantWrapper {
 
     override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
 
@@ -30,42 +26,41 @@ internal class SettingInitializationContextImpl(
         get() = kernelVariant
 }
 
-/**
- * Creates a new setting with the given [name], [initialization] and [constraint].
- */
-public inline fun <reified T> createSetting(
-    name: String,
-    noinline initialization: SettingInitializationContext.() -> T,
-    constraint: VariableConstraint<T> = VariableConstraint.Always,
-): Setting<T> = createSetting(name, typeOf<T>(), initialization, constraint)
+public class SettingBuilder<T> internal constructor(
+    public val name: String,
+    public val type: KType,
+) {
 
-/**
- * Creates a new setting with the given [name], [initialization] and [constraintBuilder].
- * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
- */
-public inline fun <reified T> createSetting(
-    name: String,
-    noinline initialization: SettingInitializationContext.() -> T,
-    noinline constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
-): Setting<T> = createSetting(name, typeOf<T>(), initialization, constraintBuilder)
+    public lateinit var initialization: SettingInitializationContext.() -> T
 
-/**
- * Creates a new setting with the given [name], [type], [initialization] and [constraint].
- */
-public fun <T> createSetting(
-    name: String,
-    type: KType,
-    initialization: SettingInitializationContext.() -> T,
-    constraint: VariableConstraint<T> = VariableConstraint.Always,
-): Setting<T> = Setting(name, type, initialization, constraint)
+    public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
-/**
- * Creates a new setting with the given [name], [type], [initialization] and [constraintBuilder].
- * The [constraintBuilder] is used to create an all-constrained, that means a value must be valid for all the defined constrains.
- */
-public fun <T> createSetting(
-    name: String,
-    type: KType,
-    initialization: SettingInitializationContext.() -> T,
-    constraintBuilder: AllVariableConstraintBuilder<T>.() -> Unit,
-): Setting<T> = Setting(name, type, initialization, AllVariableConstraintBuilder<T>().apply(constraintBuilder).build())
+    @Suppress("UNCHECKED_CAST")
+    internal fun buildInitialization(): SettingInitializationContext.() -> T {
+        // Check if the initialization has been set.
+        val initialized = ::initialization.isInitialized
+        if (initialized) {
+            return initialization
+        }
+
+        // Return null initialization if the type allows it.
+        if (type.isMarkedNullable) {
+            return {
+                null as T
+            }
+        }
+
+        // Otherwise throw.
+        throw IllegalArgumentException("Missing initialization for setting \"$name\"")
+    }
+}
+
+public inline fun <reified T> createSetting(name: String, noinline lambda: SettingBuilder<T>.() -> Unit = {}): Setting<T> {
+    return createSetting(name, typeOf<T>(), lambda)
+}
+
+public fun <T> createSetting(name: String, type: KType, lambda: SettingBuilder<T>.() -> Unit = {}): Setting<T> {
+    val builder = SettingBuilder<T>(name, type)
+    builder.lambda()
+    return Setting(name, type, builder.buildInitialization(), builder.constraint)
+}

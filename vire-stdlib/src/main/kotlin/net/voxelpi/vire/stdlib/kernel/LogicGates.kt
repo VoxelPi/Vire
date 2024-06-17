@@ -9,10 +9,11 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.atLeast
 import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createInputVector
 import net.voxelpi.vire.engine.kernel.variable.createOutput
 import net.voxelpi.vire.engine.kernel.variable.createParameter
-import net.voxelpi.vire.engine.kernel.variable.min
 
 public object BufferGate : KernelProvider {
     public val input: InputScalar = createInput("input")
@@ -43,10 +44,13 @@ public object NotGate : KernelProvider {
 }
 
 public object AndGate : KernelProvider {
-    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
-        min(2)
+    public val inputSize: Parameter<Int> = createParameter("input_count") {
+        initialization = { 2 }
+        constraint = atLeast(2)
     }
-    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val inputs: InputVector = createInputVector("inputs") {
+        size = { this[inputSize] }
+    }
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
@@ -61,10 +65,13 @@ public object AndGate : KernelProvider {
 }
 
 public object OrGate : KernelProvider {
-    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
-        min(2)
+    public val inputSize: Parameter<Int> = createParameter("input_count") {
+        initialization = { 2 }
+        constraint = atLeast(2)
     }
-    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val inputs: InputVector = createInputVector("inputs") {
+        size = { this[inputSize] }
+    }
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
@@ -79,10 +86,13 @@ public object OrGate : KernelProvider {
 }
 
 public object XorGate : KernelProvider {
-    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
-        min(2)
+    public val inputSize: Parameter<Int> = createParameter("input_count") {
+        initialization = { 2 }
+        constraint = atLeast(2)
     }
-    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val inputs: InputVector = createInputVector("inputs") {
+        size = { this[inputSize] }
+    }
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
@@ -97,10 +107,13 @@ public object XorGate : KernelProvider {
 }
 
 public object NandGate : KernelProvider {
-    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
-        min(2)
+    public val inputSize: Parameter<Int> = createParameter("input_count") {
+        initialization = { 2 }
+        constraint = atLeast(2)
     }
-    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val inputs: InputVector = createInputVector("inputs") {
+        size = { this[inputSize] }
+    }
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
@@ -115,10 +128,13 @@ public object NandGate : KernelProvider {
 }
 
 public object NorGate : KernelProvider {
-    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
-        min(2)
+    public val inputSize: Parameter<Int> = createParameter("input_count") {
+        initialization = { 2 }
+        constraint = atLeast(2)
     }
-    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val inputs: InputVector = createInputVector("inputs") {
+        size = { this[inputSize] }
+    }
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
@@ -133,10 +149,13 @@ public object NorGate : KernelProvider {
 }
 
 public object XnorGate : KernelProvider {
-    public val inputSize: Parameter<Int> = createParameter("input_count", initialization = { 2 }) {
-        min(2)
+    public val inputSize: Parameter<Int> = createParameter("input_count") {
+        initialization = { 2 }
+        constraint = atLeast(2)
     }
-    public val inputs: InputVector = createInput("inputs", inputSize)
+    public val inputs: InputVector = createInputVector("inputs") {
+        size = { this[inputSize] }
+    }
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
