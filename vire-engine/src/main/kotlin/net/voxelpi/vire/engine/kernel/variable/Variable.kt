@@ -35,19 +35,42 @@ public sealed interface Variable<T> {
     }
 }
 
+/**
+ * A scalar variable.
+ */
 public sealed interface ScalarVariable<T> : Variable<T>
 
+/**
+ * A vector variable.
+ * Represents a vector of variables of the same type, which size is set during the configuration phase of a kernel.
+ */
 public sealed interface VectorVariable<T> : Variable<T> {
 
+    /**
+     * The initial size of the vector.
+     * Note that the size of a vector variable can be set to a different value during the configuration of a kernel.
+     */
     public val size: VectorSizeInitializationContext.() -> Int
 
+    /**
+     * Getter for the element at index [index] in the vector.
+     */
     public operator fun get(index: Int): VectorVariableElement<T>
 }
 
+/**
+ * An element of a vector variable.
+ */
 public sealed interface VectorVariableElement<T> : Variable<T> {
 
+    /**
+     * The vector variable to which this element belongs.
+     */
     public val vector: VectorVariable<T>
 
+    /**
+     * The index of the element in the vector.
+     */
     public val index: Int
 
     override val name: String
@@ -57,8 +80,15 @@ public sealed interface VectorVariableElement<T> : Variable<T> {
         get() = vector.type
 }
 
+/**
+ * A variable that has a [VariableConstraint] for its value.
+ * The variable only accepts values that fulfil the constraint.
+ */
 public sealed interface ConstrainedVariable<T> : Variable<T> {
 
+    /**
+     * The constrained for the value of the variable.
+     */
     public val constraint: VariableConstraint<T>
 
     /**
@@ -80,6 +110,9 @@ public sealed interface ConstrainedVariable<T> : Variable<T> {
     }
 }
 
+/**
+ * The initialization context for the size of a vector variable.
+ */
 public class VectorSizeInitializationContext internal constructor(
     private val parameterStateProvider: ParameterStateProvider,
 ) : ParameterStateProvider {

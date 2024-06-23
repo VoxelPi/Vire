@@ -7,6 +7,10 @@ import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
+/**
+ * A kernel setting, they allow the configuration of non-fundamental properties of a kernel, like implementation behavior.
+ * The value of a setting can only be set during the creation of a kernel instance and remains immutable after that.
+ */
 public data class Setting<T> internal constructor(
     override val name: String,
     override val type: KType,
@@ -14,6 +18,9 @@ public data class Setting<T> internal constructor(
     override val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T>, VariantVariable<T>, ConstrainedVariable<T>
 
+/**
+ * The initialization context of a kernel setting.
+ */
 public class SettingInitializationContext internal constructor(
     public override val kernelVariant: KernelVariant,
 ) : VariableProvider, ParameterStateProvider, VectorSizeProvider, KernelVariantWrapper {
@@ -26,13 +33,26 @@ public class SettingInitializationContext internal constructor(
         get() = kernelVariant
 }
 
+/**
+ * A builder for a kernel setting.
+ *
+ * @property name The name of the setting.
+ * @property type The type of the setting.
+ */
 public class SettingBuilder<T> internal constructor(
     public val name: String,
     public val type: KType,
 ) {
 
+    /**
+     * The initialization of the setting.
+     */
     public lateinit var initialization: SettingInitializationContext.() -> T
 
+    /**
+     * The constraint of the setting.
+     * The default value is [VariableConstraint.Always].
+     */
     public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
     @Suppress("UNCHECKED_CAST")
@@ -55,10 +75,16 @@ public class SettingBuilder<T> internal constructor(
     }
 }
 
+/**
+ * Creates a new setting with the given [name] and type [T] using the given [lambda].
+ */
 public inline fun <reified T> createSetting(name: String, noinline lambda: SettingBuilder<T>.() -> Unit = {}): Setting<T> {
     return createSetting(name, typeOf<T>(), lambda)
 }
 
+/**
+ * Creates a new setting with the given [name] and [type] using the given [lambda].
+ */
 public fun <T> createSetting(name: String, type: KType, lambda: SettingBuilder<T>.() -> Unit = {}): Setting<T> {
     val builder = SettingBuilder<T>(name, type)
     builder.lambda()
