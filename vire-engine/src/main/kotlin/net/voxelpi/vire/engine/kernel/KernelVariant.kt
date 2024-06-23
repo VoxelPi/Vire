@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContext
-import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
@@ -155,7 +154,7 @@ internal class KernelVariantImpl(
     }
 
     override fun settingInitializationContext(): SettingInitializationContext {
-        return SettingInitializationContextImpl(this)
+        return SettingInitializationContext(this)
     }
 
     override fun equals(other: Any?): Boolean {

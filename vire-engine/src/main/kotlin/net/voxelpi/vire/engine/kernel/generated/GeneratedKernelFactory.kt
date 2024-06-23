@@ -42,17 +42,21 @@ import net.voxelpi.vire.engine.kernel.generated.declaration.SettingDeclaration
 import net.voxelpi.vire.engine.kernel.generated.size.ConstantSize
 import net.voxelpi.vire.engine.kernel.generated.size.ParametricSize
 import net.voxelpi.vire.engine.kernel.kernel
-import net.voxelpi.vire.engine.kernel.variable.AllVariableConstraintBuilder
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSize
+import net.voxelpi.vire.engine.kernel.variable.VariableConstraint
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
+import net.voxelpi.vire.engine.kernel.variable.allOf
+import net.voxelpi.vire.engine.kernel.variable.atLeast
+import net.voxelpi.vire.engine.kernel.variable.atMost
 import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createInputVector
 import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createOutputVector
 import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.createSetting
-import net.voxelpi.vire.engine.kernel.variable.max
-import net.voxelpi.vire.engine.kernel.variable.min
-import net.voxelpi.vire.engine.kernel.variable.range
+import net.voxelpi.vire.engine.kernel.variable.inRange
+import net.voxelpi.vire.engine.kernel.variable.inSelection
 import net.voxelpi.vire.engine.util.partition
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -126,21 +130,27 @@ internal object CustomKernelFactory {
         }.toMap()
 
         // Create a field for the instance of the class.
-        val instanceField = createField(GeneratedKernel.INSTANCE_FIELD_NAME, initialization = { type.createInstance() })
+        val instanceField = createField(GeneratedKernel.INSTANCE_FIELD_NAME) {
+            initialization = { type.createInstance() }
+        }
 
         val parameters = parameterProperties.map { (name, property) ->
             // Get the initialization of the parameter.
             val initialization = parameterInitializations[name]
 
             // Create the parameter.
-            createParameter(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
+            createParameter<Any?>(name, property.returnType) {
+                this.initialization = { initialization }
+                constraint = buildConstraints(property) as VariableConstraint<Any?>
+            }
         }
 
         // Collect vector sizes
         val vectorInputSizes = vectorInputProperties.map { (name, property) ->
             if (property.isLateinit) {
                 property.findAnnotation<ConstantSize>()?.let { constantSize ->
-                    return@map name to VectorVariableSize.Value(constantSize.size)
+                    val init: VectorSizeInitializationContext.() -> Int = { constantSize.size }
+                    return@map name to init
                 }
                 property.findAnnotation<ParametricSize>()?.let { parametricSize ->
                     val parameterName = parametricSize.parameter
@@ -149,17 +159,20 @@ internal object CustomKernelFactory {
                     require(parameter.type.isSubtypeOf(typeOf<Int>())) {
                         "Invalid parameter type used for size of input '${property.name}'"
                     }
-                    return@map name to VectorVariableSize.Parameter(parameter as Parameter<Int>)
+                    val init: VectorSizeInitializationContext.() -> Int = { this[parameter as Parameter<Int>] }
+                    return@map name to init
                 }
                 throw IllegalStateException("No vector size specified for input ${property.name}")
             } else {
-                property.name to VectorVariableSize.Value((property.get(initializationInstance) as Array<*>).size)
+                val init: VectorSizeInitializationContext.() -> Int = { (property.get(initializationInstance) as Array<*>).size }
+                property.name to init
             }
         }.toMap()
         val vectorOutputSizes = vectorOutputProperties.map { (name, property) ->
             if (property.isLateinit) {
                 property.findAnnotation<ConstantSize>()?.let { constantSize ->
-                    return@map name to VectorVariableSize.Value(constantSize.size)
+                    val init: VectorSizeInitializationContext.() -> Int = { constantSize.size }
+                    return@map name to init
                 }
                 property.findAnnotation<ParametricSize>()?.let { parametricSize ->
                     val parameterName = parametricSize.parameter
@@ -168,11 +181,13 @@ internal object CustomKernelFactory {
                     require(parameter.type.isSubtypeOf(typeOf<Int>())) {
                         "Invalid parameter type used for size of output '${property.name}'"
                     }
-                    return@map name to VectorVariableSize.Parameter(parameter as Parameter<Int>)
+                    val init: VectorSizeInitializationContext.() -> Int = { this[parameter as Parameter<Int>] }
+                    return@map name to init
                 }
                 throw IllegalStateException("No vector size specified for output ${property.name}")
             } else {
-                property.name to VectorVariableSize.Value((property.get(initializationInstance) as Array<*>).size)
+                val init: VectorSizeInitializationContext.() -> Int = { (property.get(initializationInstance) as Array<*>).size }
+                property.name to init
             }
         }.toMap()
 
@@ -181,14 +196,19 @@ internal object CustomKernelFactory {
             val initialization = settingInitializations[name]
 
             // Create the setting.
-            createSetting(name, property.returnType, initialization = { initialization }) { buildConstraints(property, this) }
+            createSetting<Any?>(name, property.returnType) {
+                this.initialization = { initialization }
+                this.constraint = buildConstraints(property) as VariableConstraint<Any?>
+            }
         }
         val fields = fieldProperties.map { (name, property) ->
             // Get the initialization of the parameter.
             val initialization = fieldInitializations[name]
 
             // Create the field.
-            createField(name, property.returnType, initialization = { initialization })
+            createField<Any?>(name, property.returnType) {
+                this.initialization = { initialization }
+            }
         }
         val scalarInputs = scalarInputProperties.map { (name, _) ->
             // Create the scalar input.
@@ -199,11 +219,15 @@ internal object CustomKernelFactory {
             val size = vectorInputSizes[name]!!
 
             // Create the vector input.
-            createInput(name, size)
+            createInputVector(name) {
+                this.size = size
+            }
         }
         val scalarOutputs = scalarOutputProperties.map { (name, _) ->
             // Create the scalar output.
-            createOutput(name, scalarOutputInitializations[name]!!)
+            createOutput(name) {
+                initialization = { scalarOutputInitializations[name]!! }
+            }
         }
         val vectorOutputs = vectorOutputProperties.map { (name, _) ->
             // Get the size of the input vector.
@@ -213,7 +237,10 @@ internal object CustomKernelFactory {
             val initialization = vectorOutputInitializations[name]
 
             // Create the vector input.
-            createOutput(name, size, initialization = { initialization?.get(index) ?: LogicState.EMPTY })
+            createOutputVector(name) {
+                this.size = size
+                this.initialization = { index -> initialization?.get(index) ?: LogicState.EMPTY }
+            }
         }
 
         return kernel {
@@ -358,124 +385,126 @@ internal object CustomKernelFactory {
             .associateBy { naming(it.findAnnotation<A>()!!).ifEmpty { it.name } }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun buildConstraints(property: KProperty1<GeneratedKernel, *>, builder: AllVariableConstraintBuilder<Any?>) {
+    private fun buildConstraints(property: KProperty1<GeneratedKernel, *>): VariableConstraint<*> {
+        val constraints = mutableListOf<VariableConstraint<*>>()
         when {
             property.returnType.isSubtypeOf(typeOf<String>()) -> {
                 property.findAnnotation<StringSelection>()?.let {
-                    builder.selection(it.values)
+                    constraints += inSelection(it.values)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<Byte>()) -> {
                 property.findAnnotation<ByteMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<Byte>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<ByteMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<Byte>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<ByteInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<Byte>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<UByte>()) -> {
                 property.findAnnotation<UByteMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<UByte>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<UByteMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<UByte>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<UByteInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<UByte>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<Short>()) -> {
                 property.findAnnotation<ShortMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<Short>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<ShortMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<Short>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<ShortInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<Short>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<UShort>()) -> {
                 property.findAnnotation<UShortMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<UShort>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<UShortMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<UShort>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<UShortInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<UShort>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<Int>()) -> {
                 property.findAnnotation<IntMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<Int>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<IntMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<Int>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<IntInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<Int>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<UInt>()) -> {
                 property.findAnnotation<UIntMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<UInt>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<UIntMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<UInt>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<UIntInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<UInt>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<Long>()) -> {
                 property.findAnnotation<LongMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<Long>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<LongMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<Long>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<LongInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<Long>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<ULong>()) -> {
                 property.findAnnotation<ULongMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<ULong>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<ULongMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<ULong>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<ULongInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<ULong>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<Float>()) -> {
                 property.findAnnotation<FloatMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<Float>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<FloatMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<Float>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<FloatInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<Float>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
             property.returnType.isSubtypeOf(typeOf<Double>()) -> {
                 property.findAnnotation<DoubleMin>()?.let {
-                    (builder as AllVariableConstraintBuilder<Double>).min(it.min)
+                    constraints += atLeast(it.min)
                 }
                 property.findAnnotation<DoubleMax>()?.let {
-                    (builder as AllVariableConstraintBuilder<Double>).max(it.max)
+                    constraints += atMost(it.max)
                 }
                 property.findAnnotation<DoubleInterval>()?.let {
-                    (builder as AllVariableConstraintBuilder<Double>).range(it.min, it.max)
+                    constraints += inRange(it.min, it.max)
                 }
             }
         }
+
+        return allOf(*constraints.toTypedArray())
     }
 }

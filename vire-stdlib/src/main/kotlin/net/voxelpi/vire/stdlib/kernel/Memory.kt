@@ -10,23 +10,27 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.atLeast
 import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createInput
 import net.voxelpi.vire.engine.kernel.variable.createOutput
 import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.createSetting
-import net.voxelpi.vire.engine.kernel.variable.min
-import net.voxelpi.vire.engine.kernel.variable.range
+import net.voxelpi.vire.engine.kernel.variable.inRange
 
 public object Memory : KernelProvider {
 
-    public val readOnly: Parameter<Boolean> = createParameter("read_only", initialization = { true })
-
-    public val addressBits: Setting<Int> = createSetting("address_bits", initialization = { 8 }) {
-        range(1..31)
+    public val readOnly: Parameter<Boolean> = createParameter("read_only") {
+        initialization = { true }
     }
-    public val wordSize: Setting<Int> = createSetting("word_size", initialization = { 8 }) {
-        min(1)
+
+    public val addressBits: Setting<Int> = createSetting("address_bits") {
+        initialization = { 8 }
+        constraint = inRange(1..31)
+    }
+    public val wordSize: Setting<Int> = createSetting("word_size") {
+        initialization = { 8 }
+        constraint = atLeast(1)
     }
 
     public val readActive: InputScalar = createInput("read_active")
@@ -36,7 +40,11 @@ public object Memory : KernelProvider {
     public val writeAddress: InputScalar = createInput("write_address")
     public val writeValue: InputScalar = createInput("write_value")
 
-    public val memory: Field<Array<BooleanState>> = createField("memory", initialization = { emptyArray() })
+//    public val memory: Field<Array<BooleanState>> = createField("memory", initialization = { emptyArray() })
+
+    public val memory: Field<Array<BooleanState>> = createField("memory") {
+        initialization = { emptyArray() }
+    }
 
     override val kernel: Kernel = kernel {
         declare(memory)

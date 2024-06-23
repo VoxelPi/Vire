@@ -3,11 +3,11 @@ package net.voxelpi.vire.engine.kernel.variable.storage
 import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
+import net.voxelpi.vire.engine.kernel.variable.OutputScalarInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
-import net.voxelpi.vire.engine.kernel.variable.ScalarOutputInitializationContextImpl
+import net.voxelpi.vire.engine.kernel.variable.OutputVectorInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.VectorOutputInitializationContextImpl
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
@@ -144,8 +144,8 @@ internal fun generateInitialOutputStateStorage(
     kernelVariant: KernelVariantImpl,
     settingStateProvider: SettingStateProvider,
 ): MutableOutputStateStorage {
-    val scalarInitializationContext = ScalarOutputInitializationContextImpl(kernelVariant, settingStateProvider)
-    val vectorInitializationContext = VectorOutputInitializationContextImpl(kernelVariant, settingStateProvider)
+    val scalarInitializationContext = OutputScalarInitializationContext(kernelVariant, settingStateProvider)
+    val vectorInitializationContext = OutputVectorInitializationContext(kernelVariant, settingStateProvider)
     val outputStateStorage = mutableOutputStateStorage(
         kernelVariant,
         kernelVariant.outputs().associate { output ->
@@ -157,7 +157,7 @@ internal fun generateInitialOutputStateStorage(
                 }
                 is OutputVector -> {
                     output.name to Array(kernelVariant.size(output)) { index ->
-                        output.initialization(vectorInitializationContext[index])
+                        output.initialization(vectorInitializationContext, index)
                     }
                 }
                 is OutputVectorElement -> {

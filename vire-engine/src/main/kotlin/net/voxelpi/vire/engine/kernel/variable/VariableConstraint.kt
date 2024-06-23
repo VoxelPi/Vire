@@ -115,129 +115,81 @@ public interface VariableConstraint<in T> {
     }
 }
 
-public abstract class VariableConstraintBuilder<T> internal constructor() {
-
-    protected val constraints: MutableList<VariableConstraint<T>> = mutableListOf()
-
-    /**
-     * Adds the given [constraint].
-     */
-    public fun <S : VariableConstraint<T>> add(constraint: S): S {
-        constraints += constraint
-        return constraint
-    }
-
-    /**
-     * Creates a new predicate-constraint with the given [predicate].
-     */
-    public fun predicate(
-        predicate: (value: T) -> Boolean,
-    ): VariableConstraint.Predicate<T> = add(VariableConstraint.Predicate(predicate))
-
-    /**
-     * Creates a new selection-constraint with the given [possibleValues].
-     */
-    public fun selection(
-        possibleValues: Collection<T>,
-    ): VariableConstraint.Selection<T> = add(VariableConstraint.Selection(possibleValues))
-
-    /**
-     * Creates a new selection-constraint with the given [possibleValues].
-     */
-    public fun selection(
-        vararg possibleValues: T,
-    ): VariableConstraint.Selection<T> = add(VariableConstraint.Selection(possibleValues.toList()))
-
-    /**
-     * Creates a new any-constraint with the given [lambda] for the constraint builder.
-     * To minimize the number of constraints, the constraint is flattened if possible.
-     * That means that if no constraints are defined by the lambda, a [VariableConstraint.Never] is returned and
-     * if only one constrained is defined, this constrained is returned directly.
-     * Otherwise, a [VariableConstraint.Any] is created with all the defined constraints.
-     */
-    public fun any(
-        lambda: AnyVariableConstraintBuilder<T>.() -> Unit,
-    ): VariableConstraint<T> = add(AnyVariableConstraintBuilder<T>().apply(lambda).build())
-
-    /**
-     * Creates a new all-constraint with the given [lambda] for the constraint builder.
-     * To minimize the number of constraints, the constraint is flattened if possible.
-     * That means that if no constraints are defined by the lambda, a [VariableConstraint.Always] is returned and
-     * if only one constrained is defined, this constrained is returned directly.
-     * Otherwise, a [VariableConstraint.All] is created with all the defined constraints.
-     */
-    public fun all(
-        lambda: AllVariableConstraintBuilder<T>.() -> Unit,
-    ): VariableConstraint<T> = add(AllVariableConstraintBuilder<T>().apply(lambda).build())
+/**
+ * Creates a new predicate-constraint with the given [lambda].
+ */
+public fun <T> predicate(lambda: (value: T) -> Boolean): VariableConstraint.Predicate<T> {
+    return VariableConstraint.Predicate(lambda)
 }
 
 /**
- * Builds a single constraint that requires a value to be valid for any of the defined sub constraints.
+ * Creates a new selection-constraint with the given [possibleValues].
+ */
+public fun <T> inSelection(possibleValues: Collection<T>): VariableConstraint.Selection<T> {
+    return VariableConstraint.Selection(possibleValues)
+}
+
+/**
+ * Creates a new selection-constraint with the given [possibleValues].
+ */
+public fun <T> inSelection(vararg possibleValues: T): VariableConstraint.Selection<T> {
+    return VariableConstraint.Selection(possibleValues.toList())
+}
+
+/**
+ * Creates a new any-constraint with the given [constraints].
  * To minimize the number of constraints, the constraint is flattened if possible.
  * That means that if no constraints are defined by the lambda, a [VariableConstraint.Never] is returned and
  * if only one constrained is defined, this constrained is returned directly.
  * Otherwise, a [VariableConstraint.Any] is created with all the defined constraints.
  */
-public class AnyVariableConstraintBuilder<T> : VariableConstraintBuilder<T>() {
-
-    /**
-     * Builds the constraint.
-     */
-    internal fun build(): VariableConstraint<T> {
-        return when (constraints.size) {
-            0 -> VariableConstraint.Never
-            1 -> constraints.first()
-            else -> VariableConstraint.Any(constraints)
-        }
+public fun <T> anyOf(vararg constraints: VariableConstraint<T>): VariableConstraint<T> {
+    return when (constraints.size) {
+        0 -> VariableConstraint.Never
+        1 -> constraints.first()
+        else -> VariableConstraint.Any(constraints.toList())
     }
 }
 
 /**
- * Builds a single constraint that requires a value to be valid for all defined sub constraints.
+ * Creates a new all-constraint with the given [constraints].
  * To minimize the number of constraints, the constraint is flattened if possible.
  * That means that if no constraints are defined by the lambda, a [VariableConstraint.Always] is returned and
  * if only one constrained is defined, this constrained is returned directly.
  * Otherwise, a [VariableConstraint.All] is created with all the defined constraints.
  */
-public class AllVariableConstraintBuilder<T> : VariableConstraintBuilder<T>() {
-
-    /**
-     * Builds the constraint.
-     */
-    internal fun build(): VariableConstraint<T> {
-        return when (constraints.size) {
-            0 -> VariableConstraint.Always
-            1 -> constraints.first()
-            else -> VariableConstraint.All(constraints)
-        }
+public fun <T> allOf(vararg constraints: VariableConstraint<T>): VariableConstraint<T> {
+    return when (constraints.size) {
+        0 -> VariableConstraint.Always
+        1 -> constraints.first()
+        else -> VariableConstraint.All(constraints.toList())
     }
 }
 
 /**
  * Creates a new min-constraint with the given [min] value.
  */
-public fun <T : Comparable<T>> VariableConstraintBuilder<T>.min(
-    min: T,
-): VariableConstraint.Min<T> = add(VariableConstraint.Min(min))
+public fun <T : Comparable<T>> atLeast(min: T): VariableConstraint.Min<T> {
+    return VariableConstraint.Min(min)
+}
 
 /**
  * Creates a new max-constraint with the given [max] value.
  */
-public fun <T : Comparable<T>> VariableConstraintBuilder<T>.max(
-    max: T,
-): VariableConstraint.Max<T> = add(VariableConstraint.Max(max))
+public fun <T : Comparable<T>> atMost(max: T): VariableConstraint.Max<T> {
+    return VariableConstraint.Max(max)
+}
 
 /**
  * Creates a new max-constraint with the given [max] value.
  */
-public fun <T : Comparable<T>> VariableConstraintBuilder<T>.range(
-    min: T,
-    max: T,
-): VariableConstraint.Range<T> = add(VariableConstraint.Range(min, max))
+public fun <T : Comparable<T>> inRange(min: T, max: T): VariableConstraint.Range<T> {
+    return VariableConstraint.Range(min, max)
+}
 
 /**
  * Creates a new range constraint with the given [min] and [max] values.
  */
-public fun <T : Comparable<T>> VariableConstraintBuilder<T>.range(
-    range: ClosedRange<T>,
-): VariableConstraint.Range<T> = add(VariableConstraint.Range(range.start, range.endInclusive))
+public fun <T : Comparable<T>> inRange(range: ClosedRange<T>): VariableConstraint.Range<T> {
+    return VariableConstraint.Range(range.start, range.endInclusive)
+}

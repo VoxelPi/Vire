@@ -12,8 +12,12 @@ import net.voxelpi.vire.engine.kernel.variable.createOutput
 import net.voxelpi.vire.engine.kernel.variable.createSetting
 
 public object Output : KernelProvider {
-    public val value: Setting<LogicState> = createSetting("value", initialization = { LogicState.EMPTY })
-    public val output: OutputScalar = createOutput("output") { this[value] }
+    public val value: Setting<LogicState> = createSetting("value") {
+        initialization = { LogicState.EMPTY }
+    }
+    public val output: OutputScalar = createOutput("output") {
+        initialization = { this[value] }
+    }
 
     override val kernel: Kernel = kernel {
         declare(value)

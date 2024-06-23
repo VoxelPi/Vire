@@ -24,8 +24,12 @@ class ComponentImplTest {
 
     @Test
     fun `create component`() {
-        val setting1 = createSetting("setting_1", initialization = { 3 })
-        val field1 = createField("field_1", initialization = { 24 })
+        val setting1 = createSetting<Int>("setting_1") {
+            initialization = { 3 }
+        }
+        val field1 = createField<Int>("field_1") {
+            initialization = { 24 }
+        }
 
         val kernel = kernel {
             declare(setting1)

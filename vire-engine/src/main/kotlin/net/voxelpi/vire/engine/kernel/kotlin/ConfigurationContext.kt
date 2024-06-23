@@ -7,6 +7,7 @@ import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
@@ -52,10 +53,12 @@ internal class ConfigurationContextImpl(
         return variables[name]
     }
 
+    private val vectorSizeInitializationContext = VectorSizeInitializationContext(parameterStateProvider)
+
     override val vectorSizeStorage: MutableVectorSizeStorage = MutableVectorSizeStorage(
         this,
         kernel.vectorVariables()
-            .associate { it.name to it.size.get(this) }
+            .associate { it.name to it.size(vectorSizeInitializationContext) }
             .toMutableMap(),
     )
 
@@ -66,7 +69,7 @@ internal class ConfigurationContextImpl(
         require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists" }
         variables[variable.name] = variable
         if (variable is VectorVariable<*>) {
-            vectorSizeStorage.resize(variable, variable.size.get(this))
+            vectorSizeStorage.resize(variable, variable.size(vectorSizeInitializationContext))
         }
         return variable
     }

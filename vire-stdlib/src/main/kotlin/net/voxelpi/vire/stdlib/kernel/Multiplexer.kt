@@ -10,21 +10,24 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createInputVector
 import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createOutputVector
 import net.voxelpi.vire.engine.kernel.variable.createParameter
-import net.voxelpi.vire.engine.kernel.variable.range
+import net.voxelpi.vire.engine.kernel.variable.inRange
 
 /**
  * A multiplexer, see https://en.wikipedia.org/wiki/Multiplexer for more information.
  */
 public object Multiplexer : KernelProvider {
 
-    public val addressBits: Parameter<Int> = createParameter("address_bits", initialization = { 3 }) {
-        range(0..30)
+    public val addressBits: Parameter<Int> = createParameter("address_bits") {
+        initialization = { 3 }
+        constraint = inRange(0..30)
     }
 
     public val address: InputScalar = createInput("address")
-    public val inputs: InputVector = createInput("inputs", 0)
+    public val inputs: InputVector = createInputVector("inputs")
     public val output: OutputScalar = createOutput("output")
 
     override val kernel: Kernel = kernel {
@@ -50,13 +53,14 @@ public object Multiplexer : KernelProvider {
  */
 public object Demultiplexer : KernelProvider {
 
-    public val addressBits: Parameter<Int> = createParameter("address_bits", initialization = { 3 }) {
-        range(0..30)
+    public val addressBits: Parameter<Int> = createParameter("address_bits") {
+        initialization = { 3 }
+        constraint = inRange(0..30)
     }
 
     public val address: InputScalar = createInput("address")
     public val input: InputScalar = createInput("input")
-    public val outputs: OutputVector = createOutput("outputs", 0)
+    public val outputs: OutputVector = createOutputVector("outputs")
 
     override val kernel: Kernel = kernel {
         declare(addressBits)
