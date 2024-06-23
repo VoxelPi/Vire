@@ -27,7 +27,6 @@ import net.voxelpi.vire.engine.kernel.variable.createSetting
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialFieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialOutputStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.vectorSizeStorage
 
 public interface CircuitKernel : Kernel {
 
@@ -61,7 +60,7 @@ internal class CircuitKernelImpl(
             this,
             variables,
             config.parameterStateStorage,
-            vectorSizeStorage(config.kernel, emptyMap()),
+            circuit.vectorSizeStorage.copy(),
         )
         return Result.success(variant)
     }

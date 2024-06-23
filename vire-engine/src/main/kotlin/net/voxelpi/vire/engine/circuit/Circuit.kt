@@ -33,15 +33,21 @@ import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernelImpl
 import net.voxelpi.vire.engine.kernel.variable.IOVariable
+import net.voxelpi.vire.engine.kernel.variable.IOVectorVariable
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProviderWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.mutableVectorSizeStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.parameterStateStorage
 import java.util.UUID
 
 /**
  * A logic circuit created by linking different components together.
  */
-public interface Circuit : VariableProvider {
+public interface Circuit : VariableProvider, MutableVectorSizeProvider {
 
     /**
      * The environment of the circuit.
@@ -220,7 +226,7 @@ public interface Circuit : VariableProvider {
 
 internal class CircuitImpl(
     override val environment: EnvironmentImpl,
-) : Circuit {
+) : Circuit, MutableVectorSizeProviderWrapper {
 
     override val eventScope: EventScope = environment.eventScope.createSubScope()
 
@@ -231,6 +237,8 @@ internal class CircuitImpl(
     private val networkConnections: MutableMap<Pair<UUID, UUID>, NetworkConnectionImpl> = mutableMapOf()
 
     private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
+    private val parameterStateStorage = parameterStateStorage(this, emptyMap())
+    val vectorSizeStorage = mutableVectorSizeStorage(this, emptyMap())
 
     override val tags: MutableSet<Identifier> = mutableSetOf()
     override val properties: MutableMap<Identifier, String> = mutableMapOf()
@@ -245,10 +253,10 @@ internal class CircuitImpl(
 
     override fun <V : IOVariable> declareVariable(variable: V): V {
         require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists for this circuit" }
-//        if (variable is IOVectorVariable) { // TODO: Check if needed
-//            require(variable.size is VectorVariableSize.Value) { "Circuits can only have fixed size io vectors" }
-//        }
         variables[variable.name] = variable
+        if (variable is IOVectorVariable) {
+            vectorSizeStorage.resize(variable, variable.size(VectorSizeInitializationContext(parameterStateStorage)))
+        }
         return variable
     }
 
@@ -256,8 +264,14 @@ internal class CircuitImpl(
     override fun <V : IOVariable> removeVariable(variable: V): V? {
         val existing = variables[variable.name] ?: return null
         require(existing == variable) { "Variable has different definition" }
+        if (variable is IOVectorVariable) {
+            vectorSizeStorage.unregister(variable)
+        }
         return variables.remove(variable.name) as V?
     }
+
+    override val vectorSizeProvider: MutableVectorSizeProvider
+        get() = vectorSizeStorage
 
     override fun createKernel(): CircuitKernelImpl {
         val kernel = CircuitKernelImpl(this)

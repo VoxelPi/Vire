@@ -45,13 +45,17 @@ internal class MutableVectorSizeStorage(
 
     override fun resize(vectorName: String, size: Int) {
         // Check that the vector variable is defined on the kernel.
-        require(variableProvider.hasVectorVariable(vectorName))
+        require(variableProvider.hasVectorVariable(vectorName)) { "No vector variable with the name $vectorName is defined" }
 
         // Check that the size of the vector variable is greater than 0.
         require(size >= 0) { "The size of a vector variable must be greater than or equal to zero" }
 
         // Modify the size of the vector variable in the map.
         data[vectorName] = size
+    }
+
+    fun unregister(vector: VectorVariable<*>): Int? {
+        return data.remove(vector.name)
     }
 }
 
