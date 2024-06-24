@@ -9,10 +9,6 @@ import net.voxelpi.vire.engine.circuit.MutableCircuitStateImpl
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.kernel
 import net.voxelpi.vire.engine.kernel.variable.Field
-import net.voxelpi.vire.engine.kernel.variable.InputScalar
-import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
-import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.createField
 
@@ -38,110 +34,43 @@ public fun circuitKernel(circuit: Circuit): Kernel {
 
         onInitialization { context ->
             // Initialize the circuit instance.
-            val circuitInstance = context[CircuitKernel.CIRCUIT_INSTANCE] as MutableCircuitInstanceImpl
-            circuitInstance.initialize(circuit, context).getOrElse {
+            val circuitInstance = MutableCircuitInstanceImpl(circuit, mutableMapOf())
+            circuitInstance.initialize(context).getOrElse {
                 context.signalInvalidConfiguration(it.message ?: "")
             }
+            context[CircuitKernel.CIRCUIT_INSTANCE] = circuitInstance
 
             // Initialize the circuit state.
-            val circuitState = context[CircuitKernel.CIRCUIT_STATE] as MutableCircuitStateImpl
+            val circuitState = MutableCircuitStateImpl(circuitInstance, mutableMapOf(), mutableMapOf())
             circuitState.initialize(circuit, circuitInstance).getOrElse {
                 context.signalInvalidConfiguration(it.message ?: "")
             }
-
-            // Reset all network states.
-            circuitState.resetNetworkStates()
-
-            // Push all port outputs -> network states.
-            for (component in circuit.components()) {
-                val componentState = circuitState[component]
-                for (port in component.ports()) {
-                    circuitState[port.network] = when (val variable = port.variable ?: continue) {
-                        is OutputScalar -> componentState[variable]
-                        is OutputVectorElement -> componentState[variable]
-                        is InputScalar, is InputVectorElement -> continue
-                    }
-                }
-            }
-
-            // Push all network states -> terminal outputs.
-            // This is where the output variables of the circuit kernel are written.
-            for (terminal in circuit.terminals()) {
-                when (val variable = terminal.variable ?: continue) {
-                    is OutputScalar -> context[variable] = circuitState[terminal.network]
-                    is OutputVectorElement -> context[variable] = circuitState[terminal.network]
-                    is InputScalar, is InputVectorElement -> continue
-                }
-            }
+            circuitState.updateComponentOutputs()
+            circuitState.updateCircuitOutputs(context)
+            context[CircuitKernel.CIRCUIT_STATE] = circuitState
         }
 
         onUpdate { context ->
-            // Create a copy of the previous circuit state.
-            val circuitState = context[CircuitKernel.CIRCUIT_STATE] as MutableCircuitStateImpl
+            val circuitState = context[CircuitKernel.CIRCUIT_STATE]!!.mutableClone() as MutableCircuitStateImpl
 
-            // Push all terminal inputs -> network states.
-            // This is where the input variables of the circuit kernel are read.
-            for (terminal in circuit.terminals()) {
-                circuitState[terminal.network] = when (val variable = terminal.variable ?: continue) {
-                    is InputScalar -> context[variable]
-                    is InputVectorElement -> context[variable]
-                    is OutputScalar, is OutputVectorElement -> continue
-                }
-            }
+            circuitState.updateCircuitInputs(context)
+            circuitState.updateComponentInputs()
+            circuitState.updateComponents()
+            circuitState.updateComponentOutputs()
+            circuitState.updateCircuitOutputs(context)
 
-            // Push all network states -> port inputs.
-            for (component in circuit.components()) {
-                val componentState = circuitState[component]
-                for (port in component.ports()) {
-                    when (val variable = port.variable ?: continue) {
-                        is InputScalar -> componentState[variable] = circuitState[port.network]
-                        is InputVectorElement -> componentState[variable] = circuitState[port.network]
-                        is OutputScalar, is OutputVectorElement -> continue
-                    }
-                }
-            }
-
-            // Update the kernels of all components.
-            for (component in circuit.components()) {
-                val componentState = circuitState[component]
-                component.kernel.updateKernel(componentState)
-            }
-
-            // Reset all network states.
-            circuitState.resetNetworkStates()
-
-            // Push all port outputs -> network states.
-            for (component in circuit.components()) {
-                val componentState = circuitState[component]
-                for (port in component.ports()) {
-                    circuitState[port.network] = when (val variable = port.variable ?: continue) {
-                        is OutputScalar -> componentState[variable]
-                        is OutputVectorElement -> componentState[variable]
-                        is InputScalar, is InputVectorElement -> continue
-                    }
-                }
-            }
-
-            // Push all network states -> terminal outputs.
-            // This is where the output variables of the circuit kernel are written.
-            for (terminal in circuit.terminals()) {
-                when (val variable = terminal.variable ?: continue) {
-                    is OutputScalar -> context[variable] = circuitState[terminal.network]
-                    is OutputVectorElement -> context[variable] = circuitState[terminal.network]
-                    is InputScalar, is InputVectorElement -> continue
-                }
-            }
+            context[CircuitKernel.CIRCUIT_STATE] = circuitState
         }
     }
 }
 
 public object CircuitKernel {
 
-    public val CIRCUIT_INSTANCE: Field<CircuitInstance> = createField("__instance__") {
-        initialization = { MutableCircuitInstanceImpl.createEmpty() }
+    public val CIRCUIT_INSTANCE: Field<CircuitInstance?> = createField("__instance__") {
+        initialization = { null }
     }
 
-    public val CIRCUIT_STATE: Field<CircuitState> = createField("__state__") {
-        initialization = { MutableCircuitStateImpl.createEmpty() }
+    public val CIRCUIT_STATE: Field<CircuitState?> = createField("__state__") {
+        initialization = { null }
     }
 }

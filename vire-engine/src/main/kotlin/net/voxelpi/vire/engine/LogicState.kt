@@ -98,6 +98,10 @@ public data class LogicState(
         return channels.contentHashCode()
     }
 
+    public operator fun plus(other: LogicState): LogicState {
+        return merge(this, other)
+    }
+
     public companion object {
 
         public val EMPTY: LogicState = LogicState(0) { LogicValue.NONE }

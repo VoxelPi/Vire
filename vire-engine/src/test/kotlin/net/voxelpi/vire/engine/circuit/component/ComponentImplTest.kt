@@ -47,7 +47,7 @@ class ComponentImplTest {
         val circuitKernel = circuit.createKernel()
         val circuitKernelInstance = circuitKernel.createVariant().getOrThrow().createInstance().getOrThrow()
 
-        val circuitInstance = circuitKernelInstance[CircuitKernel.CIRCUIT_INSTANCE]
+        val circuitInstance = circuitKernelInstance[CircuitKernel.CIRCUIT_INSTANCE]!!
         val componentKernelInstance = circuitInstance[component]
         assertEquals(5, componentKernelInstance[field1])
     }

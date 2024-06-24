@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine
 
+import kotlin.math.max
 import kotlin.math.min
 
 public data class BooleanState(
@@ -55,6 +56,16 @@ public data class BooleanState(
     }
 
     public operator fun get(index: Int): Boolean {
+        return channels[index]
+    }
+
+    public fun channelOrFalse(index: Int): Boolean {
+        if (index < 0) {
+            throw IndexOutOfBoundsException(index)
+        }
+        if (index >= channels.size) {
+            return false
+        }
         return channels[index]
     }
 
@@ -301,6 +312,19 @@ public data class BooleanState(
             return BooleanState(size) { index ->
                 (value shr index) and 1UL == 1UL
             }
+        }
+
+        /**
+         * Merge the two logic states [state1] and [state2].
+         */
+        public fun merge(state1: BooleanState, state2: BooleanState): BooleanState {
+            val channelNumber = max(state1.channels.size, state2.channels.size)
+            val channels = BooleanArray(channelNumber) { channelIndex ->
+                val value1 = state1.channelOrFalse(channelIndex)
+                val value2 = state2.channelOrFalse(channelIndex)
+                value1 || value2
+            }
+            return BooleanState(channels)
         }
 
         /**

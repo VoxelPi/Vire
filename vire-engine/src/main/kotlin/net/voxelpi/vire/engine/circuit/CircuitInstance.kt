@@ -8,6 +8,8 @@ import java.util.UUID
 
 public interface CircuitInstance {
 
+    public val circuit: Circuit
+
     public operator fun get(component: Component): KernelInstance
 }
 
@@ -17,6 +19,7 @@ public interface MutableCircuitInstance : CircuitInstance {
 }
 
 internal class MutableCircuitInstanceImpl(
+    override val circuit: CircuitImpl,
     val componentInstances: MutableMap<UUID, KernelInstance>,
 ) : MutableCircuitInstance {
 
@@ -28,7 +31,7 @@ internal class MutableCircuitInstanceImpl(
         componentInstances[component.uniqueId] = instance
     }
 
-    fun initialize(circuit: CircuitImpl, circuitSettingStates: SettingStateProvider): Result<Unit> {
+    fun initialize(circuitSettingStates: SettingStateProvider): Result<Unit> {
         componentInstances.clear()
 
         for (component in circuit.components()) {
@@ -50,8 +53,8 @@ internal class MutableCircuitInstanceImpl(
     }
 
     companion object {
-        fun createEmpty(): MutableCircuitInstanceImpl {
-            return MutableCircuitInstanceImpl(mutableMapOf())
+        fun createEmpty(circuit: CircuitImpl): MutableCircuitInstanceImpl {
+            return MutableCircuitInstanceImpl(circuit, mutableMapOf())
         }
     }
 }
