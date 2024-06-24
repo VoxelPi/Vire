@@ -138,7 +138,7 @@ public interface Circuit : VariableProvider, MutableVectorSizeProvider {
     /**
      * Creates a new network.
      */
-    public fun createNetwork(initialization: LogicState = LogicState.EMPTY, uniqueId: UUID = UUID.randomUUID()): Network
+    public fun createNetwork(uniqueId: UUID = UUID.randomUUID()): Network
 
     /**
      * Creates a new network with a node for each entry in [nodes] and a connection for each entry in [connections].
@@ -365,9 +365,9 @@ internal class CircuitImpl(
         return networks[uniqueId]
     }
 
-    override fun createNetwork(initialization: LogicState, uniqueId: UUID): NetworkImpl {
+    override fun createNetwork(uniqueId: UUID): NetworkImpl {
         // Create the network
-        val network = NetworkImpl(this, uniqueId, initialization)
+        val network = NetworkImpl(this, uniqueId)
         registerNetwork(network)
 
         // Publish event.
@@ -435,7 +435,6 @@ internal class CircuitImpl(
         for (node in nodes) {
             if (node.holder != null) {
                 node.network = createNetwork()
-                // TODO: Originally, here the output of the port was pushed onto the network.
             } else {
                 unregisterNetworkNode(node)
                 node.destroy()
@@ -547,16 +546,11 @@ internal class CircuitImpl(
         }
 
         // Reassign networks.
-        val networks = partitions.map { createNetwork(initialization = node.network.initialization) }
+        val networks = partitions.map { createNetwork() }
         for (networkNode in node.network.nodes().toList()) {
             networkNode.network = networks[partitions.indexOfFirst { it.contains(networkNode.uniqueId) }]
         }
         unregisterNetwork(node.network)
-
-        // Update network states
-        for (network in networks) {
-            // TODO: pushOutputs
-        }
 
         eventScope.post(NetworkSplitEvent(node.network, networks))
         node.destroy()
@@ -640,8 +634,8 @@ internal class CircuitImpl(
         collectConnectedNodes(nodeB, networkBNodes)
 
         // Reassign networks.
-        val networkA = createNetwork(initialization = oldNetwork.initialization)
-        val networkB = createNetwork(initialization = oldNetwork.initialization)
+        val networkA = createNetwork()
+        val networkB = createNetwork()
         for (networkNode in oldNetwork.nodes().toList()) {
             networkNode.network = when (networkNode.uniqueId) {
                 in networkANodes -> networkA
@@ -650,11 +644,6 @@ internal class CircuitImpl(
             }
         }
         unregisterNetwork(oldNetwork)
-
-        // Update network states
-        // TODO: push Outputs.
-//        networkA.pushPortOutputs()
-//        networkB.pushPortOutputs()
 
         // Publish event.
         eventScope.post(NetworkSplitEvent(oldNetwork, listOf(networkA, networkB)))
@@ -766,7 +755,7 @@ internal class CircuitImpl(
         }
 
         // Create a new network.
-        val network = createNetwork(initialization = LogicState.merge(network1.initialization, network2.initialization))
+        val network = createNetwork()
 
         // Add all nodes of the previous two networks to the new network.
         network1.nodes().forEach(network::registerNode)
@@ -777,10 +766,6 @@ internal class CircuitImpl(
         unregisterNetwork(network1)
         unregisterNetwork(network2)
 
-        // Update network states
-        // TODO: pushOutputs()
-        // network.pushPortOutputs()
-
         return network
     }
 
@@ -789,9 +774,6 @@ internal class CircuitImpl(
         if (network1 == network2) {
             return network1
         }
-
-        // Update the network initialization.
-        network1.initialization = LogicState.merge(network1.initialization, network2.initialization)
 
         // Add all nodes of the previous two networks to the new network.
         network2.nodes().forEach(network1::registerNode)

@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.circuit.network
 
-import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.CircuitElement
 import net.voxelpi.vire.engine.circuit.CircuitElementImpl
 import net.voxelpi.vire.engine.circuit.CircuitImpl
@@ -14,12 +13,6 @@ import java.util.UUID
  * A network of the logic circuit.
  */
 public interface Network : CircuitElement {
-
-    /**
-     * The initial state of the network when a new simulation is initialized.
-     */
-    @Deprecated("Unused")
-    public var initialization: LogicState
 
     /**
      * Returns all nodes that are part of the network.
@@ -70,7 +63,6 @@ public interface Network : CircuitElement {
 internal class NetworkImpl(
     override val circuit: CircuitImpl,
     override val uniqueId: UUID,
-    override var initialization: LogicState,
 ) : CircuitElementImpl(), Network {
 
     private val nodes: MutableSet<NetworkNode> = mutableSetOf()

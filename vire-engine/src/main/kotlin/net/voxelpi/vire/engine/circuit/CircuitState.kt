@@ -81,7 +81,7 @@ internal class MutableCircuitStateImpl(
 
         // Create the existing network states.
         for (network in circuit.networks()) {
-            val networkState = network.initialization.copy()
+            val networkState = LogicState.EMPTY
             networkStates[network.uniqueId] = networkState
         }
 
