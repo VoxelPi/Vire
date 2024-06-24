@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.kotlin
+package net.voxelpi.vire.engine.kernel.builder
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.MutableKernelState

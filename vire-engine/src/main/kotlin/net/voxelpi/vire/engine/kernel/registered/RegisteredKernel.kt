@@ -2,20 +2,40 @@ package net.voxelpi.vire.engine.kernel.registered
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
-import net.voxelpi.vire.engine.kernel.KernelProvider
+import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.builder.ConfigurationContext
+import net.voxelpi.vire.engine.kernel.builder.InitializationContext
+import net.voxelpi.vire.engine.kernel.builder.UpdateContext
+import net.voxelpi.vire.engine.kernel.variable.Variable
 
 /**
  * A kernel that is registered under a given id.
  */
-public interface RegisteredKernel : KernelProvider {
+public interface RegisteredKernel : Kernel {
 
     /**
      * The id of under which the kernel is registered.
      */
     public val id: Identifier
+}
 
-    /**
-     * The kernel which is registered.
-     */
-    public override val kernel: Kernel
+internal open class RegisteredKernelImpl(
+    override val id: Identifier,
+    tags: Set<Identifier>,
+    properties: Map<Identifier, String>,
+    variables: Map<String, Variable<*>>,
+    configurationAction: (ConfigurationContext) -> Unit,
+    initializationAction: (InitializationContext) -> Unit,
+    updateAction: (UpdateContext) -> Unit,
+) : KernelImpl(tags, properties, variables, configurationAction, initializationAction, updateAction), RegisteredKernel {
+
+    constructor(id: Identifier, kernel: KernelImpl) : this(
+        id,
+        kernel.tags.toSet(),
+        kernel.properties.toMap(),
+        kernel.variables.toMap(),
+        kernel.configurationAction,
+        kernel.initializationAction,
+        kernel.updateAction,
+    )
 }

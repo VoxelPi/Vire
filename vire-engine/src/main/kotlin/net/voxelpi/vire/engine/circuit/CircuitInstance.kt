@@ -1,7 +1,9 @@
 package net.voxelpi.vire.engine.circuit
 
 import net.voxelpi.vire.engine.circuit.component.Component
+import net.voxelpi.vire.engine.circuit.component.ComponentConfiguration
 import net.voxelpi.vire.engine.kernel.KernelInstance
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import java.util.UUID
 
 public interface CircuitInstance {
@@ -25,8 +27,31 @@ internal class MutableCircuitInstanceImpl(
     override fun set(component: Component, instance: KernelInstance) {
         componentInstances[component.uniqueId] = instance
     }
-}
 
-internal fun emptyCircuitInstance(): MutableCircuitInstanceImpl {
-    return MutableCircuitInstanceImpl(mutableMapOf())
+    fun initialize(circuit: CircuitImpl, circuitSettingStates: SettingStateProvider): Result<Unit> {
+        componentInstances.clear()
+
+        for (component in circuit.components()) {
+            // Build setting states for the kernel of the component.
+            val settings = component.configuration.settingEntries.mapValues { (_, value) ->
+                when (value) {
+                    is ComponentConfiguration.Entry.CircuitSetting -> circuitSettingStates[value.setting]
+                    is ComponentConfiguration.Entry.Value -> value.value
+                }
+            }
+
+            // Create the instance of the component kernel.
+            val instance = component.kernelVariant.createInstance(settings).getOrElse {
+                return Result.failure(it)
+            }
+            componentInstances[component.uniqueId] = instance
+        }
+        return Result.success(Unit)
+    }
+
+    companion object {
+        fun createEmpty(): MutableCircuitInstanceImpl {
+            return MutableCircuitInstanceImpl(mutableMapOf())
+        }
+    }
 }

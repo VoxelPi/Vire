@@ -1,9 +1,10 @@
-package net.voxelpi.vire.engine.kernel.kotlin
+package net.voxelpi.vire.engine.kernel.builder
 
 import net.voxelpi.vire.engine.Identifier
+import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
-public interface ScriptKernelBuilder {
+public interface KernelBuilder {
 
     public val tags: MutableSet<Identifier>
 
@@ -30,7 +31,7 @@ public interface ScriptKernelBuilder {
     public fun <V : Variable<*>> declare(variable: V): V
 }
 
-internal class ScriptKernelBuilderImpl : ScriptKernelBuilder {
+internal class KernelBuilderImpl : KernelBuilder {
 
     override val tags: MutableSet<Identifier> = mutableSetOf()
 
@@ -68,9 +69,9 @@ internal class ScriptKernelBuilderImpl : ScriptKernelBuilder {
         return variable
     }
 
-    fun build(): KotlinKernelImpl {
+    fun build(): KernelImpl {
         finished = true
-        return KotlinKernelImpl(
+        return KernelImpl(
             tags.toSet(),
             properties.toMap(),
             variables.toMap(),

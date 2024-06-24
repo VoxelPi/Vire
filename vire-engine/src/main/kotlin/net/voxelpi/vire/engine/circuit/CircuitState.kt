@@ -63,10 +63,34 @@ internal class MutableCircuitStateImpl(
     }
 
     override fun resetNetworkStates() {
-        TODO("Not yet implemented")
+        for (networkUniqueId in networkStates.keys) {
+            networkStates[networkUniqueId] = LogicState.EMPTY
+        }
     }
-}
 
-internal fun emptyCircuitState(): MutableCircuitStateImpl {
-    return MutableCircuitStateImpl(mutableMapOf(), mutableMapOf())
+    fun initialize(circuit: CircuitImpl, circuitInstance: CircuitInstance): Result<Unit> {
+        componentStates.clear()
+        networkStates.clear()
+
+        // Create the initial component states.
+        for (component in circuit.components()) {
+            val componentInstance = circuitInstance[component]
+            val componentState = componentInstance.initialKernelState()
+            componentStates[component.uniqueId] = componentState
+        }
+
+        // Create the existing network states.
+        for (network in circuit.networks()) {
+            val networkState = network.initialization.copy()
+            networkStates[network.uniqueId] = networkState
+        }
+
+        return Result.success(Unit)
+    }
+
+    companion object {
+        fun createEmpty(): MutableCircuitStateImpl {
+            return MutableCircuitStateImpl(mutableMapOf(), mutableMapOf())
+        }
+    }
 }

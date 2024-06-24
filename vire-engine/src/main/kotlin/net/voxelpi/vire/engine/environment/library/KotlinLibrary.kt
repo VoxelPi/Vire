@@ -2,7 +2,9 @@ package net.voxelpi.vire.engine.environment.library
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
+import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.registered.LibraryKernel
+import net.voxelpi.vire.engine.kernel.registered.LibraryKernelImpl
 
 /**
  * A library for a vire environment that was defined in kotlin source code.
@@ -30,9 +32,10 @@ public abstract class KotlinLibrary(
 
     protected fun register(id: Identifier, kernel: Kernel): LibraryKernel {
         require(id !in kernels)
-        val registration = LibraryKernel(id, this, kernel)
+        require(kernel is KernelImpl)
 
-        kernels[id] = registration
-        return registration
+        val libraryKernel = LibraryKernelImpl(id, this, kernel)
+        kernels[id] = libraryKernel
+        return libraryKernel
     }
 }

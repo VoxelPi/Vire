@@ -28,10 +28,10 @@ import net.voxelpi.vire.engine.circuit.terminal.Terminal
 import net.voxelpi.vire.engine.circuit.terminal.TerminalImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
+import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
-import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
-import net.voxelpi.vire.engine.kernel.circuit.CircuitKernelImpl
+import net.voxelpi.vire.engine.kernel.circuit.circuitKernel
 import net.voxelpi.vire.engine.kernel.variable.IOVariable
 import net.voxelpi.vire.engine.kernel.variable.IOVectorVariable
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
@@ -82,7 +82,7 @@ public interface Circuit : VariableProvider, MutableVectorSizeProvider {
     /**
      * Creates a circuit kernel from this circuit.
      */
-    public fun createKernel(): CircuitKernel
+    public fun createKernel(): Kernel
 
     /**
      * Returns all registered components.
@@ -273,9 +273,8 @@ internal class CircuitImpl(
     override val vectorSizeProvider: MutableVectorSizeProvider
         get() = vectorSizeStorage
 
-    override fun createKernel(): CircuitKernelImpl {
-        val kernel = CircuitKernelImpl(this)
-        return kernel
+    override fun createKernel(): Kernel {
+        return circuitKernel(this)
     }
 
     override fun components(): Collection<ComponentImpl> {

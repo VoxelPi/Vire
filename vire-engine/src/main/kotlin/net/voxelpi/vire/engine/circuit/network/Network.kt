@@ -18,6 +18,7 @@ public interface Network : CircuitElement {
     /**
      * The initial state of the network when a new simulation is initialized.
      */
+    @Deprecated("Unused")
     public var initialization: LogicState
 
     /**

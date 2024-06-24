@@ -1,13 +1,20 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.kernel.kotlin.KotlinKernel
-import net.voxelpi.vire.engine.kernel.kotlin.ScriptKernelBuilder
-import net.voxelpi.vire.engine.kernel.kotlin.ScriptKernelBuilderImpl
+import net.voxelpi.vire.engine.kernel.builder.ConfigurationContext
+import net.voxelpi.vire.engine.kernel.builder.ConfigurationContextImpl
+import net.voxelpi.vire.engine.kernel.builder.InitializationContext
+import net.voxelpi.vire.engine.kernel.builder.InitializationContextImpl
+import net.voxelpi.vire.engine.kernel.builder.KernelBuilder
+import net.voxelpi.vire.engine.kernel.builder.KernelBuilderImpl
+import net.voxelpi.vire.engine.kernel.builder.UpdateContext
+import net.voxelpi.vire.engine.kernel.builder.UpdateContextImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
+import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialOutputStateStorage
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.
@@ -67,20 +74,22 @@ public interface Kernel : VariableProvider {
 }
 
 /**
- * Creates a new [KotlinKernel] using the given [lambda].
+ * Creates a new [Kernel] using the given [lambda].
  */
-public fun kernel(lambda: ScriptKernelBuilder.() -> Unit): KotlinKernel {
-    val builder = ScriptKernelBuilderImpl()
+public fun kernel(lambda: KernelBuilder.() -> Unit): Kernel {
+    val builder = KernelBuilderImpl()
     builder.lambda()
     return builder.build()
 }
 
-internal abstract class KernelImpl(
+internal open class KernelImpl(
     override val tags: Set<Identifier>,
     override val properties: Map<Identifier, String>,
+    val variables: Map<String, Variable<*>>,
+    val configurationAction: (ConfigurationContext) -> Unit,
+    val initializationAction: (InitializationContext) -> Unit,
+    val updateAction: (UpdateContext) -> Unit,
 ) : Kernel {
-
-    protected abstract val variables: Map<String, Variable<*>>
 
     override fun variables(): Collection<Variable<*>> {
         return variables.values
@@ -105,11 +114,54 @@ internal abstract class KernelImpl(
         return generateVariant(config)
     }
 
-    abstract fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl>
+    fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
+        val context = ConfigurationContextImpl(this, config)
+        try {
+            configurationAction(context)
+        } catch (exception: KernelConfigurationException) {
+            return Result.failure(exception)
+        }
 
-    abstract fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl>
+        val variant = KernelVariantImpl(
+            this,
+            context.variables,
+            config.parameterStateStorage,
+            context.vectorSizeStorage.copy(),
+        )
+        return Result.success(variant)
+    }
 
-    abstract fun updateKernel(state: MutableKernelState)
+    fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
+        val kernelVariant = config.kernelVariant
+
+        // Generate initial field states.
+        val fieldStateStorage = generateInitialFieldStateStorage(kernelVariant, config)
+
+        // Generate initial output states.
+        val outputStateStorage = generateInitialOutputStateStorage(kernelVariant, config)
+
+        // Initialize the kernel instance.
+        val context = InitializationContextImpl(config.kernelVariant, config.settingStateStorage, fieldStateStorage, outputStateStorage)
+        try {
+            initializationAction(context)
+        } catch (exception: KernelInitializationException) {
+            return Result.failure(exception)
+        }
+
+        // Create the kernel instance.
+        val instance = KernelInstanceImpl(
+            config.kernelVariant,
+            config.settingStateStorage,
+            fieldStateStorage.copy(),
+            outputStateStorage.copy(),
+        )
+        return Result.success(instance)
+    }
+
+    fun updateKernel(state: MutableKernelState) {
+        val context = UpdateContextImpl(state)
+        updateAction(context)
+    }
 
     override fun generateDefaultParameterStates(): KernelVariantConfig {
         val parameterStates = mutableMapOf<String, Any?>()
