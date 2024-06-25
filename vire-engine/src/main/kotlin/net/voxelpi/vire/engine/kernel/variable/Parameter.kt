@@ -10,9 +10,14 @@ import kotlin.reflect.typeOf
 public data class Parameter<T> internal constructor(
     override val name: String,
     override val type: KType,
-    public val initialization: () -> T,
+    public val initialization: ParameterInitialization<T>?,
     override val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T>, ConstrainedVariable<T>
+
+/**
+ * The parameter initialization type.
+ */
+public typealias ParameterInitialization<T> = () -> T
 
 /**
  * A builder for a kernel parameter.
@@ -28,7 +33,7 @@ public class ParameterBuilder<T> internal constructor(
     /**
      * The initialization of the parameter.
      */
-    public lateinit var initialization: () -> T
+    public var initialization: ParameterInitialization<T>? = null
 
     /**
      * The constraint of the parameter.
@@ -37,13 +42,7 @@ public class ParameterBuilder<T> internal constructor(
     public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
     @Suppress("UNCHECKED_CAST")
-    internal fun buildInitialization(): () -> T {
-        // Check if the initialization has been set.
-        val initialized = ::initialization.isInitialized
-        if (initialized) {
-            return initialization
-        }
-
+    internal fun buildInitialization(): ParameterInitialization<T>? {
         // Return null initialization if the type allows it.
         if (type.isMarkedNullable) {
             return {
@@ -51,8 +50,7 @@ public class ParameterBuilder<T> internal constructor(
             }
         }
 
-        // Otherwise throw.
-        throw IllegalArgumentException("Missing initialization for parameter \"$name\"")
+        return initialization
     }
 }
 

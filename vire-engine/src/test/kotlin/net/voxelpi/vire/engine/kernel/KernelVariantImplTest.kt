@@ -1,5 +1,6 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.createSetting
@@ -71,5 +72,28 @@ class KernelVariantImplTest {
         }
 
         kernel.createVariant().getOrThrow()
+    }
+
+    @Test
+    fun `test optional and required parameters`() {
+        val parameter1: Parameter<Int> = createParameter("parameter_1") {
+            initialization = { 10 }
+        }
+        val parameter2: Parameter<Int> = createParameter("parameter_2")
+
+        val kernel = kernel {
+            declare(parameter1)
+            declare(parameter2)
+
+            onConfiguration { context ->
+                println("$parameter1: ${context[parameter1]} ${context[parameter2]}")
+            }
+        }
+
+        kernel.createVariant(mapOf("parameter_2" to 4)).getOrThrow()
+        kernel.createVariant {
+            this[parameter2] = 5
+        }.getOrThrow()
+        assertThrows<Exception> { kernel.createVariant().getOrThrow() }
     }
 }

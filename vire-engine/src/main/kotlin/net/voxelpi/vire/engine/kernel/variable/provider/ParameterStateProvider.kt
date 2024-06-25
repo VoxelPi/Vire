@@ -19,6 +19,13 @@ public interface ParameterStateProvider {
      * @param parameter the parameter of which the value should be returned.
      */
     public operator fun <T> get(parameter: Parameter<T>): T
+
+    /**
+     * Check if the given [parameter] has a set value.
+     *
+     * @param parameter the parameter which should be checked.
+     */
+    public fun <T> hasValue(parameter: Parameter<T>): Boolean
 }
 
 /**

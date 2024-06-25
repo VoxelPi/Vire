@@ -115,6 +115,14 @@ internal open class KernelImpl(
     }
 
     fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
+        // Check that all parameters have been assigned a value.
+        for (parameter in parameters()) {
+            if (!config.hasValue(parameter)) {
+                throw IllegalArgumentException("Incomplete kernel configuration, parameter \"${parameter.name}\" has no value set")
+            }
+        }
+
+        // Start kernel configuration phase.
         val context = ConfigurationContextImpl(this, config)
         try {
             configurationAction(context)
@@ -122,6 +130,7 @@ internal open class KernelImpl(
             return Result.failure(exception)
         }
 
+        // Build variant.
         val variant = KernelVariantImpl(
             this,
             context.variables,
@@ -166,7 +175,8 @@ internal open class KernelImpl(
     override fun generateDefaultParameterStates(): KernelVariantConfig {
         val parameterStates = mutableMapOf<String, Any?>()
         for (parameter in parameters()) {
-            parameterStates[parameter.name] = parameter.initialization()
+            val initialization = parameter.initialization ?: continue
+            parameterStates[parameter.name] = initialization.invoke()
         }
         return KernelVariantConfig(this, parameterStates)
     }
