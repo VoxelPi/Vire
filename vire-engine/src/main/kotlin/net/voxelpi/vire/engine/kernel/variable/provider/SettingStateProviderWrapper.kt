@@ -13,6 +13,10 @@ internal interface SettingStateProviderWrapper : SettingStateProvider {
     override fun <T> get(setting: Setting<T>): T {
         return settingStateProvider[setting]
     }
+
+    override fun <T> hasValue(setting: Setting<T>): Boolean {
+        return settingStateProvider.hasValue(setting)
+    }
 }
 
 internal interface MutableSettingStateProviderWrapper : SettingStateProviderWrapper, MutableSettingStateProvider {

@@ -143,6 +143,13 @@ internal open class KernelImpl(
     fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
         val kernelVariant = config.kernelVariant
 
+        // Check that all settings have been assigned a value.
+        for (setting in settings()) {
+            if (!config.hasValue(setting)) {
+                throw IllegalArgumentException("Incomplete kernel configuration, setting \"${setting.name}\" has no value set")
+            }
+        }
+
         // Generate initial field states.
         val fieldStateStorage = generateInitialFieldStateStorage(kernelVariant, config)
 

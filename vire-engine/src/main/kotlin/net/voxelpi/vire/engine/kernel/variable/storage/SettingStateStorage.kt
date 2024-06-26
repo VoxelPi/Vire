@@ -24,8 +24,19 @@ internal interface SettingStateStorage : SettingStateProvider {
         // Check that a setting with the given name exists.
         require(variableProvider.hasSetting(setting)) { "Unknown setting ${setting.name}" }
 
+        // Check that the setting has been initialized.
+        require(setting.name in data) { "Usage of uninitialized setting ${setting.name}" }
+
         // Return the value of the setting.
         return data[setting.name] as T
+    }
+
+    override fun <T> hasValue(setting: Setting<T>): Boolean {
+        return setting.name in data
+    }
+
+    fun isComplete(): Boolean {
+        return variableProvider.settings().all { hasValue(it) }
     }
 }
 
@@ -75,8 +86,10 @@ internal fun settingStateStorage(variableProvider: VariableProvider, dataProvide
 internal fun mutableSettingStateStorage(variableProvider: VariableProvider, data: SettingStateMap): MutableSettingStateStorage {
     val processedData: MutableSettingStateMap = mutableMapOf()
     for (setting in variableProvider.settings()) {
-        // Check that the setting has an assigned value.
-        require(setting.name in data) { "No value provided for the setting ${setting.name}" }
+        // Check if the setting has an assigned value.
+        if (setting.name !in data) {
+            continue
+        }
 
         // Get the value from the map.
         val value = data[setting.name]
@@ -98,8 +111,10 @@ internal fun mutableSettingStateStorage(
 ): MutableSettingStateStorage {
     val processedData: MutableSettingStateMap = mutableMapOf()
     for (setting in variableProvider.settings()) {
-        // Check that the setting has an assigned value.
-        require(dataProvider.variableProvider.hasVariable(setting)) { "No value provided for the setting ${setting.name}" }
+        // Check if the setting has an assigned value.
+        if (!dataProvider.hasValue(setting)) {
+            continue
+        }
 
         // Get the value from the provider.
         val value = dataProvider[setting]

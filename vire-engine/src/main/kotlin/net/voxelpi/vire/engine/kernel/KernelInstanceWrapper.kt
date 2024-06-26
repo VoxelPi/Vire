@@ -15,4 +15,6 @@ internal interface KernelInstanceWrapper : KernelVariantWrapper, SettingStatePro
         get() = kernelInstance.kernelVariant
 
     override fun <T> get(setting: Setting<T>): T = kernelInstance[setting]
+
+    override fun <T> hasValue(setting: Setting<T>): Boolean = kernelInstance.hasValue(setting)
 }

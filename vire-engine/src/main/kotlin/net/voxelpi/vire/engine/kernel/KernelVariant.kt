@@ -148,7 +148,8 @@ internal class KernelVariantImpl(
         val settingInitializationContext = settingInitializationContext()
         val settingStates = mutableMapOf<String, Any?>()
         for (setting in settings()) {
-            settingStates[setting.name] = setting.initialization.invoke(settingInitializationContext)
+            val initialization = setting.initialization ?: continue
+            settingStates[setting.name] = initialization.invoke(settingInitializationContext)
         }
         return KernelInstanceConfig(this, settingStates)
     }

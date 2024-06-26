@@ -19,6 +19,13 @@ public interface SettingStateProvider {
      * @param setting the variable of which the value should be returned.
      */
     public operator fun <T> get(setting: Setting<T>): T
+
+    /**
+     * Check if the given [setting] has a set value.
+     *
+     * @param setting the setting which should be checked.
+     */
+    public fun <T> hasValue(setting: Setting<T>): Boolean
 }
 
 /**
