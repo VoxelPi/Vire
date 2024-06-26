@@ -1,6 +1,8 @@
 package net.voxelpi.vire.engine.kernel
 
+import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createSetting
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -29,5 +31,39 @@ class KernelInstanceTest {
             this[setting2] = 5
         }.getOrThrow()
         assertThrows<Exception> { kernelVariant.createInstance().getOrThrow() }
+    }
+
+    @Test
+    fun `test fields without default initialization`() {
+        val setting: Setting<Boolean> = createSetting("initialize")
+
+        val field1: Field<Int> = createField("field_1") {
+            initialization = { 10 }
+        }
+        val field2: Field<Int> = createField("field_2")
+
+        val kernel = kernel {
+            declare(setting)
+            declare(field1)
+            declare(field2)
+
+            onInitialization { context ->
+                println(context[field1])
+                assertThrows<Exception> { println(context[field2]) }
+                if (context[setting]) {
+                    context[field2] = 5
+                }
+            }
+        }
+        val kernelVariant = kernel.createVariant().getOrThrow()
+
+        kernelVariant.createInstance {
+            this[setting] = true
+        }.getOrThrow()
+        assertThrows<Exception> {
+            kernelVariant.createInstance {
+                this[setting] = false
+            }.getOrThrow()
+        }
     }
 }

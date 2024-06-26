@@ -15,6 +15,10 @@ internal interface FieldStateStorageWrapper : FieldStateProvider {
     override fun <T> get(field: Field<T>): T {
         return fieldStateStorage[field]
     }
+
+    override fun <T> hasValue(field: Field<T>): Boolean {
+        return fieldStateStorage.hasValue(field)
+    }
 }
 
 internal interface MutableFieldStateStorageWrapper : FieldStateStorageWrapper, MutableFieldStateProvider {

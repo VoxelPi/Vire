@@ -28,6 +28,8 @@ internal interface KernelStateWrapper : KernelInstanceWrapper, FieldStateProvide
 
     override fun <T> get(field: Field<T>): T = kernelState[field]
 
+    override fun <T> hasValue(field: Field<T>): Boolean = kernelState.hasValue(field)
+
     override fun get(input: InputScalar): LogicState = kernelState[input]
 
     override fun get(inputVector: InputVector): Array<LogicState> = kernelState[inputVector]

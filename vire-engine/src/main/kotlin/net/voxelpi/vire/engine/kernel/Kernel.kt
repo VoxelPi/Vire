@@ -164,6 +164,13 @@ internal open class KernelImpl(
             return Result.failure(exception)
         }
 
+        // Check that all fields have been assigned a value.
+        for (field in fields()) {
+            if (!fieldStateStorage.hasValue(field)) {
+                throw IllegalArgumentException("Incomplete kernel initialization, field \"${field.name}\" has not been initialized")
+            }
+        }
+
         // Create the kernel instance.
         val instance = KernelInstanceImpl(
             config.kernelVariant,
