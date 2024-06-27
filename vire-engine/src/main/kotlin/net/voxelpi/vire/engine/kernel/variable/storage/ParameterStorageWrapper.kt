@@ -15,6 +15,10 @@ internal interface ParameterStateStorageWrapper : ParameterStateProvider {
     override fun <T> get(parameter: Parameter<T>): T {
         return parameterStateStorage[parameter]
     }
+
+    fun <T> hasValue(parameter: Parameter<T>): Boolean {
+        return parameterStateStorage.hasValue(parameter)
+    }
 }
 
 internal interface MutableParameterStateStorageWrapper : ParameterStateStorageWrapper, MutableParameterStateProvider {

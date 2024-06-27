@@ -14,9 +14,14 @@ import kotlin.reflect.typeOf
 public data class Setting<T> internal constructor(
     override val name: String,
     override val type: KType,
-    public val initialization: SettingInitializationContext.() -> T,
+    public val initialization: SettingInitialization<T>?,
     override val constraint: VariableConstraint<T>,
 ) : ScalarVariable<T>, VariantVariable<T>, ConstrainedVariable<T>
+
+/**
+ * The setting initialization type.
+ */
+public typealias SettingInitialization<T> = SettingInitializationContext.() -> T
 
 /**
  * The initialization context of a kernel setting.
@@ -47,7 +52,7 @@ public class SettingBuilder<T> internal constructor(
     /**
      * The initialization of the setting.
      */
-    public lateinit var initialization: SettingInitializationContext.() -> T
+    public var initialization: SettingInitialization<T>? = null
 
     /**
      * The constraint of the setting.
@@ -56,13 +61,7 @@ public class SettingBuilder<T> internal constructor(
     public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
     @Suppress("UNCHECKED_CAST")
-    internal fun buildInitialization(): SettingInitializationContext.() -> T {
-        // Check if the initialization has been set.
-        val initialized = ::initialization.isInitialized
-        if (initialized) {
-            return initialization
-        }
-
+    internal fun buildInitialization(): SettingInitialization<T>? {
         // Return null initialization if the type allows it.
         if (type.isMarkedNullable) {
             return {
@@ -70,8 +69,7 @@ public class SettingBuilder<T> internal constructor(
             }
         }
 
-        // Otherwise throw.
-        throw IllegalArgumentException("Missing initialization for setting \"$name\"")
+        return initialization
     }
 }
 

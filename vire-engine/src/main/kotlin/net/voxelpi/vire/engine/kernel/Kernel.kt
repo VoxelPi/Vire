@@ -115,6 +115,14 @@ internal open class KernelImpl(
     }
 
     fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
+        // Check that all parameters have been assigned a value.
+        for (parameter in parameters()) {
+            if (!config.hasValue(parameter)) {
+                throw IllegalArgumentException("Incomplete kernel configuration, parameter \"${parameter.name}\" has no value set")
+            }
+        }
+
+        // Start kernel configuration phase.
         val context = ConfigurationContextImpl(this, config)
         try {
             configurationAction(context)
@@ -122,6 +130,7 @@ internal open class KernelImpl(
             return Result.failure(exception)
         }
 
+        // Build variant.
         val variant = KernelVariantImpl(
             this,
             context.variables,
@@ -133,6 +142,13 @@ internal open class KernelImpl(
 
     fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
         val kernelVariant = config.kernelVariant
+
+        // Check that all settings have been assigned a value.
+        for (setting in settings()) {
+            if (!config.hasValue(setting)) {
+                throw IllegalArgumentException("Incomplete kernel configuration, setting \"${setting.name}\" has no value set")
+            }
+        }
 
         // Generate initial field states.
         val fieldStateStorage = generateInitialFieldStateStorage(kernelVariant, config)
@@ -146,6 +162,13 @@ internal open class KernelImpl(
             initializationAction(context)
         } catch (exception: KernelInitializationException) {
             return Result.failure(exception)
+        }
+
+        // Check that all fields have been assigned a value.
+        for (field in fields()) {
+            if (!fieldStateStorage.hasValue(field)) {
+                throw IllegalArgumentException("Incomplete kernel initialization, field \"${field.name}\" has not been initialized")
+            }
         }
 
         // Create the kernel instance.
@@ -166,7 +189,8 @@ internal open class KernelImpl(
     override fun generateDefaultParameterStates(): KernelVariantConfig {
         val parameterStates = mutableMapOf<String, Any?>()
         for (parameter in parameters()) {
-            parameterStates[parameter.name] = parameter.initialization()
+            val initialization = parameter.initialization ?: continue
+            parameterStates[parameter.name] = initialization.invoke()
         }
         return KernelVariantConfig(this, parameterStates)
     }

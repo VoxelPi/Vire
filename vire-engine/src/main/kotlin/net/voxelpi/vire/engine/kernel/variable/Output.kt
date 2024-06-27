@@ -16,8 +16,13 @@ public sealed interface Output : IOVariable
  */
 public data class OutputScalar internal constructor(
     override val name: String,
-    public val initialization: OutputScalarInitializationContext.() -> LogicState,
+    public val initialization: OutputScalarInitialization,
 ) : IOScalarVariable, Output
+
+/**
+ * The output scalar initialization type.
+ */
+public typealias OutputScalarInitialization = OutputScalarInitializationContext.() -> LogicState
 
 /**
  * A kernel output vector, they are used to transfer multiple [net.voxelpi.vire.engine.LogicState] from the kernel to a circuit network.
@@ -26,13 +31,18 @@ public data class OutputScalar internal constructor(
 public data class OutputVector internal constructor(
     override val name: String,
     override val size: VectorSizeInitializationContext.() -> Int,
-    public val initialization: OutputVectorInitializationContext.(index: Int) -> LogicState,
+    public val initialization: OutputVectorInitialization,
 ) : IOVectorVariable, Output {
 
     override fun get(index: Int): OutputVectorElement {
         return OutputVectorElement(this, index)
     }
 }
+
+/**
+ * The output scalar initialization type.
+ */
+public typealias OutputVectorInitialization = OutputVectorInitializationContext.(index: Int) -> LogicState
 
 /**
  * An element of an output vector.
@@ -86,7 +96,7 @@ public class OutputScalarBuilder internal constructor(
     /**
      * The initialization for the value of the output scalar.
      */
-    public var initialization: OutputScalarInitializationContext.() -> LogicState = { LogicState.EMPTY }
+    public var initialization: OutputScalarInitialization = { LogicState.EMPTY }
 }
 
 public class OutputVectorBuilder internal constructor(
@@ -96,7 +106,7 @@ public class OutputVectorBuilder internal constructor(
     /**
      * The initialization for the value of the output vector.
      */
-    public var initialization: OutputVectorInitializationContext.(index: Int) -> LogicState = { LogicState.EMPTY }
+    public var initialization: OutputVectorInitialization = { LogicState.EMPTY }
 
     /**
      * The initial size of the output vector.

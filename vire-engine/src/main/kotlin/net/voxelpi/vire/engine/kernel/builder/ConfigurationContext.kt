@@ -3,7 +3,6 @@ package net.voxelpi.vire.engine.kernel.builder
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelImpl
-import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
@@ -11,6 +10,7 @@ import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableVectorSizeStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableVectorSizeStorageWrapper
 
@@ -38,8 +38,8 @@ public interface ConfigurationContext : VariableProvider, MutableVectorSizeProvi
 
 internal class ConfigurationContextImpl(
     override val kernel: KernelImpl,
-    private val parameterStateProvider: ParameterStateProvider,
-) : ConfigurationContext, MutableVectorSizeStorageWrapper {
+    override val parameterStateProvider: ParameterStateProvider,
+) : ConfigurationContext, MutableVectorSizeStorageWrapper, ParameterStateProviderWrapper {
 
     val variables: MutableMap<String, Variable<*>> = kernel.variables()
         .associateBy { it.name }
@@ -72,9 +72,5 @@ internal class ConfigurationContextImpl(
             vectorSizeStorage.resize(variable, variable.size(vectorSizeInitializationContext))
         }
         return variable
-    }
-
-    override fun <T> get(parameter: Parameter<T>): T {
-        return parameterStateProvider[parameter]
     }
 }

@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.kernel.variable
 
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProviderWrapper
 import net.voxelpi.vire.engine.util.isInstanceOfType
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubtypeOf
@@ -114,16 +115,8 @@ public sealed interface ConstrainedVariable<T> : Variable<T> {
  * The initialization context for the size of a vector variable.
  */
 public class VectorSizeInitializationContext internal constructor(
-    private val parameterStateProvider: ParameterStateProvider,
-) : ParameterStateProvider {
-
-    override val variableProvider: VariableProvider
-        get() = parameterStateProvider.variableProvider
-
-    override fun <T> get(parameter: Parameter<T>): T {
-        return parameterStateProvider[parameter]
-    }
-}
+    override val parameterStateProvider: ParameterStateProvider,
+) : ParameterStateProviderWrapper
 
 /**
  * A variable that can be declared during the configuration of the kernel and be therefore dependent on the kernel variant.

@@ -24,8 +24,19 @@ internal interface ParameterStateStorage : ParameterStateProvider {
         // Check that a parameter with the given name exists.
         require(variableProvider.hasParameter(parameter)) { "Unknown parameter ${parameter.name}" }
 
+        // Check that the parameter has been initialized.
+        require(parameter.name in data) { "Usage of uninitialized parameter ${parameter.name}" }
+
         // Return the value of the parameter.
         return data[parameter.name] as T
+    }
+
+    fun <T> hasValue(parameter: Parameter<T>): Boolean {
+        return parameter.name in data
+    }
+
+    fun isComplete(): Boolean {
+        return variableProvider.parameters().all { hasValue(it) }
     }
 }
 
@@ -75,8 +86,10 @@ internal fun parameterStateStorage(variableProvider: VariableProvider, dataProvi
 internal fun mutableParameterStateStorage(variableProvider: VariableProvider, data: ParameterStateMap): MutableParameterStateStorage {
     val processedData: MutableParameterStateMap = mutableMapOf()
     for (parameter in variableProvider.parameters()) {
-        // Check that the parameter has an assigned value.
-        require(parameter.name in data) { "No value provided for the parameter ${parameter.name}" }
+        // Check if the parameter has an assigned value.
+        if (parameter.name !in data) {
+            continue
+        }
 
         // Get the value from the map.
         val value = data[parameter.name]
@@ -96,8 +109,16 @@ internal fun mutableParameterStateStorage(
 ): MutableParameterStateStorage {
     val processedData: MutableParameterStateMap = mutableMapOf()
     for (parameter in variableProvider.parameters()) {
-        // Check that the parameter has an assigned value.
-        require(dataProvider.variableProvider.hasVariable(parameter)) { "No value provided for the parameter ${parameter.name}" }
+        // Check if the parameter has an assigned value.
+        if (!dataProvider.variableProvider.hasVariable(parameter)) {
+            continue
+        }
+        if (dataProvider is ParameterStateStorage && !dataProvider.hasValue(parameter)) {
+            continue
+        }
+        if (dataProvider is ParameterStateStorageWrapper && !dataProvider.hasValue(parameter)) {
+            continue
+        }
 
         // Get the value from the provider.
         val value = dataProvider[parameter]

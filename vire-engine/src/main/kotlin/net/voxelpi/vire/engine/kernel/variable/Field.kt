@@ -16,8 +16,13 @@ import kotlin.reflect.typeOf
 public data class Field<T> internal constructor(
     override val name: String,
     override val type: KType,
-    public val initialization: FieldInitializationContext.() -> T,
+    public val initialization: FieldInitialization<T>?,
 ) : ScalarVariable<T>, VariantVariable<T>
+
+/**
+ * The setting initialization type.
+ */
+public typealias FieldInitialization<T> = FieldInitializationContext.() -> T
 
 /**
  * The initialization context of a kernel field.
@@ -49,16 +54,10 @@ public class FieldBuilder<T> internal constructor(
     /**
      * The initialization of the field.
      */
-    public lateinit var initialization: FieldInitializationContext.() -> T
+    public var initialization: FieldInitialization<T>? = null
 
     @Suppress("UNCHECKED_CAST")
-    internal fun buildInitialization(): FieldInitializationContext.() -> T {
-        // Check if the initialization has been set.
-        val initialized = ::initialization.isInitialized
-        if (initialized) {
-            return initialization
-        }
-
+    internal fun buildInitialization(): FieldInitialization<T>? {
         // Return null initialization if the type allows it.
         if (type.isMarkedNullable) {
             return {
@@ -66,8 +65,7 @@ public class FieldBuilder<T> internal constructor(
             }
         }
 
-        // Otherwise throw.
-        throw IllegalArgumentException("Missing initialization for field \"$name\"")
+        return initialization
     }
 }
 
