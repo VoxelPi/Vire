@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.environment.library
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
+import net.voxelpi.vire.engine.kernel.KernelProvider
 import net.voxelpi.vire.engine.kernel.registered.LibraryKernel
 import net.voxelpi.vire.engine.kernel.registered.LibraryKernelImpl
 
@@ -32,9 +33,13 @@ public abstract class KotlinLibrary(
 
     protected fun register(id: Identifier, kernel: Kernel): LibraryKernel {
         require(id !in kernels)
-        require(kernel is KernelImpl)
+        val kernelForRegistration = when (kernel) {
+            is KernelProvider -> kernel.kernel
+            else -> kernel
+        }
+        require(kernelForRegistration is KernelImpl)
 
-        val libraryKernel = LibraryKernelImpl(id, this, kernel)
+        val libraryKernel = LibraryKernelImpl(id, this, kernelForRegistration)
         kernels[id] = libraryKernel
         return libraryKernel
     }
