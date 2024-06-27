@@ -1,31 +1,43 @@
 package net.voxelpi.vire.engine.kernel.circuit
 
+import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.circuit.Circuit
-import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.CircuitInstance
 import net.voxelpi.vire.engine.circuit.CircuitState
-import net.voxelpi.vire.engine.circuit.MutableCircuitInstanceImpl
-import net.voxelpi.vire.engine.circuit.MutableCircuitStateImpl
-import net.voxelpi.vire.engine.kernel.Kernel
-import net.voxelpi.vire.engine.kernel.kernel
+import net.voxelpi.vire.engine.kernel.KernelProvider
+import net.voxelpi.vire.engine.kernel.KernelVariant
+import net.voxelpi.vire.engine.kernel.registered.RegisteredKernel
+import net.voxelpi.vire.engine.kernel.registered.registeredKernel
 import net.voxelpi.vire.engine.kernel.variable.Field
+import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.createField
+import net.voxelpi.vire.engine.kernel.variable.createParameter
 
-/**
- * Creates a new [Kernel] from the given [circuit].
- */
-public fun circuitKernel(circuit: Circuit): Kernel {
-    require(circuit is CircuitImpl)
+public object CircuitKernel : KernelProvider {
 
-    return kernel {
-        declare(CircuitKernel.CIRCUIT_INSTANCE)
-        declare(CircuitKernel.CIRCUIT_STATE)
-        for (variable in circuit.variables()) {
-            declare(variable)
-        }
+    public val ID: Identifier = Identifier("vire", "circuit")
+
+    public val CIRCUIT: Parameter<Circuit> = createParameter("circuit")
+
+    public val CIRCUIT_INSTANCE: Field<CircuitInstance> = createField("instance")
+
+    public val CIRCUIT_STATE: Field<CircuitState> = createField("state")
+
+    public fun createVariant(circuit: Circuit): KernelVariant {
+        return kernel.createVariant {
+            this[CIRCUIT] = circuit
+        }.getOrThrow()
+    }
+
+    public override val kernel: RegisteredKernel = registeredKernel(ID) {
+        declare(CIRCUIT)
+        declare(CIRCUIT_INSTANCE)
+        declare(CIRCUIT_STATE)
 
         onConfiguration { context ->
+            val circuit = context[CIRCUIT]
+
             // Update the size of all vector variables.
             for (vector in circuit.variables().filterIsInstance<VectorVariable<*>>()) {
                 context.resize(vector, circuit.size(vector))
@@ -33,44 +45,27 @@ public fun circuitKernel(circuit: Circuit): Kernel {
         }
 
         onInitialization { context ->
+            val circuit = context[CIRCUIT]
+
             // Initialize the circuit instance.
-            val circuitInstance = MutableCircuitInstanceImpl(circuit, mutableMapOf())
-            circuitInstance.initialize(context).getOrElse {
+            val circuitInstance = circuit.createCircuitInstance(context).getOrElse {
                 context.signalInvalidConfiguration(it.message ?: "")
             }
-            context[CircuitKernel.CIRCUIT_INSTANCE] = circuitInstance
+            context[CIRCUIT_INSTANCE] = circuitInstance
 
             // Initialize the circuit state.
-            val circuitState = MutableCircuitStateImpl(circuitInstance, mutableMapOf(), mutableMapOf())
-            circuitState.initialize(circuit, circuitInstance).getOrElse {
-                context.signalInvalidConfiguration(it.message ?: "")
-            }
-            circuitState.updateComponentOutputs()
-            circuitState.updateCircuitOutputs(context)
-            context[CircuitKernel.CIRCUIT_STATE] = circuitState
+            val circuitState = circuitInstance.createInitialState()
+            context[CIRCUIT_STATE] = circuitState
         }
 
         onUpdate { context ->
-            val circuitState = context[CircuitKernel.CIRCUIT_STATE]!!.mutableClone() as MutableCircuitStateImpl
+            val circuitState = context[CIRCUIT_STATE].mutableClone()
 
             circuitState.updateCircuitInputs(context)
-            circuitState.updateComponentInputs()
-            circuitState.updateComponents()
-            circuitState.updateComponentOutputs()
+            circuitState.updateCircuit()
             circuitState.updateCircuitOutputs(context)
 
-            context[CircuitKernel.CIRCUIT_STATE] = circuitState
+            context[CIRCUIT_STATE] = circuitState
         }
-    }
-}
-
-public object CircuitKernel {
-
-    public val CIRCUIT_INSTANCE: Field<CircuitInstance?> = createField("__instance__") {
-        initialization = { null }
-    }
-
-    public val CIRCUIT_STATE: Field<CircuitState?> = createField("__state__") {
-        initialization = { null }
     }
 }

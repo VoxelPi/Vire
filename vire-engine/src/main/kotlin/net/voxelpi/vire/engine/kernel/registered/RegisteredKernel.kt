@@ -5,6 +5,7 @@ import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.builder.ConfigurationContext
 import net.voxelpi.vire.engine.kernel.builder.InitializationContext
+import net.voxelpi.vire.engine.kernel.builder.KernelBuilder
 import net.voxelpi.vire.engine.kernel.builder.UpdateContext
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
@@ -17,6 +18,15 @@ public interface RegisteredKernel : Kernel {
      * The id of under which the kernel is registered.
      */
     public val id: Identifier
+}
+
+/**
+ * Creates a new [RegisteredKernel] using the given [lambda].
+ */
+internal fun registeredKernel(id: Identifier, lambda: KernelBuilder.() -> Unit): RegisteredKernel {
+    val builder = RegisteredKernelBuilderImpl(id)
+    builder.lambda()
+    return builder.build()
 }
 
 internal open class RegisteredKernelImpl(

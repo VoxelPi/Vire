@@ -31,21 +31,21 @@ public interface KernelBuilder {
     public fun <V : Variable<*>> declare(variable: V): V
 }
 
-internal class KernelBuilderImpl : KernelBuilder {
+internal open class KernelBuilderImpl : KernelBuilder {
 
     override val tags: MutableSet<Identifier> = mutableSetOf()
 
     override val properties: MutableMap<Identifier, String> = mutableMapOf()
 
-    private var configurationAction: (ConfigurationContext) -> Unit = {}
+    protected var configurationAction: (ConfigurationContext) -> Unit = {}
 
-    private var initializationAction: (InitializationContext) -> Unit = {}
+    protected var initializationAction: (InitializationContext) -> Unit = {}
 
-    private var updateAction: (UpdateContext) -> Unit = {}
+    protected var updateAction: (UpdateContext) -> Unit = {}
 
-    private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
+    protected val variables: MutableMap<String, Variable<*>> = mutableMapOf()
 
-    private var finished: Boolean = false
+    protected var finished: Boolean = false
 
     override fun onConfiguration(action: (ConfigurationContext) -> Unit) {
         check(!finished) { "Can't modify the configuration action an of already build kernel." }
@@ -69,7 +69,7 @@ internal class KernelBuilderImpl : KernelBuilder {
         return variable
     }
 
-    fun build(): KernelImpl {
+    open fun build(): KernelImpl {
         finished = true
         return KernelImpl(
             tags.toSet(),

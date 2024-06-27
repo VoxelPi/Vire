@@ -8,6 +8,7 @@ import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.environment.library.Library
 import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
+import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.registered.RegisteredKernel
 import net.voxelpi.vire.engine.simulation.Simulation
 import net.voxelpi.vire.engine.simulation.SimulationImpl
@@ -58,7 +59,17 @@ internal class EnvironmentImpl(libraries: List<Library>) : Environment {
     override val eventScope: EventScope = eventScope()
 
     private val libraries = libraries.associateBy { it.id }
-    private val kernels: Map<Identifier, RegisteredKernel> = libraries.map { it.kernels() }.flatten().associateBy { it.id }
+    private val kernels: Map<Identifier, RegisteredKernel>
+
+    init {
+        // Register builtin kernels.
+        val kernels = mutableMapOf(
+            CircuitKernel.ID to CircuitKernel.kernel
+        )
+        // Register library kernels.
+        kernels += libraries.map { it.kernels() }.flatten().associateBy { it.id }
+        this.kernels = kernels
+    }
 
     override fun libraries(): Collection<Library> {
         return libraries.values

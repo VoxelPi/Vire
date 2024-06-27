@@ -18,7 +18,6 @@ import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrap
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.fieldStateStorage
 
 public interface InitializationContext :
     ParameterStateProvider,

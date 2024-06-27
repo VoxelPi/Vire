@@ -42,18 +42,17 @@ class CircuitKernelTest {
         val portOut = component.createPort(innerKernelOutput)
         val connection = circuit.createNetworkConnection(portIn.networkNode, portOut.networkNode)
 
-        val kernel = circuit.createKernel()
-        val kernelVariant = kernel.createVariant().getOrThrow()
+        val kernelVariant = circuit.createKernelVariant()
         val kernelInstance = kernelVariant.createInstance().getOrThrow()
 
         val simulation = environment.createSimulation(kernelInstance)
-        val initialCircuitState = simulation.state[CircuitKernel.CIRCUIT_STATE]!!
+        val initialCircuitState = simulation.state[CircuitKernel.CIRCUIT_STATE]
         val initialNetworkState = initialCircuitState[connection.network]
         assertEquals(LogicState.value(true, 1), initialNetworkState)
 
         for (step in 1..10) {
             simulation.simulateStep()
-            val circuitState = simulation.state[CircuitKernel.CIRCUIT_STATE]!!
+            val circuitState = simulation.state[CircuitKernel.CIRCUIT_STATE]
             val networkState = circuitState[connection.network]
             assertEquals(LogicState.value(step % 2 == 0, 1), networkState)
         }

@@ -28,10 +28,9 @@ import net.voxelpi.vire.engine.circuit.terminal.Terminal
 import net.voxelpi.vire.engine.circuit.terminal.TerminalImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
-import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
-import net.voxelpi.vire.engine.kernel.circuit.circuitKernel
+import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
 import net.voxelpi.vire.engine.kernel.variable.IOVariable
 import net.voxelpi.vire.engine.kernel.variable.IOVectorVariable
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
@@ -40,6 +39,7 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProviderWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.mutableVectorSizeStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.parameterStateStorage
 import java.util.UUID
@@ -80,9 +80,14 @@ public interface Circuit : VariableProvider, MutableVectorSizeProvider {
     public fun <V : IOVariable> removeVariable(variable: V): V?
 
     /**
-     * Creates a circuit kernel from this circuit.
+     * Creates a circuit kernel variant from this circuit.
      */
-    public fun createKernel(): Kernel
+    public fun createKernelVariant(): KernelVariant
+
+    /**
+     * Creates a new circuit instance.
+     */
+    public fun createCircuitInstance(settingStates: SettingStateProvider): Result<CircuitInstance>
 
     /**
      * Returns all registered components.
@@ -273,8 +278,12 @@ internal class CircuitImpl(
     override val vectorSizeProvider: MutableVectorSizeProvider
         get() = vectorSizeStorage
 
-    override fun createKernel(): Kernel {
-        return circuitKernel(this)
+    override fun createKernelVariant(): KernelVariant {
+        return CircuitKernel.createVariant(this)
+    }
+
+    override fun createCircuitInstance(settingStates: SettingStateProvider): Result<CircuitInstance> {
+        return CircuitInstanceImpl.circuitInstance(this, settingStates)
     }
 
     override fun components(): Collection<ComponentImpl> {

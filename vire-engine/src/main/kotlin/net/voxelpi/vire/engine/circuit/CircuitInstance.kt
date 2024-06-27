@@ -4,57 +4,57 @@ import net.voxelpi.vire.engine.circuit.component.Component
 import net.voxelpi.vire.engine.circuit.component.ComponentConfiguration
 import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.settingStateStorage
 import java.util.UUID
 
-public interface CircuitInstance {
+public interface CircuitInstance : SettingStateProvider {
 
     public val circuit: Circuit
 
     public operator fun get(component: Component): KernelInstance
+
+    public fun createInitialState(): MutableCircuitState
 }
 
-public interface MutableCircuitInstance : CircuitInstance {
-
-    public operator fun set(component: Component, instance: KernelInstance)
-}
-
-internal class MutableCircuitInstanceImpl(
+internal class CircuitInstanceImpl(
     override val circuit: CircuitImpl,
-    val componentInstances: MutableMap<UUID, KernelInstance>,
-) : MutableCircuitInstance {
+    override val settingStateStorage: SettingStateStorage,
+    val componentInstances: Map<UUID, KernelInstance>,
+) : CircuitInstance, SettingStateStorageWrapper {
 
     override fun get(component: Component): KernelInstance {
         return componentInstances[component.uniqueId]!!
     }
 
-    override fun set(component: Component, instance: KernelInstance) {
-        componentInstances[component.uniqueId] = instance
-    }
-
-    fun initialize(circuitSettingStates: SettingStateProvider): Result<Unit> {
-        componentInstances.clear()
-
-        for (component in circuit.components()) {
-            // Build setting states for the kernel of the component.
-            val settings = component.configuration.settingEntries.mapValues { (_, value) ->
-                when (value) {
-                    is ComponentConfiguration.Entry.CircuitSetting -> circuitSettingStates[value.setting]
-                    is ComponentConfiguration.Entry.Value -> value.value
-                }
-            }
-
-            // Create the instance of the component kernel.
-            val instance = component.kernelVariant.createInstance(settings).getOrElse {
-                return Result.failure(it)
-            }
-            componentInstances[component.uniqueId] = instance
-        }
-        return Result.success(Unit)
+    override fun createInitialState(): MutableCircuitState {
+        return MutableCircuitStateImpl.circuitState(this)
     }
 
     companion object {
-        fun createEmpty(circuit: CircuitImpl): MutableCircuitInstanceImpl {
-            return MutableCircuitInstanceImpl(circuit, mutableMapOf())
+        fun circuitInstance(circuit: CircuitImpl, settingStates: SettingStateProvider): Result<CircuitInstanceImpl> {
+            val settingStateStorage = settingStateStorage(circuit, settingStates)
+
+            val componentInstances = mutableMapOf<UUID, KernelInstance>()
+            for (component in circuit.components()) {
+                // Build setting states for the kernel of the component.
+                val settings = component.configuration.settingEntries.mapValues { (_, value) ->
+                    when (value) {
+                        is ComponentConfiguration.Entry.CircuitSetting -> settingStates[value.setting]
+                        is ComponentConfiguration.Entry.Value -> value.value
+                    }
+                }
+
+                // Create the instance of the component kernel.
+                val instance = component.kernelVariant.createInstance(settings).getOrElse {
+                    return Result.failure(it)
+                }
+                componentInstances[component.uniqueId] = instance
+            }
+
+            val instance = CircuitInstanceImpl(circuit, settingStateStorage, componentInstances)
+            return Result.success(instance)
         }
     }
 }

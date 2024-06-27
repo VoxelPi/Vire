@@ -41,11 +41,15 @@ public interface MutableCircuitState : CircuitState {
 
     public operator fun set(network: Network, state: LogicState)
 
-    public fun resetNetworkStates()
+    public fun updateCircuitInputs(circuitInputStates: InputStateProvider)
+
+    public fun updateCircuit()
+
+    public fun updateCircuitOutputs(circuitOutputStates: MutableOutputStateProvider)
 }
 
 internal class MutableCircuitStateImpl(
-    override val circuitInstance: MutableCircuitInstanceImpl,
+    override val circuitInstance: CircuitInstanceImpl,
     val componentStates: MutableMap<UUID, MutableKernelState>,
     val networkStates: MutableMap<UUID, LogicState>,
 ) : MutableCircuitState {
@@ -80,45 +84,26 @@ internal class MutableCircuitStateImpl(
         componentStates[component.uniqueId] = state
     }
 
-    override fun resetNetworkStates() {
-        for (networkUniqueId in networkStates.keys) {
-            networkStates[networkUniqueId] = LogicState.EMPTY
-        }
-    }
-
-    fun initialize(circuit: CircuitImpl, circuitInstance: CircuitInstance): Result<Unit> {
-        componentStates.clear()
-        networkStates.clear()
-
-        // Create the initial component states.
-        for (component in circuit.components()) {
-            val componentInstance = circuitInstance[component]
-            val componentState = componentInstance.initialKernelState()
-            componentStates[component.uniqueId] = componentState
-        }
-
-        // Create the existing network states.
-        for (network in circuit.networks()) {
-            networkStates[network.uniqueId] = LogicState.EMPTY
-        }
-
-        return Result.success(Unit)
-    }
-
-    fun updateCircuitInputs(context: InputStateProvider) {
+    override fun updateCircuitInputs(circuitInputStates: InputStateProvider) {
         // Push all terminal inputs -> network states.
         // This is where the input variables of the circuit kernel are read.
         // This assumes that the network states have been previously cleared.
         for (terminal in circuit.terminals()) {
             this[terminal.network] += when (val variable = terminal.variable ?: continue) {
-                is InputScalar -> context[variable]
-                is InputVectorElement -> context[variable]
+                is InputScalar -> circuitInputStates[variable]
+                is InputVectorElement -> circuitInputStates[variable]
                 is OutputScalar, is OutputVectorElement -> continue
             }
         }
     }
 
-    fun updateComponentInputs() {
+    override fun updateCircuit() {
+        updateComponentInputs()
+        updateComponents()
+        updateComponentOutputs()
+    }
+
+    private fun updateComponentInputs() {
         // Push all network states -> port inputs.
         for (component in circuit.components()) {
             val componentState = this[component]
@@ -143,7 +128,7 @@ internal class MutableCircuitStateImpl(
         }
     }
 
-    fun updateComponents() {
+    private fun updateComponents() {
         // Update the kernels of all components.
         for (component in circuit.components()) {
             val componentState = this[component]
@@ -151,9 +136,11 @@ internal class MutableCircuitStateImpl(
         }
     }
 
-    fun updateComponentOutputs() {
+    private fun updateComponentOutputs() {
         // Reset all network states.
-        resetNetworkStates()
+        for (networkUniqueId in networkStates.keys) {
+            networkStates[networkUniqueId] = LogicState.EMPTY
+        }
 
         // Push all port outputs -> network states.
         for (component in circuit.components()) {
@@ -168,12 +155,12 @@ internal class MutableCircuitStateImpl(
         }
     }
 
-    fun updateCircuitOutputs(context: MutableOutputStateProvider) {
+    override fun updateCircuitOutputs(circuitOutputStates: MutableOutputStateProvider) {
         // Clear all output variables.
         for (output in circuit.outputs()) {
             when (output) {
-                is OutputScalar -> context[output] = LogicState.EMPTY
-                is OutputVector -> context[output] = Array(circuit.size(output)) { LogicState.EMPTY }
+                is OutputScalar -> circuitOutputStates[output] = LogicState.EMPTY
+                is OutputVector -> circuitOutputStates[output] = Array(circuit.size(output)) { LogicState.EMPTY }
                 is OutputVectorElement -> throw IllegalStateException("vector elements are not supported")
             }
         }
@@ -182,16 +169,39 @@ internal class MutableCircuitStateImpl(
         // This is where the output variables of the circuit kernel are written.
         for (terminal in circuit.terminals()) {
             when (val variable = terminal.variable ?: continue) {
-                is OutputScalar -> context[variable] += this[terminal.network]
-                is OutputVectorElement -> context[variable] += this[terminal.network]
+                is OutputScalar -> circuitOutputStates[variable] += this[terminal.network]
+                is OutputVectorElement -> circuitOutputStates[variable] += this[terminal.network]
                 is InputScalar, is InputVectorElement -> continue
             }
         }
     }
 
     companion object {
-        fun createEmpty(circuitInstance: MutableCircuitInstanceImpl): MutableCircuitStateImpl {
-            return MutableCircuitStateImpl(circuitInstance, mutableMapOf(), mutableMapOf())
+        fun circuitState(circuitInstance: CircuitInstanceImpl): MutableCircuitStateImpl {
+            val circuit = circuitInstance.circuit
+
+            // Create the initial component states.
+            val componentStates = mutableMapOf<UUID, MutableKernelState>()
+            for (component in circuit.components()) {
+                val componentInstance = circuitInstance[component]
+                val componentState = componentInstance.initialKernelState()
+                componentStates[component.uniqueId] = componentState
+            }
+
+            // Create the network states.
+            val networkStates = mutableMapOf<UUID, LogicState>()
+            for (network in circuit.networks()) {
+                networkStates[network.uniqueId] = LogicState.EMPTY
+            }
+
+            // Create the circuit state.
+            val state = MutableCircuitStateImpl(circuitInstance, componentStates, networkStates)
+
+            // Update all networks using all component ports.
+            state.updateComponentOutputs()
+
+            // Return the initial state.
+            return state
         }
     }
 }
