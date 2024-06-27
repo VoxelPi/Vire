@@ -39,13 +39,12 @@ This example creates a custom kernel that has two inputs and one output.
 The kernel reads the two inputs and writes the result of the AND operation to its output.
 
 ```kotlin
-val inputA = input("input_a")
-val inputB = input("input_b")
-val outputAnd = output("output")
+val inputA = createInput("input_a")
+val inputB = createInput("input_b")
+val outputAnd = createOutput("output")
 
-val yourKernel = kernel(Identifier("your-namespace", "custom-and")) {
-
-    update = { context: UpdateContext ->
+val yourKernel = kernel {
+    onUpdate { context: UpdateContext ->
         context[outputAnd] = context[inputA].booleanState() and context[inputB].booleanState()
     }
 }
