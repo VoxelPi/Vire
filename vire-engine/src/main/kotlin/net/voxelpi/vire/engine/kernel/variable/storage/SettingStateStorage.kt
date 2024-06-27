@@ -31,7 +31,7 @@ internal interface SettingStateStorage : SettingStateProvider {
         return data[setting.name] as T
     }
 
-    override fun <T> hasValue(setting: Setting<T>): Boolean {
+    fun <T> hasValue(setting: Setting<T>): Boolean {
         return setting.name in data
     }
 
@@ -112,7 +112,13 @@ internal fun mutableSettingStateStorage(
     val processedData: MutableSettingStateMap = mutableMapOf()
     for (setting in variableProvider.settings()) {
         // Check if the setting has an assigned value.
-        if (!dataProvider.hasValue(setting)) {
+        if (!dataProvider.variableProvider.hasVariable(setting)) {
+            continue
+        }
+        if (dataProvider is SettingStateStorage && !dataProvider.hasValue(setting)) {
+            continue
+        }
+        if (dataProvider is SettingStateStorageWrapper && !dataProvider.hasValue(setting)) {
             continue
         }
 

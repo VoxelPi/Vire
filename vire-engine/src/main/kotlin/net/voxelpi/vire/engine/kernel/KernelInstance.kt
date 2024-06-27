@@ -37,8 +37,6 @@ public interface KernelInstance :
 
     override fun <T> get(parameter: Parameter<T>): T = kernelVariant[parameter]
 
-    override fun <T> hasValue(parameter: Parameter<T>): Boolean = kernelVariant.hasValue(parameter)
-
     override fun size(vector: VectorVariable<*>): Int = kernelVariant.size(vector)
 
     override fun size(vectorName: String): Int = kernelVariant.size(vectorName)

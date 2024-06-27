@@ -19,13 +19,6 @@ public interface FieldStateProvider {
      * @param field the variable of which the value should be returned.
      */
     public operator fun <T> get(field: Field<T>): T
-
-    /**
-     * Check if the given [field] has a set value.
-     *
-     * @param field the setting which should be checked.
-     */
-    public fun <T> hasValue(field: Field<T>): Boolean
 }
 
 /**

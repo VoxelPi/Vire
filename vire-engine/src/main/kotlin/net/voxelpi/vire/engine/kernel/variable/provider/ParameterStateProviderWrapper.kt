@@ -13,10 +13,6 @@ internal interface ParameterStateProviderWrapper : ParameterStateProvider {
     override fun <T> get(parameter: Parameter<T>): T {
         return parameterStateProvider[parameter]
     }
-
-    override fun <T> hasValue(parameter: Parameter<T>): Boolean {
-        return parameterStateProvider.hasValue(parameter)
-    }
 }
 
 internal interface MutableParameterStateProviderWrapper : ParameterStateProviderWrapper, MutableParameterStateProvider {

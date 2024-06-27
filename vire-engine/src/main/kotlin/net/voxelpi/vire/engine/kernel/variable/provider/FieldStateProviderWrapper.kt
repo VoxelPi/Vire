@@ -13,10 +13,6 @@ internal interface FieldStateProviderWrapper : FieldStateProvider {
     override fun <T> get(field: Field<T>): T {
         return fieldStateProvider[field]
     }
-
-    override fun <T> hasValue(field: Field<T>): Boolean {
-        return fieldStateProvider.hasValue(field)
-    }
 }
 
 internal interface MutableFieldStateProviderWrapper : FieldStateProviderWrapper, MutableFieldStateProvider {

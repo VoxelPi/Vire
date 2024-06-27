@@ -16,7 +16,7 @@ internal interface FieldStateStorageWrapper : FieldStateProvider {
         return fieldStateStorage[field]
     }
 
-    override fun <T> hasValue(field: Field<T>): Boolean {
+    fun <T> hasValue(field: Field<T>): Boolean {
         return fieldStateStorage.hasValue(field)
     }
 }

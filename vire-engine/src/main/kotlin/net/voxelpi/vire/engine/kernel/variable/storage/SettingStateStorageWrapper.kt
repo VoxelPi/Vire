@@ -16,7 +16,7 @@ internal interface SettingStateStorageWrapper : SettingStateProvider {
         return settingStateStorage[setting]
     }
 
-    override fun <T> hasValue(setting: Setting<T>): Boolean {
+    fun <T> hasValue(setting: Setting<T>): Boolean {
         return settingStateStorage.hasValue(setting)
     }
 }

@@ -34,7 +34,7 @@ internal interface FieldStateStorage : FieldStateProvider {
         return data[field.name] as T
     }
 
-    override fun <T> hasValue(field: Field<T>): Boolean {
+    fun <T> hasValue(field: Field<T>): Boolean {
         return field.name in data
     }
 
@@ -112,7 +112,13 @@ internal fun mutableFieldStateStorage(variableProvider: VariableProvider, dataPr
     val processedData: MutableFieldStateMap = mutableMapOf()
     for (field in variableProvider.fields()) {
         // Check that the field has an assigned value.
-        if (!dataProvider.hasValue(field)) {
+        if (!dataProvider.variableProvider.hasVariable(field)) {
+            continue
+        }
+        if (dataProvider is FieldStateStorage && !dataProvider.hasValue(field)) {
+            continue
+        }
+        if (dataProvider is FieldStateStorageWrapper && !dataProvider.hasValue(field)) {
             continue
         }
 

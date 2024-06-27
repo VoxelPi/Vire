@@ -31,7 +31,7 @@ internal interface ParameterStateStorage : ParameterStateProvider {
         return data[parameter.name] as T
     }
 
-    override fun <T> hasValue(parameter: Parameter<T>): Boolean {
+    fun <T> hasValue(parameter: Parameter<T>): Boolean {
         return parameter.name in data
     }
 
@@ -110,7 +110,13 @@ internal fun mutableParameterStateStorage(
     val processedData: MutableParameterStateMap = mutableMapOf()
     for (parameter in variableProvider.parameters()) {
         // Check if the parameter has an assigned value.
-        if (!dataProvider.hasValue(parameter)) {
+        if (!dataProvider.variableProvider.hasVariable(parameter)) {
+            continue
+        }
+        if (dataProvider is ParameterStateStorage && !dataProvider.hasValue(parameter)) {
+            continue
+        }
+        if (dataProvider is ParameterStateStorageWrapper && !dataProvider.hasValue(parameter)) {
             continue
         }
 
