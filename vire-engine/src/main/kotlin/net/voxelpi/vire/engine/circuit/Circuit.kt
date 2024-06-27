@@ -42,6 +42,7 @@ import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvide
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.mutableVectorSizeStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.parameterStateStorage
+import net.voxelpi.vire.engine.util.GraphUtil
 import java.util.UUID
 
 /**
@@ -400,7 +401,8 @@ internal class CircuitImpl(
             require(node2UniqueId in nodes) { "All nodes that are used in connections must be specified in the node set (node2)" }
         }
 
-        // TODO: Check if resulting network is valid (all nodes are connected via some path).
+        // Check that the graph is connected
+        require(GraphUtil.isConnectedGraph(nodes, connections)) { "All nodes must be connected to each other via some path" }
 
         // Find existing nodes and networks.
         val existingNodes = nodes.mapNotNull { networkNodes[it] }.toSet()

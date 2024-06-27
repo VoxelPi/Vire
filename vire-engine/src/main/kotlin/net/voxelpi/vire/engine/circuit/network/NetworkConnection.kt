@@ -15,7 +15,6 @@ public interface NetworkConnection {
     public val network: Network
 }
 
-// TODO: Maybe only store uniqueId of both nodes?
 internal class NetworkConnectionImpl(
     nodeA: NetworkNodeImpl,
     nodeB: NetworkNodeImpl,
