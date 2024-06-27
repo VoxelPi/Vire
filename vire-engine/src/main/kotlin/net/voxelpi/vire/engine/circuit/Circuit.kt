@@ -3,7 +3,6 @@ package net.voxelpi.vire.engine.circuit
 import net.voxelpi.event.EventScope
 import net.voxelpi.event.post
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.circuit.component.Component
 import net.voxelpi.vire.engine.circuit.component.ComponentImpl
 import net.voxelpi.vire.engine.circuit.event.component.ComponentCreateEvent
@@ -154,7 +153,6 @@ public interface Circuit : VariableProvider, MutableVectorSizeProvider {
     public fun createNetwork(
         nodes: Collection<UUID>,
         connections: Collection<Pair<UUID, UUID>>,
-        initialization: LogicState = LogicState.EMPTY,
         uniqueId: UUID = UUID.randomUUID(),
     ): Network
 
@@ -390,7 +388,6 @@ internal class CircuitImpl(
     override fun createNetwork(
         nodes: Collection<UUID>,
         connections: Collection<Pair<UUID, UUID>>,
-        initialization: LogicState,
         uniqueId: UUID,
     ): Network {
         val network = createNetwork()
