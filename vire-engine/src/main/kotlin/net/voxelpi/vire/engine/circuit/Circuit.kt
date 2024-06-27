@@ -769,7 +769,6 @@ internal class CircuitImpl(
         // Add all nodes of the previous two networks to the new network.
         network1.nodes().forEach(network::registerNode)
         network2.nodes().forEach(network::registerNode)
-        // TODO: Register existing connections
 
         // Unregister old networks.
         unregisterNetwork(network1)
@@ -786,7 +785,6 @@ internal class CircuitImpl(
 
         // Add all nodes of the previous two networks to the new network.
         network2.nodes().forEach(network1::registerNode)
-        // TODO: Register existing connections
 
         // Unregister other networks.
         unregisterNetwork(network2)

@@ -93,7 +93,7 @@ internal class NetworkImpl(
     }
 
     override fun connections(): Collection<NetworkConnectionImpl> {
-        return circuit.networkConnections().filter { it.node1.network == this && it.node2.network == this }
+        return circuit.networkConnections().filter { it.network == this }
     }
 
     override fun connection(nodeA: NetworkNode, nodeB: NetworkNode): NetworkConnectionImpl? {
