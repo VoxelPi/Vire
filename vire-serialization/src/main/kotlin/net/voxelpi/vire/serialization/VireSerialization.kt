@@ -15,6 +15,7 @@ import net.voxelpi.vire.engine.circuit.component.ComponentConfiguration
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.KernelState
+import net.voxelpi.vire.engine.kernel.registered.RegisteredKernel
 import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
@@ -24,9 +25,10 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.VectorVariableSize
-import net.voxelpi.vire.engine.kernel.variable.input
-import net.voxelpi.vire.engine.kernel.variable.output
+import net.voxelpi.vire.engine.kernel.variable.createInput
+import net.voxelpi.vire.engine.kernel.variable.createInputVector
+import net.voxelpi.vire.engine.kernel.variable.createOutput
+import net.voxelpi.vire.engine.kernel.variable.createOutputVector
 import net.voxelpi.vire.engine.kernel.variable.variableOfKind
 import net.voxelpi.vire.serialization.adapter.BooleanStateAdapter
 import net.voxelpi.vire.serialization.adapter.IdentifierAdapter
@@ -52,16 +54,17 @@ public object VireSerialization {
         }.create()
 
         val circuitData = JsonObject()
-        circuitData.add("id", gson.toJsonTree(circuit.id))
         circuitData.add("tags", gson.toJsonTree(circuit.tags))
         circuitData.add("properties", gson.toJsonTree(circuit.properties))
 
         val componentsData = JsonArray()
         for (component in circuit.components()) {
             val componentData = JsonObject()
+            val kernel = component.kernel
+            require(kernel is RegisteredKernel) { "Cannot serialize unregistered kernels" }
 
             val kernelVariantData = JsonObject()
-            kernelVariantData.add("kernel", gson.toJsonTree(component.kernel.id))
+            kernelVariantData.add("kernel", gson.toJsonTree(kernel.id))
             val parameterStateData = JsonObject()
             for (parameter in component.kernel.parameters()) {
                 parameterStateData.add(parameter.name, gson.toJsonTree(component.kernelVariant[parameter], parameter.type.javaType))
@@ -104,7 +107,6 @@ public object VireSerialization {
         circuit.networks().map { network ->
             val networkData = JsonObject()
             networkData.add("unique_id", gson.toJsonTree(network.uniqueId))
-            networkData.add("initialization", gson.toJsonTree(network.initialization))
             networkData.add("nodes", gson.toJsonTree(network.nodes().map { it.uniqueId }.toList()))
             networkData.add(
                 "connections",
@@ -129,10 +131,7 @@ public object VireSerialization {
         for (input in circuit.inputs()) {
             val size = when (input) {
                 is InputScalar -> JsonNull.INSTANCE
-                is InputVector -> when (val size = input.size) {
-                    is VectorVariableSize.Parameter -> throw Exception("The input vector \"${input.name}\" uses a parameter as size")
-                    is VectorVariableSize.Value -> JsonPrimitive(size.value)
-                }
+                is InputVector -> JsonPrimitive(circuit.size(input))
                 is InputVectorElement -> throw IllegalStateException("Input vector elements cannot be serialized (\"${input.name}\")")
             }
             val inputData = JsonObject()
@@ -146,10 +145,7 @@ public object VireSerialization {
         for (output in circuit.outputs()) {
             val size = when (output) {
                 is OutputScalar -> JsonNull.INSTANCE
-                is OutputVector -> when (val size = output.size) {
-                    is VectorVariableSize.Parameter -> throw Exception("The output vector \"${output.name}\" uses a parameter as size")
-                    is VectorVariableSize.Value -> JsonPrimitive(size.value)
-                }
+                is OutputVector -> JsonPrimitive(circuit.size(output))
                 is OutputVectorElement -> throw IllegalStateException("Output vector elements cannot be serialized (\"${output.name}\")")
             }
             val outputData = JsonObject()
@@ -177,8 +173,7 @@ public object VireSerialization {
             return Result.failure(Exception("Invalid format, root node should be an object"))
         }
 
-        val circuitId = gson.fromJson(circuitData["id"], Identifier::class.java)
-        val circuit = environment.createCircuit(circuitId)
+        val circuit = environment.createCircuit()
 
         val specialNodes = mutableSetOf<UUID>()
 
@@ -186,9 +181,11 @@ public object VireSerialization {
         for (inputData in circuitData["inputs"].asJsonArray) {
             check(inputData is JsonObject)
             val input = if (inputData.has("size")) {
-                input(inputData["name"].asString, inputData["size"].asInt)
+                createInputVector(inputData["name"].asString) {
+                    size = { inputData["size"].asInt }
+                }
             } else {
-                input(inputData["name"].asString)
+                createInput(inputData["name"].asString)
             }
             circuit.declareVariable(input)
         }
@@ -198,9 +195,11 @@ public object VireSerialization {
             check(outputData is JsonObject)
 
             val output = if (outputData.has("size")) {
-                output(outputData["name"].asString, outputData["size"].asInt)
+                createOutputVector(outputData["name"].asString) {
+                    size = { outputData["size"].asInt }
+                }
             } else {
-                output(outputData["name"].asString)
+                createOutput(outputData["name"].asString)
             }
             circuit.declareVariable(output)
         }
@@ -284,9 +283,8 @@ public object VireSerialization {
                 val uniqueId2 = gson.fromJson(it[1], UUID::class.java)
                 Pair(uniqueId1, uniqueId2)
             }
-            val initialization = gson.fromJson(networkData["initialization"], LogicState::class.java)
             val networkUniqueId = gson.fromJson(networkData["unique_id"], UUID::class.java)
-            circuit.createNetwork(nodesUniqueIds, connectionsUniqueIds, initialization, networkUniqueId)
+            circuit.createNetwork(nodesUniqueIds, connectionsUniqueIds, networkUniqueId)
         }
 
         // Return the created circuit.

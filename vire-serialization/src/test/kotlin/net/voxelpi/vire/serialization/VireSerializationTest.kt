@@ -1,6 +1,5 @@
 package net.voxelpi.vire.serialization
 
-import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.Vire
 import net.voxelpi.vire.engine.circuit.Circuit
 import net.voxelpi.vire.engine.circuit.component.ComponentConfiguration
@@ -25,16 +24,16 @@ class VireSerializationTest {
     @BeforeEach
     fun setUp() {
         environment = Vire.createEnvironment(listOf(VireStandardLibrary))
-        circuit = environment.createCircuit(Identifier("vire-test", "test"))
+        circuit = environment.createCircuit()
     }
 
     @Test
     fun `simple test`() {
-        val component1 = circuit.createComponent(BufferGate.createVariant().getOrThrow())
+        val component1 = circuit.createComponent(VireStandardLibrary.BUFFER_GATE_KERNEL.createVariant().getOrThrow())
         val port11 = component1.createPort(BufferGate.input)
         val port12 = component1.createPort(BufferGate.output)
 
-        val component2 = circuit.createComponent(NotGate.createVariant().getOrThrow())
+        val component2 = circuit.createComponent(VireStandardLibrary.NOT_GATE_KERNEL.createVariant().getOrThrow())
         val port21 = component2.createPort(NotGate.input)
         val port22 = component2.createPort(NotGate.output)
 
@@ -47,7 +46,6 @@ class VireSerializationTest {
         // Deserialize the circuit
         val circuit2 = VireSerialization.deserialize(environment, serializedCircuit).getOrThrow()
 
-        assertEquals(circuit.id, circuit2.id)
         assertEquals(circuit.components().size, circuit2.components().size)
         assertEquals(circuit.networks().size, circuit2.networks().size)
     }
@@ -55,10 +53,8 @@ class VireSerializationTest {
     @Suppress("UNCHECKED_CAST")
     @Test
     fun `complex component`() {
-        val kernelVariant = Memory.createVariant {
+        val kernelVariant = VireStandardLibrary.MEMORY_KERNEL.createVariant {
             this[Memory.readOnly] = true
-            this[Memory.wordSize] = 16
-            this[Memory.addressBits] = 4
         }.getOrThrow()
 
         val component = circuit.createComponent(kernelVariant)
@@ -84,7 +80,6 @@ class VireSerializationTest {
         // Deserialize the circuit
         val circuit2 = VireSerialization.deserialize(environment, serializedCircuit).getOrThrow()
 
-        assertEquals(circuit.id, circuit2.id)
         assertEquals(circuit.components().size, circuit2.components().size)
         assertEquals(circuit.networks().size, circuit2.networks().size)
 
