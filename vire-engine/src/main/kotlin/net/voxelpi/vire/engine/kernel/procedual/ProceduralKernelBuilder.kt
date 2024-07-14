@@ -1,10 +1,10 @@
-package net.voxelpi.vire.engine.kernel.builder
+package net.voxelpi.vire.engine.kernel.procedual
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
-public interface KernelBuilder {
+public interface ProceduralKernelBuilder {
 
     public val tags: MutableSet<Identifier>
 
@@ -31,7 +31,7 @@ public interface KernelBuilder {
     public fun <V : Variable<*>> declare(variable: V): V
 }
 
-internal open class KernelBuilderImpl : KernelBuilder {
+internal open class ProceduralKernelBuilderImpl : ProceduralKernelBuilder {
 
     override val tags: MutableSet<Identifier> = mutableSetOf()
 

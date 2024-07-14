@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.builder
+package net.voxelpi.vire.engine.kernel.procedual
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.MutableKernelState
@@ -18,13 +18,10 @@ public interface UpdateContext :
     InputStateProvider,
     MutableOutputStateProvider {
 
-    public val kernel: Kernel
+    public val kernel: ProceduralKernel
 }
 
 internal class UpdateContextImpl(
+    override val kernel: ProceduralKernel,
     override val kernelState: MutableKernelState,
-) : UpdateContext, MutableKernelStateWrapper {
-
-    override val kernel: Kernel
-        get() = super.kernel
-}
+) : UpdateContext, MutableKernelStateWrapper

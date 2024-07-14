@@ -27,6 +27,7 @@ import net.voxelpi.vire.engine.circuit.terminal.Terminal
 import net.voxelpi.vire.engine.circuit.terminal.TerminalImpl
 import net.voxelpi.vire.engine.environment.Environment
 import net.voxelpi.vire.engine.environment.EnvironmentImpl
+import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.circuit.CircuitKernel
@@ -80,9 +81,9 @@ public interface Circuit : VariableProvider, MutableVectorSizeProvider {
     public fun <V : IOVariable> removeVariable(variable: V): V?
 
     /**
-     * Creates a circuit kernel variant from this circuit.
+     * Creates a circuit kernel from this circuit.
      */
-    public fun createKernelVariant(): KernelVariant
+    public fun createKernel(): Kernel
 
     /**
      * Creates a new circuit instance.
@@ -277,8 +278,10 @@ internal class CircuitImpl(
     override val vectorSizeProvider: MutableVectorSizeProvider
         get() = vectorSizeStorage
 
-    override fun createKernelVariant(): KernelVariant {
-        return CircuitKernel.createVariant(this)
+    override fun createKernel(): Kernel {
+        return CircuitKernel.createSpecialization {
+            this[CircuitKernel.CIRCUIT] = this@CircuitImpl
+        }
     }
 
     override fun createCircuitInstance(settingStates: SettingStateProvider): Result<CircuitInstance> {

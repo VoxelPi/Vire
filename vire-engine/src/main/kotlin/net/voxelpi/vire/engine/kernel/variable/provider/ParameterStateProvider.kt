@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap

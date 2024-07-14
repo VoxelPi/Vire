@@ -1,4 +1,4 @@
-package net.voxelpi.vire.engine.kernel.builder
+package net.voxelpi.vire.engine.kernel.procedual
 
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelInitializationException
@@ -29,7 +29,7 @@ public interface InitializationContext :
     /**
      * The kernel which of which the instance was created.
      */
-    public val kernel: Kernel
+    public val kernel: ProceduralKernel
 
     /**
      * The kernel variant of which the instance was created.
@@ -51,6 +51,7 @@ public interface InitializationContext :
 }
 
 internal class InitializationContextImpl(
+    override val kernel: ProceduralKernel,
     override val kernelVariant: KernelVariantImpl,
     override val settingStateProvider: SettingStateProvider,
     override val fieldStateProvider: MutablePartialFieldStateProvider,
@@ -60,9 +61,6 @@ internal class InitializationContextImpl(
     SettingStateProviderWrapper,
     MutablePartialFieldStateProviderWrapper,
     MutablePartialOutputStateProviderWrapper {
-
-    override val kernel: Kernel
-        get() = kernelVariant.kernel
 
     override val variableProvider: VariableProvider
         get() = kernelVariant

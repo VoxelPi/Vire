@@ -1,8 +1,6 @@
-package net.voxelpi.vire.engine.kernel.builder
+package net.voxelpi.vire.engine.kernel.procedual
 
-import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
-import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
@@ -19,7 +17,7 @@ public interface ConfigurationContext : VariableProvider, MutableVectorSizeProvi
     /**
      * The kernel which of which the instance was created.
      */
-    public val kernel: Kernel
+    public val kernel: ProceduralKernel
 
     /**
      * Stops the configuration of the kernel instance.
@@ -37,7 +35,7 @@ public interface ConfigurationContext : VariableProvider, MutableVectorSizeProvi
 }
 
 internal class ConfigurationContextImpl(
-    override val kernel: KernelImpl,
+    override val kernel: ProceduralKernelImpl,
     override val parameterStateProvider: ParameterStateProvider,
 ) : ConfigurationContext, MutableVectorSizeStorageWrapper, ParameterStateProviderWrapper {
 

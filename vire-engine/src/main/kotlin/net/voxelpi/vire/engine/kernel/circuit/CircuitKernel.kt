@@ -18,6 +18,8 @@ public object CircuitKernel : KernelProvider {
 
     public val ID: Identifier = Identifier("vire", "circuit")
 
+    public val CIRCUIT_KERNEL_TAG: Identifier = Identifier("vire", "circuit")
+
     public val CIRCUIT: Parameter<Circuit> = createParameter("circuit")
 
     public val CIRCUIT_INSTANCE: Field<CircuitInstance> = createField("instance")
@@ -31,6 +33,8 @@ public object CircuitKernel : KernelProvider {
     }
 
     public override val kernel: RegisteredKernel = registeredKernel(ID) {
+        tags += CIRCUIT_KERNEL_TAG
+
         declare(CIRCUIT)
         declare(CIRCUIT_INSTANCE)
         declare(CIRCUIT_STATE)

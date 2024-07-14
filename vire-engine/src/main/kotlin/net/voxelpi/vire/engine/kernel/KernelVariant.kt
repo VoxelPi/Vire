@@ -86,7 +86,7 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
 }
 
 internal class KernelVariantImpl(
-    override val kernel: KernelImpl,
+    override val kernel: Kernel,
     val variables: Map<String, Variable<*>>,
     override val parameterStateStorage: ParameterStateStorage,
     override val vectorSizeStorage: VectorSizeStorage,
@@ -103,15 +103,15 @@ internal class KernelVariantImpl(
         return variables[name]
     }
 
-    override fun copy(): Result<KernelVariantImpl> {
+    override fun copy(): Result<KernelVariant> {
         return kernel.createVariant(this)
     }
 
-    override fun copy(lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariantImpl> {
+    override fun copy(lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariant> {
         return kernel.createVariant(this, lambda)
     }
 
-    override fun copy(values: Map<String, Any?>): Result<KernelVariantImpl> {
+    override fun copy(values: Map<String, Any?>): Result<KernelVariant> {
         return kernel.createVariant(this) {
             for ((key, value) in values) {
                 this[key] = value
