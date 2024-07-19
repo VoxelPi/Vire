@@ -4,9 +4,9 @@ import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 
 /**
- * A type that provides ways to access the state of a setting variable.
+ * A type that provides access to the state of some of the registered setting variables.
  */
-public interface SettingStateProvider {
+public interface PartialSettingStateProvider {
 
     /**
      * The variable provider for which the setting states should be provided.
@@ -14,17 +14,22 @@ public interface SettingStateProvider {
     public val variableProvider: VariableProvider
 
     /**
-     * Returns the current value of the given [setting].
+     * Returns the current value of the given [setting] or null if the setting has no value set.
      *
      * @param setting the variable of which the value should be returned.
      */
-    public operator fun <T> get(setting: Setting<T>): T
+    public operator fun <T> get(setting: Setting<T>): T?
+
+    /**
+     * Returns if the given setting has a set value.
+     */
+    public fun hasValue(setting: Setting<*>): Boolean
 }
 
 /**
- * A type that provides ways to access and modify the state of a setting variable.
+ * A type that provides mutable access to the state of some of the registered setting variables.
  */
-public interface MutableSettingStateProvider : SettingStateProvider {
+public interface MutablePartialSettingStateProvider : PartialSettingStateProvider {
 
     /**
      * Sets the value of the given [setting] to the given [value].
@@ -34,3 +39,23 @@ public interface MutableSettingStateProvider : SettingStateProvider {
      */
     public operator fun <T> set(setting: Setting<T>, value: T)
 }
+
+/**
+ * A type that provides access to the state of all registered setting variables.
+ */
+public interface SettingStateProvider : PartialSettingStateProvider {
+
+    /**
+     * Returns the current value of the given [setting].
+     *
+     * @param setting the variable of which the value should be returned.
+     */
+    override fun <T> get(setting: Setting<T>): T
+
+    override fun hasValue(setting: Setting<*>): Boolean = setting in variableProvider
+}
+
+/**
+ * A type that provides mutable access to the state of all registered setting variables.
+ */
+public interface MutableSettingStateProvider : SettingStateProvider, MutablePartialSettingStateProvider

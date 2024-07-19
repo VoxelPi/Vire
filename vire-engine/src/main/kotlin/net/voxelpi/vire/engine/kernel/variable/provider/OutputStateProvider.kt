@@ -2,6 +2,7 @@ package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.BooleanState
 import net.voxelpi.vire.engine.LogicState
+import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.Output
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
@@ -9,9 +10,9 @@ import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 
 /**
- * A type that provides ways to access the state of an output variable.
+ * A type that provides access to the state of some of the registered output variables.
  */
-public interface OutputStateProvider {
+public interface PartialOutputStateProvider {
 
     /**
      * The variable provider for which the output states should be provided.
@@ -23,14 +24,14 @@ public interface OutputStateProvider {
      *
      * @param output the variable of which the value should be returned.
      */
-    public operator fun get(output: OutputScalar): LogicState
+    public operator fun get(output: OutputScalar): LogicState?
 
     /**
      * Returns the value of all entries of the given [outputVector].
      *
      * @param outputVector the output vector of which the value should be returned.
      */
-    public operator fun get(outputVector: OutputVector): Array<LogicState>
+    public operator fun get(outputVector: OutputVector): Array<LogicState>?
 
     /**
      * Returns the value of the entry at the given [index] of the given [outputVector].
@@ -38,14 +39,14 @@ public interface OutputStateProvider {
      * @param outputVector the output vector of which the value should be returned.
      * @param index the index in the output vector of the entry.
      */
-    public operator fun get(outputVector: OutputVector, index: Int): LogicState
+    public operator fun get(outputVector: OutputVector, index: Int): LogicState?
 
     /**
      * Returns the value of the given [outputVectorElement].
      *
      * @param outputVectorElement the output vector element of which the value should be returned.
      */
-    public operator fun get(outputVectorElement: OutputVectorElement): LogicState {
+    public operator fun get(outputVectorElement: OutputVectorElement): LogicState? {
         return get(outputVectorElement.vector, outputVectorElement.index)
     }
 
@@ -56,19 +57,24 @@ public interface OutputStateProvider {
      *
      * @param output the output of which the value should be returned.
      */
-    public fun vector(output: Output): Array<LogicState> {
+    public fun vector(output: Output): Array<LogicState>? {
         return when (output) {
-            is OutputScalar -> arrayOf(this[output])
+            is OutputScalar -> this[output]?.let { arrayOf(it) }
             is OutputVector -> this[output]
-            is OutputVectorElement -> arrayOf(this[output])
+            is OutputVectorElement -> this[output]?.let { arrayOf(it) }
         }
     }
+
+    /**
+     * Returns if the given output has a set value.
+     */
+    public fun hasValue(output: Output): Boolean
 }
 
 /**
- * A type that provides ways to access and modify the state of an output variable.
+ * A type that provides mutable access to the state of some of the registered output variables.
  */
-public interface MutableOutputStateProvider : OutputStateProvider {
+public interface MutablePartialOutputStateProvider {
 
     /**
      * Sets the value of the given [output] to the given [value].
@@ -162,3 +168,62 @@ public interface MutableOutputStateProvider : OutputStateProvider {
         }
     }
 }
+
+/**
+ * A type that provides access to the state of all registered output variables.
+ */
+public interface OutputStateProvider : PartialOutputStateProvider {
+
+    /**
+     * Returns the value of the given [output].
+     *
+     * @param output the variable of which the value should be returned.
+     */
+    override fun get(output: OutputScalar): LogicState
+
+    /**
+     * Returns the value of all entries of the given [outputVector].
+     *
+     * @param outputVector the output vector of which the value should be returned.
+     */
+    override fun get(outputVector: OutputVector): Array<LogicState>
+
+    /**
+     * Returns the value of the entry at the given [index] of the given [outputVector].
+     *
+     * @param outputVector the output vector of which the value should be returned.
+     * @param index the index in the output vector of the entry.
+     */
+    override fun get(outputVector: OutputVector, index: Int): LogicState
+
+    /**
+     * Returns the value of the given [outputVectorElement].
+     *
+     * @param outputVectorElement the output vector element of which the value should be returned.
+     */
+    override fun get(outputVectorElement: OutputVectorElement): LogicState {
+        return get(outputVectorElement.vector, outputVectorElement.index)
+    }
+
+    /**
+     * Returns the value of the given [output] as a logic state vector.
+     * If the output is a vector, the vector value is returned directly.
+     * If the output is a scalar, then an array with the value as its only entry is returned.
+     *
+     * @param output the output of which the value should be returned.
+     */
+    override fun vector(output: Output): Array<LogicState> {
+        return when (output) {
+            is OutputScalar -> arrayOf(this[output])
+            is OutputVector -> this[output]
+            is OutputVectorElement -> arrayOf(this[output])
+        }
+    }
+
+    override fun hasValue(output: Output): Boolean = output in variableProvider
+}
+
+/**
+ * A type that provides mutable access to the state of all registered output variables.
+ */
+public interface MutableOutputStateProvider : OutputStateProvider, MutablePartialOutputStateProvider

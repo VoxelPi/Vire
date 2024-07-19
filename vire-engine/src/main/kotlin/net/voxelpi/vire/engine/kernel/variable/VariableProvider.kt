@@ -3,7 +3,7 @@ package net.voxelpi.vire.engine.kernel.variable
 /**
  * A type that provides kernel variables of any type.
  */
-public interface VariableProvider {
+public interface VariableProvider : Iterable<Variable<*>> {
 
     /**
      * Returns all registered variables.
@@ -24,6 +24,21 @@ public interface VariableProvider {
      * Checks if the given [variable] is registered.
      */
     public fun hasVariable(variable: Variable<*>): Boolean = variable(variable.name) == variable
+
+    /**
+     * Checks if there is a registered variable with the given [name].
+     */
+    public operator fun contains(name: String): Boolean = variable(name) != null
+
+    /**
+     * Checks if the given [variable] is registered.
+     */
+    public operator fun contains(variable: Variable<*>): Boolean = variable(variable.name) == variable
+
+    /**
+     * Get the iterator over all registered variables.
+     */
+    override fun iterator(): Iterator<Variable<*>> = variables().iterator()
 
     /**
      * Returns all registered vector variables
