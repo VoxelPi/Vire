@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.kernel.variable.patch
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
@@ -45,7 +46,9 @@ internal open class ParameterStatePatch(
         require(variableProvider.hasParameter(parameter)) { "Unknown parameter ${parameter.name}" }
 
         // Check that the parameter has been initialized.
-        require(parameter.name in data) { "Usage of uninitialized parameter ${parameter.name}" }
+        if (parameter.name !in data) {
+            throw UninitializedVariableException(parameter)
+        }
 
         // Return the value of the parameter.
         return data[parameter.name] as T

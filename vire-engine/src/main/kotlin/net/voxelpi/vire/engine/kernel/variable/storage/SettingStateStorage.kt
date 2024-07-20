@@ -48,9 +48,6 @@ internal open class SettingStateStorage(
         // Check that a setting with the given name exists.
         require(variableProvider.hasSetting(setting)) { "Unknown setting ${setting.name}" }
 
-        // Check that the setting has been initialized.
-        require(setting.name in data) { "Usage of uninitialized setting ${setting.name}" }
-
         // Return the value of the setting.
         return data[setting.name] as T
     }

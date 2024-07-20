@@ -5,6 +5,7 @@ import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
+import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialInputStateProvider
@@ -47,6 +48,11 @@ internal open class InputStatePatch(
         // Check that an input with the given name exists.
         require(variableProvider.hasInput(input)) { "Unknown input ${input.name}" }
 
+        // Check that the input has been initialized.
+        if (input.name !in data) {
+            throw UninitializedVariableException(input)
+        }
+
         // Return the value of the input.
         return data[input.name]!![0]
     }
@@ -54,6 +60,11 @@ internal open class InputStatePatch(
     override fun get(inputVector: InputVector): Array<LogicState> {
         // Check that an input with the given name exists.
         require(variableProvider.hasInput(inputVector)) { "Unknown input vector ${inputVector.name}" }
+
+        // Check that the input vector has been initialized.
+        if (inputVector.name !in data) {
+            throw UninitializedVariableException(inputVector)
+        }
 
         // Return the value of the input.
         return data[inputVector.name]!!

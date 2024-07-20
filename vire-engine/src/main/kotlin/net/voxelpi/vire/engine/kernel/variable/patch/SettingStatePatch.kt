@@ -1,6 +1,7 @@
 package net.voxelpi.vire.engine.kernel.variable.patch
 
 import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialSettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialSettingStateProvider
@@ -43,7 +44,9 @@ internal open class SettingStatePatch(
         require(variableProvider.hasSetting(setting)) { "Unknown setting ${setting.name}" }
 
         // Check that the setting has been initialized.
-        require(setting.name in data) { "Usage of uninitialized setting ${setting.name}" }
+        if (setting.name !in data) {
+            throw UninitializedVariableException(setting)
+        }
 
         // Return the value of the setting.
         return data[setting.name] as T

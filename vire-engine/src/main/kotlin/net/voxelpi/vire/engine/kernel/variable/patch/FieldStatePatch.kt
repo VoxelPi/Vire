@@ -3,6 +3,7 @@ package net.voxelpi.vire.engine.kernel.variable.patch
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContext
+import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialFieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialFieldStateProvider
@@ -46,7 +47,9 @@ internal open class FieldStatePatch(
         require(variableProvider.hasField(field)) { "Unknown field ${field.name}" }
 
         // Check that the field has been initialized.
-        require(field.name in data) { "Usage of uninitialized field ${field.name}" }
+        if (field.name !in data) {
+            throw UninitializedVariableException(field)
+        }
 
         // Return the value of the field.
         return data[field.name] as T

@@ -48,9 +48,6 @@ internal open class ParameterStateStorage(
         // Check that a parameter with the given name exists.
         require(variableProvider.hasParameter(parameter)) { "Unknown parameter ${parameter.name}" }
 
-        // Check that the parameter has been initialized.
-        require(parameter.name in data) { "Usage of uninitialized parameter ${parameter.name}" }
-
         // Return the value of the parameter.
         return data[parameter.name] as T
     }

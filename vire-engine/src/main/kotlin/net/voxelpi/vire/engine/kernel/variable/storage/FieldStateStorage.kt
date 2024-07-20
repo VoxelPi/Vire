@@ -48,9 +48,6 @@ internal open class FieldStateStorage(
         // Check that a field with the given name exists.
         require(variableProvider.hasField(field)) { "Unknown field ${field.name}" }
 
-        // Check that the field has been initialized.
-        require(field.name in data) { "Usage of uninitialized field ${field.name}" }
-
         // Return the value of the field.
         return data[field.name] as T
     }

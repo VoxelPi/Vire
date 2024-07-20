@@ -8,6 +8,7 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalarInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorInitializationContext
+import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialOutputStateProvider
@@ -51,6 +52,11 @@ internal open class OutputStatePatch(
         // Check that an output with the given name exists.
         require(variableProvider.hasOutput(output)) { "Unknown output ${output.name}" }
 
+        // Check that the output has been initialized.
+        if (output.name !in data) {
+            throw UninitializedVariableException(output)
+        }
+
         // Return the value of the output.
         return data[output.name]!![0]
     }
@@ -58,6 +64,11 @@ internal open class OutputStatePatch(
     override fun get(outputVector: OutputVector): Array<LogicState> {
         // Check that an output with the given name exists.
         require(variableProvider.hasOutput(outputVector)) { "Unknown output vector ${outputVector.name}" }
+
+        // Check that the output vector has been initialized.
+        if (outputVector.name !in data) {
+            throw UninitializedVariableException(outputVector)
+        }
 
         // Return the value of the output.
         return data[outputVector.name]!!
