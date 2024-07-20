@@ -7,6 +7,8 @@ import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.OutputStatePatch
+import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateMap
 
 /**
  * A type that provides access to the state of some of the registered output variables.
@@ -170,6 +172,22 @@ public interface MutablePartialOutputStateProvider : PartialOutputStateProvider 
             is OutputVector -> this[output] = value
             is OutputVectorElement -> this[output] = value[0]
         }
+    }
+
+    /**
+     * Copies all values present in the given [provider] to this provider.
+     */
+    public fun applyOutputStatePatch(provider: PartialOutputStateProvider) {
+        for (output in provider.variableProvider.outputs().filter(provider::hasValue)) {
+            vector(output, provider.vector(output))
+        }
+    }
+
+    /**
+     * Copies all values present in the given [map] to this provider.
+     */
+    public fun applyOutputStatePatch(map: OutputStateMap) {
+        applyOutputStatePatch(OutputStatePatch(variableProvider, map))
     }
 }
 

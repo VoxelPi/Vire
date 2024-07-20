@@ -128,7 +128,7 @@ internal class SimulationImpl(
     }
 
     override fun modifyInputs(data: InputStateMap) {
-        (state as MutableKernelStateImpl).inputStateStorage.update(data)
+        (state as MutableKernelStateImpl).inputStateStorage.applyInputStatePatch(data)
         states.add(state.copy())
         currentStep++
     }

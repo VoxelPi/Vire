@@ -66,7 +66,7 @@ internal class KernelInstanceBuilderImpl(
     }
 
     fun apply(values: Map<String, Any?>): KernelInstanceBuilderImpl {
-        settingStatePatch.update(values)
+        settingStatePatch.applySettingStatePatch(values)
         return this
     }
 

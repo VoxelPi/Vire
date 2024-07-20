@@ -7,6 +7,8 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.InputStatePatch
+import net.voxelpi.vire.engine.kernel.variable.storage.InputStateMap
 
 /**
  * A type that provides access to the state of some of the registered input variables.
@@ -170,6 +172,22 @@ public interface MutablePartialInputStateProvider : PartialInputStateProvider {
             is InputVector -> this[input] = value
             is InputVectorElement -> this[input] = value[0]
         }
+    }
+
+    /**
+     * Copies all values present in the given [provider] to this provider.
+     */
+    public fun applyInputStatePatch(provider: PartialInputStateProvider) {
+        for (input in provider.variableProvider.inputs().filter(provider::hasValue)) {
+            vector(input, provider.vector(input))
+        }
+    }
+
+    /**
+     * Copies all values present in the given [map] to this provider.
+     */
+    public fun applyInputStatePatch(map: InputStateMap) {
+        applyInputStatePatch(InputStatePatch(variableProvider, map))
     }
 }
 

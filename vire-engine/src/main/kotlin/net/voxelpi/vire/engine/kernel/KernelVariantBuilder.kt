@@ -60,7 +60,7 @@ internal class KernelVariantBuilderImpl(
     }
 
     fun update(values: Map<String, Any?>): KernelVariantBuilderImpl {
-        parameterStatePatch.update(values)
+        parameterStatePatch.applyParameterStatePatch(values)
         return this
     }
 

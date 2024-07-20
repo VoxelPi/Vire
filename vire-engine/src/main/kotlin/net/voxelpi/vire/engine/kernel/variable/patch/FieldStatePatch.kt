@@ -89,22 +89,10 @@ internal class MutableFieldStatePatch(
         require(variableProvider.hasField(field)) { "Unknown field ${field.name}" }
 
         // Check that the value is valid for the specified field.
-        require(field.isValidTypeAndValue(value)) { "Value $field does not meet the requirements for the field ${field.name}" }
+        require(field.isValidTypeAndValue(value)) { "Value $value does not meet the requirements for the field ${field.name}" }
 
         // Update the value of the field.
         data[field.name] = value
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun update(data: FieldStateMap) {
-        for ((fieldName, value) in data) {
-            // Check that only existing fields are specified.
-            val field = variableProvider.field(fieldName) as Field<Any?>?
-                ?: throw IllegalArgumentException("Unknown field '$fieldName'")
-
-            // Update the value of the field.
-            this[field] = value
-        }
     }
 }
 

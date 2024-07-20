@@ -2,6 +2,8 @@ package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.SettingStatePatch
+import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
 
 /**
  * A type that provides access to the state of some of the registered setting variables.
@@ -43,6 +45,23 @@ public interface MutablePartialSettingStateProvider : PartialSettingStateProvide
      * @param value the new value of the setting.
      */
     public operator fun <T> set(setting: Setting<T>, value: T)
+
+    /**
+     * Copies all values present in the given [provider] to this provider.
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun applySettingStatePatch(provider: PartialSettingStateProvider) {
+        for (setting in provider.variableProvider.settings().filter(provider::hasValue)) {
+            this[(setting as Setting<Any?>)] = provider[setting]
+        }
+    }
+
+    /**
+     * Copies all values present in the given [map] to this provider.
+     */
+    public fun applySettingStatePatch(map: SettingStateMap) {
+        applySettingStatePatch(SettingStatePatch(variableProvider, map))
+    }
 }
 
 /**

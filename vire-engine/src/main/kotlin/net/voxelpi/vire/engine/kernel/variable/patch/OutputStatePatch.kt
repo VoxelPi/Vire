@@ -130,21 +130,6 @@ internal class MutableOutputStatePatch(
         // Return the value of the output.
         data[outputVector.name]!![index] = value
     }
-
-    fun update(data: OutputStateMap) {
-        for ((outputName, value) in data) {
-            // Check that only existing outputs are specified.
-            val output = variableProvider.output(outputName)
-                ?: throw IllegalArgumentException("Unknown output '$outputName'")
-
-            // Update the value of the output.
-            when (output) {
-                is OutputScalar -> this[output] = value[0]
-                is OutputVector -> this[output] = value
-                is OutputVectorElement -> throw IllegalArgumentException("Output vector elements may not be specified ('$outputName')")
-            }
-        }
-    }
 }
 
 internal fun generateInitialOutputStatePatch(

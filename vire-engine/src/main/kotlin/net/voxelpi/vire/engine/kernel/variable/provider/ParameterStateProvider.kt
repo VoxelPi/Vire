@@ -2,6 +2,8 @@ package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
 
 /**
  * A type that provides access to the state of some of the registered parameter variables.
@@ -43,6 +45,23 @@ public interface MutablePartialParameterStateProvider : PartialParameterStatePro
      * @param value the new value of the parameter.
      */
     public operator fun <T> set(parameter: Parameter<T>, value: T)
+
+    /**
+     * Copies all values present in the given [provider] to this provider.
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun applyParameterStatePatch(provider: PartialParameterStateProvider) {
+        for (parameter in provider.variableProvider.parameters().filter(provider::hasValue)) {
+            this[(parameter as Parameter<Any?>)] = provider[parameter]
+        }
+    }
+
+    /**
+     * Copies all values present in the given [map] to this provider.
+     */
+    public fun applyParameterStatePatch(map: ParameterStateMap) {
+        applyParameterStatePatch(ParameterStatePatch(variableProvider, map))
+    }
 }
 
 /**

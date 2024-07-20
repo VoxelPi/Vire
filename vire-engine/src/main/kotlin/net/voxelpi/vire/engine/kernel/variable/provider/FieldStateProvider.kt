@@ -2,6 +2,8 @@ package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.FieldStatePatch
+import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateMap
 
 /**
  * A type that provides access to the state of some of the registered field variables.
@@ -43,6 +45,23 @@ public interface MutablePartialFieldStateProvider : PartialFieldStateProvider {
      * @param value the new value of the field.
      */
     public operator fun <T> set(field: Field<T>, value: T)
+
+    /**
+     * Copies all values present in the given [provider] to this provider.
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun applyFieldStatePatch(provider: PartialFieldStateProvider) {
+        for (field in provider.variableProvider.fields().filter(provider::hasValue)) {
+            this[(field as Field<Any?>)] = provider[field]
+        }
+    }
+
+    /**
+     * Copies all values present in the given [map] to this provider.
+     */
+    public fun applyFieldStatePatch(map: FieldStateMap) {
+        applyFieldStatePatch(FieldStatePatch(variableProvider, map))
+    }
 }
 
 /**

@@ -4,7 +4,6 @@ import net.voxelpi.vire.engine.LogicState
 import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
-import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialInputStateProvider
@@ -125,20 +124,5 @@ internal class MutableInputStatePatch(
 
         // Return the value of the input.
         data[inputVector.name]!![index] = value
-    }
-
-    fun update(data: InputStateMap) {
-        for ((inputName, value) in data) {
-            // Check that only existing inputs are specified.
-            val input = variableProvider.input(inputName)
-                ?: throw IllegalArgumentException("Unknown input '$inputName'")
-
-            // Update the value of the input.
-            when (input) {
-                is InputScalar -> this[input] = value[0]
-                is InputVector -> this[input] = value
-                is InputVectorElement -> throw IllegalArgumentException("Input vector elements may not be specified ('$inputName')")
-            }
-        }
     }
 }
