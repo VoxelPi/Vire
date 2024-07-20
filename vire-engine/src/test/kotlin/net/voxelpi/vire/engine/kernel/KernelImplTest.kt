@@ -56,7 +56,9 @@ class KernelImplTest {
             }.isSuccess
         }
 
-        assertThrows<IllegalArgumentException> { kernel.createVariant(mapOf<String, Any?>("parameter_1" to "mode_null")) }
+        assertThrows<IllegalArgumentException> {
+            kernel.createVariant(mapOf<String, Any?>("parameter_1" to "mode_null"))
+        }
 
         assertTrue {
             kernel.createVariant(mapOf<String, Any?>("parameter_1" to "mode_c", "parameter_2" to 2.75)).isSuccess

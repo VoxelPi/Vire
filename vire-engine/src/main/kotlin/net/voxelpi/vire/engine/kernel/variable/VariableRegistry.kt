@@ -10,7 +10,7 @@ public interface MutableVariableRegistry : VariableRegistry {
 }
 
 internal class MutableVariableRegistryImpl(
-    variables: Collection<Variable<*>> = emptyList()
+    variables: Collection<Variable<*>> = emptyList(),
 ) : MutableVariableRegistry {
 
     val variables: MutableMap<String, Variable<*>> = variables.associateBy { it.name }.toMutableMap()

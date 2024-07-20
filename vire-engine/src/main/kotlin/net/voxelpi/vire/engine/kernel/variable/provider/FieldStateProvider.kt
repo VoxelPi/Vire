@@ -18,12 +18,17 @@ public interface PartialFieldStateProvider {
      *
      * @param field the variable of which the value should be returned.
      */
-    public operator fun <T> get(field: Field<T>): T?
+    public operator fun <T> get(field: Field<T>): T
 
     /**
      * Returns if the given field has a set value.
      */
     public fun hasValue(field: Field<*>): Boolean
+
+    /**
+     * Checks if all registered fields have a set value.
+     */
+    public fun allFieldsSet(): Boolean
 }
 
 /**
@@ -52,7 +57,9 @@ public interface FieldStateProvider : PartialFieldStateProvider {
      */
     override fun <T> get(field: Field<T>): T
 
-    override fun hasValue(field: Field<*>): Boolean = field in variableProvider
+    override fun hasValue(field: Field<*>): Boolean = field in variableProvider.fields()
+
+    override fun allFieldsSet(): Boolean = true
 }
 
 /**

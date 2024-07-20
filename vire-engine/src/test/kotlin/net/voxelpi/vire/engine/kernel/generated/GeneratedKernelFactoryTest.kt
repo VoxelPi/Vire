@@ -94,7 +94,8 @@ class GeneratedKernelFactoryTest {
 
     @Test
     fun `test vector buffer kernel generation`() {
-        val kernelVariant = generateKernel<VectorBuffer>().createVariant(mapOf("size" to 2)).getOrThrow()
+        val kernel = generateKernel<VectorBuffer>()
+        val kernelVariant = kernel.createVariant(mapOf("size" to 2)).getOrThrow()
         assertEquals(2, kernelVariant.size("inputs"))
         assertEquals(2, kernelVariant.size("outputs"))
 

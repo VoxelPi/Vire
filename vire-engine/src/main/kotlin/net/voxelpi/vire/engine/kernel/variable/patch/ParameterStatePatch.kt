@@ -2,23 +2,42 @@ package net.voxelpi.vire.engine.kernel.variable.patch
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
+import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorageWrapper
 
-internal interface ParameterStatePatch : PartialParameterStateProvider {
+internal open class ParameterStatePatch(
+    final override val variableProvider: VariableProvider,
+    initialData: ParameterStateMap,
+) : PartialParameterStateProvider {
 
-    override val variableProvider: VariableProvider
+    init {
+        for ((parameterName, parameterState) in initialData) {
+            val parameter = variableProvider.parameter(parameterName)
+                ?: throw IllegalStateException("Data specified for unknown parameter \"$parameterName\".")
 
-    val data: ParameterStateMap
+            require(parameter.isValidTypeAndValue(parameterState)) { "Invalid value specified for parameter \"$parameterName\"." }
+        }
+    }
 
-    fun copy(): ParameterStatePatch
+    protected open val data: ParameterStateMap = initialData.toMap()
 
-    fun mutableCopy(): MutableParameterStatePatch
+    constructor(variableProvider: VariableProvider, initialData: PartialParameterStateProvider) : this(
+        variableProvider,
+        variableProvider.parameters().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
+    )
+
+    fun copy(): ParameterStatePatch {
+        return ParameterStatePatch(variableProvider, data)
+    }
+
+    fun mutableCopy(): MutableParameterStatePatch {
+        return MutableParameterStatePatch(variableProvider, data)
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(parameter: Parameter<T>): T {
@@ -36,21 +55,30 @@ internal interface ParameterStatePatch : PartialParameterStateProvider {
         return parameter.name in data
     }
 
-    fun isComplete(): Boolean {
+    override fun allParametersSet(): Boolean {
         return variableProvider.parameters().all { hasValue(it) }
+    }
+
+    /**
+     * Creates a parameter state storage using the set data.
+     * All parameters must have a set value otherwise this operation fails.
+     */
+    fun createStorage(): ParameterStateStorage {
+        return ParameterStateStorage(variableProvider, data)
     }
 }
 
 internal class MutableParameterStatePatch(
-    override val variableProvider: VariableProvider,
-    override val data: MutableParameterStateMap,
-) : ParameterStatePatch, MutablePartialParameterStateProvider {
+    variableProvider: VariableProvider,
+    initialData: ParameterStateMap,
+) : ParameterStatePatch(variableProvider, initialData), MutablePartialParameterStateProvider {
 
-    override fun copy(): ParameterStatePatch = mutableCopy()
+    override val data: MutableParameterStateMap = initialData.toMutableMap()
 
-    override fun mutableCopy(): MutableParameterStatePatch {
-        return MutableParameterStatePatch(variableProvider, data.toMutableMap())
-    }
+    constructor(variableProvider: VariableProvider, initialData: PartialParameterStateProvider) : this(
+        variableProvider,
+        variableProvider.parameters().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
+    )
 
     override fun <T> set(parameter: Parameter<T>, value: T) {
         // Check that a parameter with the given name exists.

@@ -12,15 +12,41 @@ internal typealias InputStateMap = Map<String, Array<LogicState>>
 
 internal typealias MutableInputStateMap = MutableMap<String, Array<LogicState>>
 
-internal interface InputStateStorage : InputStateProvider {
+internal open class InputStateStorage(
+    final override val variableProvider: VariableProvider,
+    initialData: InputStateMap,
+) : InputStateProvider {
 
-    override val variableProvider: VariableProvider
+    init {
+        for ((inputName, inputState) in initialData) {
+            val input = variableProvider.input(inputName)
+                ?: throw IllegalStateException("Data specified for unknown input \"$inputName\".")
 
-    val data: InputStateMap
+            for (channelState in inputState) {
+                require(input.isValidValue(channelState)) { "Invalid value specified for input \"$inputName\"." }
+            }
+        }
 
-    fun copy(): InputStateStorage
+        val missingVariables = variableProvider.inputs().map { it.name }.filter { it !in initialData }
+        require(missingVariables.isEmpty()) {
+            "Missing values for the following inputs: ${missingVariables.joinToString(", ") { "\"${it}\"" } }"
+        }
+    }
 
-    fun mutableCopy(): MutableInputStateStorage
+    protected open val data: InputStateMap = initialData.toMap()
+
+    constructor(variableProvider: VariableProvider, initialData: InputStateProvider) : this(
+        variableProvider,
+        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
+    )
+
+    fun copy(): InputStateStorage {
+        return InputStateStorage(variableProvider, data)
+    }
+
+    fun mutableCopy(): MutableInputStateStorage {
+        return MutableInputStateStorage(variableProvider, data)
+    }
 
     override fun get(input: InputScalar): LogicState {
         // Check that an input with the given name exists.
@@ -44,15 +70,16 @@ internal interface InputStateStorage : InputStateProvider {
 }
 
 internal class MutableInputStateStorage(
-    override val variableProvider: VariableProvider,
-    override val data: MutableInputStateMap,
-) : InputStateStorage, MutableInputStateProvider {
+    variableProvider: VariableProvider,
+    initialData: InputStateMap,
+) : InputStateStorage(variableProvider, initialData), MutableInputStateProvider {
 
-    override fun copy(): InputStateStorage = mutableCopy()
+    override val data: MutableInputStateMap = initialData.toMutableMap()
 
-    override fun mutableCopy(): MutableInputStateStorage {
-        return MutableInputStateStorage(variableProvider, data.toMutableMap())
-    }
+    constructor(variableProvider: VariableProvider, initialData: InputStateProvider) : this(
+        variableProvider,
+        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
+    )
 
     override fun set(input: InputScalar, value: LogicState) {
         // Check that an input with the given name exists.
@@ -92,46 +119,4 @@ internal class MutableInputStateStorage(
             }
         }
     }
-}
-
-internal fun inputStateStorage(variableProvider: VariableProvider, data: InputStateMap): InputStateStorage {
-    return mutableInputStateStorage(variableProvider, data)
-}
-
-internal fun inputStateStorage(variableProvider: VariableProvider, dataProvider: InputStateProvider): InputStateStorage {
-    return mutableInputStateStorage(variableProvider, dataProvider)
-}
-
-internal fun mutableInputStateStorage(variableProvider: VariableProvider, data: InputStateMap): MutableInputStateStorage {
-    val processedData: MutableInputStateMap = mutableMapOf()
-    for (input in variableProvider.inputs()) {
-        // Check that the input has an assigned value.
-        require(input.name in data) { "No value provided for the input ${input.name}" }
-
-        // Get the value from the map.
-        val value = data[input.name]!!
-
-        // Put value into map.
-        processedData[input.name] = value
-    }
-    return MutableInputStateStorage(variableProvider, processedData)
-}
-
-internal fun mutableInputStateStorage(variableProvider: VariableProvider, dataProvider: InputStateProvider): MutableInputStateStorage {
-    val processedData: MutableInputStateMap = mutableMapOf()
-    for (input in variableProvider.inputs()) {
-        // Check that the input has an assigned value.
-        require(dataProvider.variableProvider.hasVariable(input)) { "No value provided for the input ${input.name}" }
-
-        // Get the value from the provider.
-        val value = when (input) {
-            is InputScalar -> arrayOf(dataProvider[input])
-            is InputVector -> dataProvider[input]
-            is InputVectorElement -> throw IllegalArgumentException("Input vector elements may not be specified ('${input.name}')")
-        }
-
-        // Put value into map.
-        processedData[input.name] = value
-    }
-    return MutableInputStateStorage(variableProvider, processedData)
 }

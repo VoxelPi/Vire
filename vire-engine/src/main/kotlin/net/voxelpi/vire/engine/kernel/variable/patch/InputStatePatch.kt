@@ -1,28 +1,47 @@
 package net.voxelpi.vire.engine.kernel.variable.patch
 
 import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.InputStateMap
+import net.voxelpi.vire.engine.kernel.variable.storage.InputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateMap
 
-internal interface InputStatePatch : PartialInputStateProvider {
+internal open class InputStatePatch(
+    final override val variableProvider: VariableProvider,
+    initialData: InputStateMap,
+) : PartialInputStateProvider {
 
-    override val variableProvider: VariableProvider
+    init {
+        for ((inputName, inputState) in initialData) {
+            val input = variableProvider.input(inputName)
+                ?: throw IllegalStateException("Data specified for unknown input \"$inputName\".")
 
-    val data: InputStateMap
+            for (channelState in inputState) {
+                require(input.isValidValue(channelState)) { "Invalid value specified for input \"$inputName\"." }
+            }
+        }
+    }
 
-    fun copy(): InputStatePatch
+    protected open val data: InputStateMap = initialData.toMap()
 
-    fun mutableCopy(): MutableInputStatePatch
+    constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
+        variableProvider,
+        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
+    )
+
+    fun copy(): InputStatePatch {
+        return InputStatePatch(variableProvider, data)
+    }
+
+    fun mutableCopy(): MutableInputStatePatch {
+        return MutableInputStatePatch(variableProvider, data)
+    }
 
     override fun get(input: InputScalar): LogicState {
         // Check that an input with the given name exists.
@@ -47,18 +66,31 @@ internal interface InputStatePatch : PartialInputStateProvider {
     override fun hasValue(input: Input): Boolean {
         return input.name in data
     }
+
+    override fun allInputsSet(): Boolean {
+        return variableProvider.inputs().all { hasValue(it) }
+    }
+
+    /**
+     * Creates an input state storage using the set data.
+     * All inputs must have a set value otherwise this operation fails.
+     */
+    fun createStorage(): InputStateStorage {
+        return InputStateStorage(variableProvider, data)
+    }
 }
 
 internal class MutableInputStatePatch(
-    override val variableProvider: VariableProvider,
-    override val data: MutableInputStateMap,
-) : InputStatePatch, MutablePartialInputStateProvider {
+    variableProvider: VariableProvider,
+    initialData: InputStateMap,
+) : InputStatePatch(variableProvider, initialData), MutablePartialInputStateProvider {
 
-    override fun copy(): InputStatePatch = mutableCopy()
+    override val data: MutableInputStateMap = initialData.toMutableMap()
 
-    override fun mutableCopy(): MutableInputStatePatch {
-        return MutableInputStatePatch(variableProvider, data.toMutableMap())
-    }
+    constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
+        variableProvider,
+        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
+    )
 
     override fun set(input: InputScalar, value: LogicState) {
         // Check that an input with the given name exists.
@@ -98,46 +130,4 @@ internal class MutableInputStatePatch(
             }
         }
     }
-}
-
-internal fun inputStateStorage(variableProvider: VariableProvider, data: InputStateMap): InputStatePatch {
-    return mutableInputStateStorage(variableProvider, data)
-}
-
-internal fun inputStateStorage(variableProvider: VariableProvider, dataProvider: InputStateProvider): InputStatePatch {
-    return mutableInputStateStorage(variableProvider, dataProvider)
-}
-
-internal fun mutableInputStateStorage(variableProvider: VariableProvider, data: InputStateMap): MutableInputStatePatch {
-    val processedData: MutableInputStateMap = mutableMapOf()
-    for (input in variableProvider.inputs()) {
-        // Check that the input has an assigned value.
-        require(input.name in data) { "No value provided for the input ${input.name}" }
-
-        // Get the value from the map.
-        val value = data[input.name]!!
-
-        // Put value into map.
-        processedData[input.name] = value
-    }
-    return MutableInputStatePatch(variableProvider, processedData)
-}
-
-internal fun mutableInputStateStorage(variableProvider: VariableProvider, dataProvider: InputStateProvider): MutableInputStatePatch {
-    val processedData: MutableInputStateMap = mutableMapOf()
-    for (input in variableProvider.inputs()) {
-        // Check that the input has an assigned value.
-        require(dataProvider.variableProvider.hasVariable(input)) { "No value provided for the input ${input.name}" }
-
-        // Get the value from the provider.
-        val value = when (input) {
-            is InputScalar -> arrayOf(dataProvider[input])
-            is InputVector -> dataProvider[input]
-            is InputVectorElement -> throw IllegalArgumentException("Input vector elements may not be specified ('${input.name}')")
-        }
-
-        // Put value into map.
-        processedData[input.name] = value
-    }
-    return MutableInputStatePatch(variableProvider, processedData)
 }

@@ -6,7 +6,6 @@ import net.voxelpi.vire.engine.kernel.KernelInstance
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.settingStateStorage
 import java.util.UUID
 
 public interface CircuitInstance : SettingStateProvider {
@@ -34,7 +33,7 @@ internal class CircuitInstanceImpl(
 
     companion object {
         fun circuitInstance(circuit: CircuitImpl, settingStates: SettingStateProvider): Result<CircuitInstanceImpl> {
-            val settingStateStorage = settingStateStorage(circuit, settingStates)
+            val settingStateStorage = SettingStateStorage(circuit, settingStates)
 
             val componentInstances = mutableMapOf<UUID, KernelInstance>()
             for (component in circuit.components()) {

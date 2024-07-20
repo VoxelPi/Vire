@@ -3,22 +3,39 @@ package net.voxelpi.vire.engine.kernel.variable.patch
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialSettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableSettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialSettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
-import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
 
-internal interface SettingStatePatch : PartialSettingStateProvider {
+internal open class SettingStatePatch(
+    final override val variableProvider: VariableProvider,
+    initialData: SettingStateMap,
+) : PartialSettingStateProvider {
 
-    override val variableProvider: VariableProvider
+    init {
+        for ((settingName, settingState) in initialData) {
+            val setting = variableProvider.setting(settingName)
+                ?: throw IllegalStateException("Data specified for unknown setting \"$settingName\".")
 
-    val data: SettingStateMap
+            require(setting.isValidTypeAndValue(settingState)) { "Invalid value specified for setting \"$settingName\"." }
+        }
+    }
 
-    fun copy(): SettingStatePatch
+    protected open val data: SettingStateMap = initialData.toMap()
 
-    fun mutableCopy(): MutableSettingStatePatch
+    constructor(variableProvider: VariableProvider, initialData: PartialSettingStateProvider) : this(
+        variableProvider,
+        variableProvider.settings().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
+    )
+
+    fun copy(): SettingStatePatch {
+        return SettingStatePatch(variableProvider, data)
+    }
+
+    fun mutableCopy(): MutableSettingStatePatch {
+        return MutableSettingStatePatch(variableProvider, data)
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(setting: Setting<T>): T {
@@ -36,21 +53,30 @@ internal interface SettingStatePatch : PartialSettingStateProvider {
         return setting.name in data
     }
 
-    fun isComplete(): Boolean {
+    override fun allSettingsSet(): Boolean {
         return variableProvider.settings().all { hasValue(it) }
+    }
+
+    /**
+     * Creates a setting state storage using the set data.
+     * All settings must have a set value otherwise this operation fails.
+     */
+    fun createStorage(): SettingStateStorage {
+        return SettingStateStorage(variableProvider, data)
     }
 }
 
 internal class MutableSettingStatePatch(
-    override val variableProvider: VariableProvider,
-    override val data: MutableSettingStateMap,
-) : SettingStatePatch, MutablePartialSettingStateProvider {
+    variableProvider: VariableProvider,
+    initialData: SettingStateMap,
+) : SettingStatePatch(variableProvider, initialData), MutablePartialSettingStateProvider {
 
-    override fun copy(): SettingStatePatch = mutableCopy()
+    override val data: MutableSettingStateMap = initialData.toMutableMap()
 
-    override fun mutableCopy(): MutableSettingStatePatch {
-        return MutableSettingStatePatch(variableProvider, data.toMutableMap())
-    }
+    constructor(variableProvider: VariableProvider, initialData: PartialSettingStateProvider) : this(
+        variableProvider,
+        variableProvider.settings().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
+    )
 
     override fun <T> set(setting: Setting<T>, value: T) {
         // Check that a setting with the given name exists.
@@ -74,65 +100,4 @@ internal class MutableSettingStatePatch(
             this[setting] = value
         }
     }
-}
-
-internal fun settingStatePatch(variableProvider: VariableProvider, data: SettingStateMap): SettingStatePatch {
-    return mutableSettingStatePatch(variableProvider, data)
-}
-
-internal fun settingStatePatch(variableProvider: VariableProvider, dataProvider: SettingStateProvider): SettingStatePatch {
-    return mutableSettingStatePatch(variableProvider, dataProvider)
-}
-
-internal fun mutableSettingStatePatch(variableProvider: VariableProvider, data: SettingStateMap): MutableSettingStatePatch {
-    val processedData: MutableSettingStateMap = mutableMapOf()
-    for (setting in variableProvider.settings()) {
-        // Check if the setting has an assigned value.
-        if (setting.name !in data) {
-            continue
-        }
-
-        // Get the value from the map.
-        val value = data[setting.name]
-
-        // Check that the assigned value is valid for the given setting. (Allow null for uninitialized settings).
-        if (value != null) {
-            require(setting.isValidTypeAndValue(value)) { "Invalid value for the setting ${setting.name}" }
-        }
-
-        // Put value into map.
-        processedData[setting.name] = value
-    }
-    return MutableSettingStatePatch(variableProvider, processedData)
-}
-
-internal fun mutableSettingStatePatch(
-    variableProvider: VariableProvider,
-    dataProvider: SettingStateProvider,
-): MutableSettingStatePatch {
-    val processedData: MutableSettingStateMap = mutableMapOf()
-    for (setting in variableProvider.settings()) {
-        // Check if the setting has an assigned value.
-        if (!dataProvider.variableProvider.hasVariable(setting)) {
-            continue
-        }
-        if (dataProvider is SettingStatePatch && !dataProvider.hasValue(setting)) {
-            continue
-        }
-        if (dataProvider is SettingStateStorageWrapper && !dataProvider.hasValue(setting)) {
-            continue
-        }
-
-        // Get the value from the provider.
-        val value = dataProvider[setting]
-
-        // Check that the assigned value is valid for the given setting (Allow null for uninitialized settings).
-        if (value != null) {
-            require(setting.isValidTypeAndValue(value)) { "Invalid value for the setting ${setting.name}" }
-        }
-
-        // Put value into map.
-        processedData[setting.name] = value
-    }
-    return MutableSettingStatePatch(variableProvider, processedData)
 }

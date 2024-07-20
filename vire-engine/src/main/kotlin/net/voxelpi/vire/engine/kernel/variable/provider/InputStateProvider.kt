@@ -2,7 +2,6 @@ package net.voxelpi.vire.engine.kernel.variable.provider
 
 import net.voxelpi.vire.engine.BooleanState
 import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.Input
 import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
@@ -24,14 +23,14 @@ public interface PartialInputStateProvider {
      *
      * @param input the input of which the value should be returned.
      */
-    public operator fun get(input: InputScalar): LogicState?
+    public operator fun get(input: InputScalar): LogicState
 
     /**
      * Returns the value of all entries of the given [inputVector].
      *
      * @param inputVector the input vector of which the value should be returned.
      */
-    public operator fun get(inputVector: InputVector): Array<LogicState>?
+    public operator fun get(inputVector: InputVector): Array<LogicState>
 
     /**
      * Returns the value of the entry at the given [index] of the given [inputVector].
@@ -39,14 +38,14 @@ public interface PartialInputStateProvider {
      * @param inputVector the input vector of which the value should be returned.
      * @param index the index in the input vector of the entry.
      */
-    public operator fun get(inputVector: InputVector, index: Int): LogicState?
+    public operator fun get(inputVector: InputVector, index: Int): LogicState
 
     /**
      * Returns the value of the given [inputVectorElement].
      *
      * @param inputVectorElement the input vector element of which the value should be returned.
      */
-    public operator fun get(inputVectorElement: InputVectorElement): LogicState? {
+    public operator fun get(inputVectorElement: InputVectorElement): LogicState {
         return get(inputVectorElement.vector, inputVectorElement.index)
     }
 
@@ -57,11 +56,11 @@ public interface PartialInputStateProvider {
      *
      * @param input the input of which the value should be returned.
      */
-    public fun vector(input: Input): Array<LogicState>? {
+    public fun vector(input: Input): Array<LogicState> {
         return when (input) {
-            is InputScalar -> this[input]?.let { arrayOf(it) }
+            is InputScalar -> arrayOf(this[input])
             is InputVector -> this[input]
-            is InputVectorElement -> this[input]?.let { arrayOf(it) }
+            is InputVectorElement -> arrayOf(this[input])
         }
     }
 
@@ -69,12 +68,17 @@ public interface PartialInputStateProvider {
      * Returns if the given input has a set value.
      */
     public fun hasValue(input: Input): Boolean
+
+    /**
+     * Checks if all registered inputs have a set value.
+     */
+    public fun allInputsSet(): Boolean
 }
 
 /**
  * A type that provides mutable access to the state of some of the registered input variables.
  */
-public interface MutablePartialInputStateProvider {
+public interface MutablePartialInputStateProvider : PartialInputStateProvider {
 
     /**
      * Sets the value of the given [input] to the given [value].
@@ -220,7 +224,9 @@ public interface InputStateProvider : PartialInputStateProvider {
         }
     }
 
-    override fun hasValue(input: Input): Boolean = input in variableProvider
+    override fun hasValue(input: Input): Boolean = input in variableProvider.inputs()
+
+    override fun allInputsSet(): Boolean = true
 }
 
 /**

@@ -18,12 +18,17 @@ public interface PartialSettingStateProvider {
      *
      * @param setting the variable of which the value should be returned.
      */
-    public operator fun <T> get(setting: Setting<T>): T?
+    public operator fun <T> get(setting: Setting<T>): T
 
     /**
      * Returns if the given setting has a set value.
      */
     public fun hasValue(setting: Setting<*>): Boolean
+
+    /**
+     * Checks if all registered settings have a set value.
+     */
+    public fun allSettingsSet(): Boolean
 }
 
 /**
@@ -52,7 +57,9 @@ public interface SettingStateProvider : PartialSettingStateProvider {
      */
     override fun <T> get(setting: Setting<T>): T
 
-    override fun hasValue(setting: Setting<*>): Boolean = setting in variableProvider
+    override fun hasValue(setting: Setting<*>): Boolean = setting in variableProvider.settings()
+
+    override fun allSettingsSet(): Boolean = true
 }
 
 /**

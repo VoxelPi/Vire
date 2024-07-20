@@ -1,26 +1,47 @@
 package net.voxelpi.vire.engine.kernel.variable.storage
 
-import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.Field
-import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
 internal typealias FieldStateMap = Map<String, Any?>
 
 internal typealias MutableFieldStateMap = MutableMap<String, Any?>
 
-internal interface FieldStateStorage : FieldStateProvider {
+internal open class FieldStateStorage(
+    final override val variableProvider: VariableProvider,
+    initialData: FieldStateMap,
+) : FieldStateProvider {
 
-    override val variableProvider: VariableProvider
+    init {
+        for ((fieldName, fieldState) in initialData) {
+            val field = variableProvider.field(fieldName)
+                ?: throw IllegalStateException("Data specified for unknown field \"$fieldName\".")
 
-    val data: FieldStateMap
+            require(field.isValidTypeAndValue(fieldState)) { "Invalid value specified for field \"$fieldName\"." }
+        }
 
-    fun copy(): FieldStateStorage
+        val missingVariables = variableProvider.fields().map { it.name }.filter { it !in initialData }
+        require(missingVariables.isEmpty()) {
+            "Missing values for the following fields: ${missingVariables.joinToString(", ") { "\"${it}\"" } }"
+        }
+    }
 
-    fun mutableCopy(): MutableFieldStateStorage
+    protected open val data: FieldStateMap = initialData.toMap()
+
+    constructor(variableProvider: VariableProvider, initialData: FieldStateProvider) : this(
+        variableProvider,
+        variableProvider.fields().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
+    )
+
+    fun copy(): FieldStateStorage {
+        return FieldStateStorage(variableProvider, data)
+    }
+
+    fun mutableCopy(): MutableFieldStateStorage {
+        return MutableFieldStateStorage(variableProvider, data)
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(field: Field<T>): T {
@@ -33,26 +54,19 @@ internal interface FieldStateStorage : FieldStateProvider {
         // Return the value of the field.
         return data[field.name] as T
     }
-
-    fun <T> hasValue(field: Field<T>): Boolean {
-        return field.name in data
-    }
-
-    fun isComplete(): Boolean {
-        return variableProvider.fields().all { hasValue(it) }
-    }
 }
 
 internal class MutableFieldStateStorage(
-    override val variableProvider: VariableProvider,
-    override val data: MutableFieldStateMap,
-) : FieldStateStorage, MutableFieldStateProvider {
+    variableProvider: VariableProvider,
+    initialData: FieldStateMap,
+) : FieldStateStorage(variableProvider, initialData), MutableFieldStateProvider {
 
-    override fun copy(): FieldStateStorage = mutableCopy()
+    override val data: MutableFieldStateMap = initialData.toMutableMap()
 
-    override fun mutableCopy(): MutableFieldStateStorage {
-        return MutableFieldStateStorage(variableProvider, data.toMutableMap())
-    }
+    constructor(variableProvider: VariableProvider, initialData: FieldStateProvider) : this(
+        variableProvider,
+        variableProvider.fields().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
+    )
 
     override fun <T> set(field: Field<T>, value: T) {
         // Check that a field with the given name exists.
@@ -76,75 +90,4 @@ internal class MutableFieldStateStorage(
             this[field] = value
         }
     }
-}
-
-internal fun fieldStateStorage(variableProvider: VariableProvider, data: FieldStateMap): FieldStateStorage {
-    return mutableFieldStateStorage(variableProvider, data)
-}
-
-internal fun fieldStateStorage(variableProvider: VariableProvider, dataProvider: FieldStateProvider): FieldStateStorage {
-    return mutableFieldStateStorage(variableProvider, dataProvider)
-}
-
-internal fun mutableFieldStateStorage(variableProvider: VariableProvider, data: FieldStateMap): MutableFieldStateStorage {
-    val processedData: MutableFieldStateMap = mutableMapOf()
-    for (field in variableProvider.fields()) {
-        // Check that the field has an assigned value.
-        if (field.name !in data) {
-            continue
-        }
-
-        // Get the value from the map.
-        val value = data[field.name]
-
-        // Check that the assigned value is valid for the given field. (Allow null for uninitialized fields).
-        if (value != null) {
-            require(field.isValidTypeAndValue(value)) { "Invalid value for the field ${field.name}" }
-        }
-
-        // Put value into map.
-        processedData[field.name] = value
-    }
-    return MutableFieldStateStorage(variableProvider, processedData)
-}
-
-internal fun mutableFieldStateStorage(variableProvider: VariableProvider, dataProvider: FieldStateProvider): MutableFieldStateStorage {
-    val processedData: MutableFieldStateMap = mutableMapOf()
-    for (field in variableProvider.fields()) {
-        // Check that the field has an assigned value.
-        if (!dataProvider.variableProvider.hasVariable(field)) {
-            continue
-        }
-        if (dataProvider is FieldStateStorage && !dataProvider.hasValue(field)) {
-            continue
-        }
-        if (dataProvider is FieldStateStorageWrapper && !dataProvider.hasValue(field)) {
-            continue
-        }
-
-        // Get the value from the provider.
-        val value = dataProvider[field]
-
-        // Check that the assigned value is valid for the given field. (Allow null for uninitialized fields).
-        if (value != null) {
-            require(field.isValidTypeAndValue(value)) { "Invalid value for the field ${field.name}" }
-        }
-
-        // Put value into map.
-        processedData[field.name] = value
-    }
-    return MutableFieldStateStorage(variableProvider, processedData)
-}
-
-internal fun generateInitialFieldStateStorage(
-    kernelVariant: KernelVariantImpl,
-    settingStateProvider: SettingStateProvider,
-): MutableFieldStateStorage {
-    val fieldInitializationContext = FieldInitializationContext(kernelVariant, settingStateProvider)
-    val fieldStates: MutableFieldStateMap = mutableMapOf()
-    for (field in kernelVariant.fields()) {
-        val initialization = field.initialization ?: continue
-        fieldStates[field.name] = initialization.invoke(fieldInitializationContext)
-    }
-    return mutableFieldStateStorage(kernelVariant, fieldStates)
 }

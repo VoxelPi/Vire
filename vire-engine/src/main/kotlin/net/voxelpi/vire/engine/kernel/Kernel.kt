@@ -11,10 +11,12 @@ import net.voxelpi.vire.engine.kernel.builder.UpdateContext
 import net.voxelpi.vire.engine.kernel.builder.UpdateContextImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.generateInitialFieldStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.generateInitialOutputStatePatch
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
-import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialFieldStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.generateInitialOutputStateStorage
 
 /**
  * A kernel is logical processor that produces logical outputs from its inputs and other parameters.
@@ -32,15 +34,6 @@ public interface Kernel : VariableProvider {
     public val properties: Map<Identifier, String>
 
     /**
-     * Creates a new variant of the kernel using the default value of each parameter.
-     *
-     * @param base A parameter state provider that should be used to initialize all parameters.
-     */
-    public fun createVariant(
-        base: ParameterStateProvider = generateDefaultParameterStates(),
-    ): Result<KernelVariant>
-
-    /**
      * Creates a new variant of the kernel using the given [lambda] to initialize the parameters.
      * Before the builder is run, all parameters of the kernel are initialized to their default values,
      * therefore the builder doesn't have to set every parameter.
@@ -49,8 +42,8 @@ public interface Kernel : VariableProvider {
      * @param lambda the receiver lambda which will be invoked on the builder.
      */
     public fun createVariant(
-        base: ParameterStateProvider = generateDefaultParameterStates(),
-        lambda: KernelVariantBuilder.() -> Unit,
+        base: PartialParameterStateProvider = generateDefaultParameterStates(),
+        lambda: KernelVariantBuilder.() -> Unit = {},
     ): Result<KernelVariant>
 
     /**
@@ -64,13 +57,19 @@ public interface Kernel : VariableProvider {
      */
     public fun createVariant(
         values: ParameterStateMap,
-        base: ParameterStateProvider = generateDefaultParameterStates(),
-    ): Result<KernelVariant>
+        base: PartialParameterStateProvider = generateDefaultParameterStates(),
+    ): Result<KernelVariant> {
+        return createVariant(base) {
+            for ((key, value) in values) {
+                this[key] = value
+            }
+        }
+    }
 
     /**
      * Generates a new [ParameterStateProvider] with the default value of each parameter.
      */
-    public fun generateDefaultParameterStates(): ParameterStateProvider
+    public fun generateDefaultParameterStates(): PartialParameterStateProvider
 }
 
 /**
@@ -99,18 +98,8 @@ internal open class KernelImpl(
         return variables[name]
     }
 
-    override fun createVariant(base: ParameterStateProvider): Result<KernelVariantImpl> {
-        val config = KernelVariantConfig(this, base)
-        return generateVariant(config)
-    }
-
-    override fun createVariant(base: ParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariantImpl> {
+    override fun createVariant(base: PartialParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariantImpl> {
         val config = KernelVariantBuilderImpl(this, base).apply(lambda).build()
-        return generateVariant(config)
-    }
-
-    override fun createVariant(values: ParameterStateMap, base: ParameterStateProvider): Result<KernelVariantImpl> {
-        val config = KernelVariantBuilderImpl(this, base).update(values).build()
         return generateVariant(config)
     }
 
@@ -151,13 +140,13 @@ internal open class KernelImpl(
         }
 
         // Generate initial field states.
-        val fieldStateStorage = generateInitialFieldStateStorage(kernelVariant, config)
+        val fieldStatePatch = generateInitialFieldStatePatch(kernelVariant, config)
 
         // Generate initial output states.
-        val outputStateStorage = generateInitialOutputStateStorage(kernelVariant, config)
+        val outputStatePatch = generateInitialOutputStatePatch(kernelVariant, config)
 
         // Initialize the kernel instance.
-        val context = InitializationContextImpl(config.kernelVariant, config.settingStateStorage, fieldStateStorage, outputStateStorage)
+        val context = InitializationContextImpl(config.kernelVariant, config.settingStateStorage, fieldStatePatch, outputStatePatch)
         try {
             initializationAction(context)
         } catch (exception: KernelInitializationException) {
@@ -166,7 +155,7 @@ internal open class KernelImpl(
 
         // Check that all fields have been assigned a value.
         for (field in fields()) {
-            if (!fieldStateStorage.hasValue(field)) {
+            if (!fieldStatePatch.hasValue(field)) {
                 throw IllegalArgumentException("Incomplete kernel initialization, field \"${field.name}\" has not been initialized")
             }
         }
@@ -175,8 +164,8 @@ internal open class KernelImpl(
         val instance = KernelInstanceImpl(
             config.kernelVariant,
             config.settingStateStorage,
-            fieldStateStorage.copy(),
-            outputStateStorage.copy(),
+            fieldStatePatch.createStorage(),
+            outputStatePatch.createStorage(),
         )
         return Result.success(instance)
     }
@@ -186,12 +175,12 @@ internal open class KernelImpl(
         updateAction(context)
     }
 
-    override fun generateDefaultParameterStates(): KernelVariantConfig {
+    override fun generateDefaultParameterStates(): ParameterStatePatch {
         val parameterStates = mutableMapOf<String, Any?>()
         for (parameter in parameters()) {
             val initialization = parameter.initialization ?: continue
             parameterStates[parameter.name] = initialization.invoke()
         }
-        return KernelVariantConfig(this, parameterStates)
+        return ParameterStatePatch(this, parameterStates)
     }
 }

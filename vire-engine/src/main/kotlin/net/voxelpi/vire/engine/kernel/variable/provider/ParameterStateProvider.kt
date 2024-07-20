@@ -18,12 +18,17 @@ public interface PartialParameterStateProvider {
      *
      * @param parameter the variable of which the value should be returned.
      */
-    public operator fun <T> get(parameter: Parameter<T>): T?
+    public operator fun <T> get(parameter: Parameter<T>): T
 
     /**
      * Returns if the given parameter has a set value.
      */
     public fun hasValue(parameter: Parameter<*>): Boolean
+
+    /**
+     * Checks if all registered parameters have a set value.
+     */
+    public fun allParametersSet(): Boolean
 }
 
 /**
@@ -52,7 +57,9 @@ public interface ParameterStateProvider : PartialParameterStateProvider {
      */
     override fun <T> get(parameter: Parameter<T>): T
 
-    override fun hasValue(parameter: Parameter<*>): Boolean = parameter in variableProvider
+    override fun hasValue(parameter: Parameter<*>): Boolean = parameter in variableProvider.parameters()
+
+    override fun allParametersSet(): Boolean = true
 }
 
 /**

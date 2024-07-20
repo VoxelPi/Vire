@@ -14,11 +14,11 @@ import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorageWrapper
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableInputStateStorage
 
 public interface KernelInstance :
     ParameterStateProvider,
@@ -58,7 +58,7 @@ internal class KernelInstanceImpl(
         get() = kernelVariant
 
     override fun initialKernelState(): MutableKernelStateImpl {
-        val inputStateStorage = mutableInputStateStorage(
+        val inputStateStorage = MutableInputStateStorage(
             kernelVariant,
             kernelVariant.inputs().associate { input ->
                 val size = when (input) {
