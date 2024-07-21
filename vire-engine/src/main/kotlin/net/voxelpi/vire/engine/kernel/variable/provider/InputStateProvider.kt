@@ -7,11 +7,13 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.InputStatePatch
+import net.voxelpi.vire.engine.kernel.variable.storage.InputStateMap
 
 /**
- * A type that provides ways to access the state of an input variable.
+ * A type that provides access to the state of some of the registered input variables.
  */
-public interface InputStateProvider {
+public interface PartialInputStateProvider {
 
     /**
      * The variable provider for which the input states should be provided.
@@ -63,12 +65,22 @@ public interface InputStateProvider {
             is InputVectorElement -> arrayOf(this[input])
         }
     }
+
+    /**
+     * Returns if the given input has a set value.
+     */
+    public fun hasValue(input: Input): Boolean
+
+    /**
+     * Checks if all registered inputs have a set value.
+     */
+    public fun allInputsSet(): Boolean
 }
 
 /**
- * A type that provides ways to access and modify the state of an input variable.
+ * A type that provides mutable access to the state of some of the registered input variables.
  */
-public interface MutableInputStateProvider : InputStateProvider {
+public interface MutablePartialInputStateProvider : PartialInputStateProvider {
 
     /**
      * Sets the value of the given [input] to the given [value].
@@ -161,4 +173,81 @@ public interface MutableInputStateProvider : InputStateProvider {
             is InputVectorElement -> this[input] = value[0]
         }
     }
+
+    /**
+     * Copies all values present in the given [provider] to this provider.
+     */
+    public fun applyInputStatePatch(provider: PartialInputStateProvider) {
+        for (input in provider.variableProvider.inputs().filter(provider::hasValue)) {
+            vector(input, provider.vector(input))
+        }
+    }
+
+    /**
+     * Copies all values present in the given [map] to this provider.
+     */
+    public fun applyInputStatePatch(map: InputStateMap) {
+        applyInputStatePatch(InputStatePatch(variableProvider, map))
+    }
 }
+
+/**
+ * A type that provides access to the state of all registered input variables.
+ */
+public interface InputStateProvider : PartialInputStateProvider {
+
+    /**
+     * Returns the value of the given [input].
+     *
+     * @param input the input of which the value should be returned.
+     */
+    override fun get(input: InputScalar): LogicState
+
+    /**
+     * Returns the value of all entries of the given [inputVector].
+     *
+     * @param inputVector the input vector of which the value should be returned.
+     */
+    override fun get(inputVector: InputVector): Array<LogicState>
+
+    /**
+     * Returns the value of the entry at the given [index] of the given [inputVector].
+     *
+     * @param inputVector the input vector of which the value should be returned.
+     * @param index the index in the input vector of the entry.
+     */
+    override fun get(inputVector: InputVector, index: Int): LogicState
+
+    /**
+     * Returns the value of the given [inputVectorElement].
+     *
+     * @param inputVectorElement the input vector element of which the value should be returned.
+     */
+    override fun get(inputVectorElement: InputVectorElement): LogicState {
+        return get(inputVectorElement.vector, inputVectorElement.index)
+    }
+
+    /**
+     * Returns the value of the given [input] as a logic state vector.
+     * If the input is a vector, the vector value is returned directly.
+     * If the input is a scalar, then an array with the value as its only entry is returned.
+     *
+     * @param input the input of which the value should be returned.
+     */
+    override fun vector(input: Input): Array<LogicState> {
+        return when (input) {
+            is InputScalar -> arrayOf(this[input])
+            is InputVector -> this[input]
+            is InputVectorElement -> arrayOf(this[input])
+        }
+    }
+
+    override fun hasValue(input: Input): Boolean = input in variableProvider.inputs()
+
+    override fun allInputsSet(): Boolean = true
+}
+
+/**
+ * A type that provides mutable access to the state of all registered input variables.
+ */
+public interface MutableInputStateProvider : InputStateProvider, MutablePartialInputStateProvider

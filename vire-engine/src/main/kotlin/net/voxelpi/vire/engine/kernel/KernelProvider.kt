@@ -2,8 +2,7 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
 
 /**
  * Provides a kernel.
@@ -21,19 +20,11 @@ public interface KernelProvider : Kernel {
     override val properties: Map<Identifier, String>
         get() = kernel.properties
 
-    override fun createVariant(base: ParameterStateProvider): Result<KernelVariant> {
-        return kernel.createVariant(base)
-    }
-
-    override fun createVariant(base: ParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariant> {
+    override fun createVariant(base: PartialParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariant> {
         return kernel.createVariant(base, lambda)
     }
 
-    override fun createVariant(values: ParameterStateMap, base: ParameterStateProvider): Result<KernelVariant> {
-        return kernel.createVariant(values, base)
-    }
-
-    override fun generateDefaultParameterStates(): ParameterStateProvider {
+    override fun generateDefaultParameterStates(): PartialParameterStateProvider {
         return kernel.generateDefaultParameterStates()
     }
 

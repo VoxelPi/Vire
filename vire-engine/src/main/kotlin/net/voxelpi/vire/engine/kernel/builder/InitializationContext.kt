@@ -8,10 +8,10 @@ import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
 import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProviderWrapper
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProviderWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialFieldStateProviderWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialOutputStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrapper
@@ -23,8 +23,8 @@ public interface InitializationContext :
     ParameterStateProvider,
     VectorSizeProvider,
     SettingStateProvider,
-    MutableFieldStateProvider,
-    MutableOutputStateProvider {
+    MutablePartialFieldStateProvider,
+    MutablePartialOutputStateProvider {
 
     /**
      * The kernel which of which the instance was created.
@@ -53,13 +53,13 @@ public interface InitializationContext :
 internal class InitializationContextImpl(
     override val kernelVariant: KernelVariantImpl,
     override val settingStateProvider: SettingStateProvider,
-    override val fieldStateProvider: MutableFieldStateProvider,
-    override val outputStateProvider: MutableOutputStateProvider,
+    override val fieldStateProvider: MutablePartialFieldStateProvider,
+    override val outputStateProvider: MutablePartialOutputStateProvider,
 ) : InitializationContext,
     KernelVariantWrapper,
     SettingStateProviderWrapper,
-    MutableFieldStateProviderWrapper,
-    MutableOutputStateProviderWrapper {
+    MutablePartialFieldStateProviderWrapper,
+    MutablePartialOutputStateProviderWrapper {
 
     override val kernel: Kernel
         get() = kernelVariant.kernel

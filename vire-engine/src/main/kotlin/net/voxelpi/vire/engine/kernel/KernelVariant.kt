@@ -3,7 +3,9 @@ package net.voxelpi.vire.engine.kernel
 import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.SettingStatePatch
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialSettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorage
@@ -46,13 +48,6 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
     public fun copy(values: Map<String, Any?>): Result<KernelVariant>
 
     /**
-     * Creates a new instance of the kernel variant.
-     */
-    public fun createInstance(
-        base: SettingStateProvider = generateDefaultSettingStates(),
-    ): Result<KernelInstance>
-
-    /**
      * Creates a new variant of the kernel variant using the given [lambda] to initialize the settings.
      * Before the lambda is run, all settings of the kernel variant are initialized to their default values,
      * therefore the lambda doesn't have to set a setting.
@@ -61,8 +56,8 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
      * @param lambda the receiver lambda which will be invoked on the builder.
      */
     public fun createInstance(
-        base: SettingStateProvider = generateDefaultSettingStates(),
-        lambda: KernelInstanceBuilder.() -> Unit,
+        base: PartialSettingStateProvider = generateDefaultSettingStates(),
+        lambda: KernelInstanceBuilder.() -> Unit = {},
     ): Result<KernelInstance>
 
     /**
@@ -76,13 +71,13 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
      */
     public fun createInstance(
         values: SettingStateMap,
-        base: SettingStateProvider = generateDefaultSettingStates(),
+        base: PartialSettingStateProvider = generateDefaultSettingStates(),
     ): Result<KernelInstance>
 
     /**
      * Generates a new [SettingStateProvider] with the default value of each setting.
      */
-    public fun generateDefaultSettingStates(): SettingStateProvider
+    public fun generateDefaultSettingStates(): PartialSettingStateProvider
 
     /**
      * Generates a new [SettingInitializationContext] for the initialization of all settings.
@@ -117,7 +112,11 @@ internal class KernelVariantImpl(
     }
 
     override fun copy(values: Map<String, Any?>): Result<KernelVariantImpl> {
-        return kernel.createVariant(values, this)
+        return kernel.createVariant(this) {
+            for ((key, value) in values) {
+                this[key] = value
+            }
+        }
     }
 
     override fun get(parameterName: String): Any? {
@@ -129,29 +128,24 @@ internal class KernelVariantImpl(
         return this[parameter]
     }
 
-    override fun createInstance(base: SettingStateProvider): Result<KernelInstanceImpl> {
-        val config = KernelInstanceConfig(this, base)
-        return kernel.generateInstance(config)
-    }
-
-    override fun createInstance(base: SettingStateProvider, lambda: KernelInstanceBuilder.() -> Unit): Result<KernelInstanceImpl> {
+    override fun createInstance(base: PartialSettingStateProvider, lambda: KernelInstanceBuilder.() -> Unit): Result<KernelInstanceImpl> {
         val config = KernelInstanceBuilderImpl(this, base).apply(lambda).build()
         return kernel.generateInstance(config)
     }
 
-    override fun createInstance(values: SettingStateMap, base: SettingStateProvider): Result<KernelInstanceImpl> {
+    override fun createInstance(values: SettingStateMap, base: PartialSettingStateProvider): Result<KernelInstanceImpl> {
         val config = KernelInstanceBuilderImpl(this, base).apply(values).build()
         return kernel.generateInstance(config)
     }
 
-    override fun generateDefaultSettingStates(): SettingStateProvider {
+    override fun generateDefaultSettingStates(): SettingStatePatch {
         val settingInitializationContext = settingInitializationContext()
         val settingStates = mutableMapOf<String, Any?>()
         for (setting in settings()) {
             val initialization = setting.initialization ?: continue
             settingStates[setting.name] = initialization.invoke(settingInitializationContext)
         }
-        return KernelInstanceConfig(this, settingStates)
+        return SettingStatePatch(this, settingStates)
     }
 
     override fun settingInitializationContext(): SettingInitializationContext {
@@ -165,12 +159,12 @@ internal class KernelVariantImpl(
         other as KernelVariantImpl
 
         if (this.kernel != other.kernel) return false
-        if (this.parameterStateStorage.data != other.parameterStateStorage.data) return false
+        if (this.parameterStateStorage != other.parameterStateStorage) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(kernel, parameterStateStorage.data)
+        return Objects.hash(kernel, parameterStateStorage)
     }
 }

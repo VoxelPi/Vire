@@ -1,16 +1,15 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.Parameter
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableParameterStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableParameterStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableParameterStateStorage
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableParameterStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableParameterStatePatchWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
 
 /**
  * A builder for a kernel variant.
  */
-public interface KernelVariantBuilder : MutableParameterStateProvider {
+public interface KernelVariantBuilder : MutablePartialParameterStateProvider {
 
     /**
      * The kernel which of which the variant should be created.
@@ -35,11 +34,11 @@ public interface KernelVariantBuilder : MutableParameterStateProvider {
 
 internal class KernelVariantBuilderImpl(
     override val kernel: KernelImpl,
-    override val parameterStateStorage: MutableParameterStateStorage,
-) : KernelVariantBuilder, MutableParameterStateStorageWrapper {
+    override val parameterStatePatch: MutableParameterStatePatch,
+) : KernelVariantBuilder, MutableParameterStatePatchWrapper {
 
-    constructor(kernel: KernelImpl, parameterStateProvider: ParameterStateProvider) :
-        this(kernel, mutableParameterStateStorage(kernel, parameterStateProvider))
+    constructor(kernel: KernelImpl, partialParameterStateProvider: PartialParameterStateProvider) :
+        this(kernel, MutableParameterStatePatch(kernel, partialParameterStateProvider))
 
     override fun get(parameterName: String): Any? {
         // Check that a parameter with the given name exists.
@@ -47,7 +46,7 @@ internal class KernelVariantBuilderImpl(
             ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
         // Return the value of the parameter.
-        return parameterStateStorage[parameter]
+        return parameterStatePatch[parameter]
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -57,15 +56,15 @@ internal class KernelVariantBuilderImpl(
             ?: throw IllegalArgumentException("Unknown parameter '$parameterName'")
 
         // Update the value of the parameter.
-        parameterStateStorage[parameter] = value
+        parameterStatePatch[parameter] = value
     }
 
     fun update(values: Map<String, Any?>): KernelVariantBuilderImpl {
-        parameterStateStorage.update(values)
+        parameterStatePatch.applyParameterStatePatch(values)
         return this
     }
 
     fun build(): KernelVariantConfig {
-        return KernelVariantConfig(kernel, parameterStateStorage.copy())
+        return KernelVariantConfig(kernel, parameterStatePatch.createStorage())
     }
 }

@@ -1,16 +1,15 @@
 package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.kernel.variable.Setting
-import net.voxelpi.vire.engine.kernel.variable.provider.MutableSettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableSettingStateStorage
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableSettingStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableSettingStatePatchWrapper
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialSettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialSettingStateProvider
 
 /**
  * A builder for a kernel instance.
  */
-public interface KernelInstanceBuilder : MutableSettingStateProvider {
+public interface KernelInstanceBuilder : MutablePartialSettingStateProvider {
 
     /**
      * The kernel which of which the instance should be created.
@@ -41,11 +40,11 @@ public interface KernelInstanceBuilder : MutableSettingStateProvider {
 
 internal class KernelInstanceBuilderImpl(
     override val kernelVariant: KernelVariantImpl,
-    override val settingStateStorage: MutableSettingStateStorage,
-) : KernelInstanceBuilder, MutableSettingStateStorageWrapper {
+    override val settingStatePatch: MutableSettingStatePatch,
+) : KernelInstanceBuilder, MutableSettingStatePatchWrapper {
 
-    constructor(kernelVariant: KernelVariantImpl, settingStateProvider: SettingStateProvider) :
-        this(kernelVariant, mutableSettingStateStorage(kernelVariant, settingStateProvider))
+    constructor(kernelVariant: KernelVariantImpl, settingStateProvider: PartialSettingStateProvider) :
+        this(kernelVariant, MutableSettingStatePatch(kernelVariant, settingStateProvider))
 
     override fun get(settingName: String): Any? {
         // Check that a setting with the given name exists.
@@ -53,7 +52,7 @@ internal class KernelInstanceBuilderImpl(
             ?: throw IllegalArgumentException("Unknown setting '$settingName'")
 
         // Return the value of the setting.
-        return settingStateStorage[setting]
+        return settingStatePatch[setting]
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -63,15 +62,15 @@ internal class KernelInstanceBuilderImpl(
             ?: throw IllegalArgumentException("Unknown setting '$settingName'")
 
         // Update the value of the setting.
-        settingStateStorage[setting] = value
+        settingStatePatch[setting] = value
     }
 
     fun apply(values: Map<String, Any?>): KernelInstanceBuilderImpl {
-        settingStateStorage.update(values)
+        settingStatePatch.applySettingStatePatch(values)
         return this
     }
 
     fun build(): KernelInstanceConfig {
-        return KernelInstanceConfig(kernelVariant, settingStateStorage.copy())
+        return KernelInstanceConfig(kernelVariant, settingStatePatch.createStorage())
     }
 }

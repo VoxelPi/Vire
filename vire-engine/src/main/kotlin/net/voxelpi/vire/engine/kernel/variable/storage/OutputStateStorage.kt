@@ -1,30 +1,51 @@
 package net.voxelpi.vire.engine.kernel.variable.storage
 
 import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.OutputScalarInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
-import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
-import net.voxelpi.vire.engine.kernel.variable.OutputVectorInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
 internal typealias OutputStateMap = Map<String, Array<LogicState>>
 
 internal typealias MutableOutputStateMap = MutableMap<String, Array<LogicState>>
 
-internal interface OutputStateStorage : OutputStateProvider {
+internal open class OutputStateStorage(
+    final override val variableProvider: VariableProvider,
+    initialData: OutputStateMap,
+) : OutputStateProvider {
 
-    override val variableProvider: VariableProvider
+    init {
+        for ((outputName, outputState) in initialData) {
+            val output = variableProvider.output(outputName)
+                ?: throw IllegalStateException("Data specified for unknown output \"$outputName\".")
 
-    val data: OutputStateMap
+            for (channelState in outputState) {
+                require(output.isValidValue(channelState)) { "Invalid value specified for output \"$outputName\"." }
+            }
+        }
 
-    fun copy(): OutputStateStorage
+        val missingVariables = variableProvider.outputs().map { it.name }.filter { it !in initialData }
+        require(missingVariables.isEmpty()) {
+            "Missing values for the following outputs: ${missingVariables.joinToString(", ") { "\"${it}\"" } }"
+        }
+    }
 
-    fun mutableCopy(): MutableOutputStateStorage
+    protected open val data: OutputStateMap = initialData.toMap()
+
+    constructor(variableProvider: VariableProvider, initialData: OutputStateProvider) : this(
+        variableProvider,
+        variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
+    )
+
+    fun copy(): OutputStateStorage {
+        return OutputStateStorage(variableProvider, data)
+    }
+
+    fun mutableCopy(): MutableOutputStateStorage {
+        return MutableOutputStateStorage(variableProvider, data)
+    }
 
     override fun get(output: OutputScalar): LogicState {
         // Check that an output with the given name exists.
@@ -48,15 +69,16 @@ internal interface OutputStateStorage : OutputStateProvider {
 }
 
 internal class MutableOutputStateStorage(
-    override val variableProvider: VariableProvider,
-    override val data: MutableOutputStateMap,
-) : OutputStateStorage, MutableOutputStateProvider {
+    variableProvider: VariableProvider,
+    initialData: OutputStateMap,
+) : OutputStateStorage(variableProvider, initialData), MutableOutputStateProvider {
 
-    override fun copy(): OutputStateStorage = mutableCopy()
+    override val data: MutableOutputStateMap = initialData.toMutableMap()
 
-    override fun mutableCopy(): MutableOutputStateStorage {
-        return MutableOutputStateStorage(variableProvider, data.toMutableMap())
-    }
+    constructor(variableProvider: VariableProvider, initialData: OutputStateProvider) : this(
+        variableProvider,
+        variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
+    )
 
     override fun set(output: OutputScalar, value: LogicState) {
         // Check that an output with the given name exists.
@@ -81,90 +103,4 @@ internal class MutableOutputStateStorage(
         // Return the value of the output.
         data[outputVector.name]!![index] = value
     }
-
-    fun update(data: OutputStateMap) {
-        for ((outputName, value) in data) {
-            // Check that only existing outputs are specified.
-            val output = variableProvider.output(outputName)
-                ?: throw IllegalArgumentException("Unknown output '$outputName'")
-
-            // Update the value of the output.
-            when (output) {
-                is OutputScalar -> this[output] = value[0]
-                is OutputVector -> this[output] = value
-                is OutputVectorElement -> throw IllegalArgumentException("Output vector elements may not be specified ('$outputName')")
-            }
-        }
-    }
-}
-
-internal fun outputStateStorage(variableProvider: VariableProvider, data: OutputStateMap): OutputStateStorage {
-    return mutableOutputStateStorage(variableProvider, data)
-}
-
-internal fun outputStateStorage(variableProvider: VariableProvider, dataProvider: OutputStateProvider): OutputStateStorage {
-    return mutableOutputStateStorage(variableProvider, dataProvider)
-}
-
-internal fun mutableOutputStateStorage(variableProvider: VariableProvider, data: OutputStateMap): MutableOutputStateStorage {
-    val processedData: MutableOutputStateMap = mutableMapOf()
-    for (output in variableProvider.outputs()) {
-        // Check that the output has an assigned value.
-        require(output.name in data) { "No value provided for the output ${output.name}" }
-
-        // Get the value from the map.
-        val value = data[output.name]!!
-
-        // Put value into map.
-        processedData[output.name] = value
-    }
-    return MutableOutputStateStorage(variableProvider, processedData)
-}
-
-internal fun mutableOutputStateStorage(variableProvider: VariableProvider, dataProvider: OutputStateProvider): MutableOutputStateStorage {
-    val processedData: MutableOutputStateMap = mutableMapOf()
-    for (output in variableProvider.outputs()) {
-        // Check that the output has an assigned value.
-        require(dataProvider.variableProvider.hasVariable(output)) { "No value provided for the output ${output.name}" }
-
-        // Get the value from the provider.
-        val value = when (output) {
-            is OutputScalar -> arrayOf(dataProvider[output])
-            is OutputVector -> dataProvider[output]
-            else -> throw IllegalStateException()
-        }
-
-        // Put value into map.
-        processedData[output.name] = value
-    }
-    return MutableOutputStateStorage(variableProvider, processedData)
-}
-
-internal fun generateInitialOutputStateStorage(
-    kernelVariant: KernelVariantImpl,
-    settingStateProvider: SettingStateProvider,
-): MutableOutputStateStorage {
-    val scalarInitializationContext = OutputScalarInitializationContext(kernelVariant, settingStateProvider)
-    val vectorInitializationContext = OutputVectorInitializationContext(kernelVariant, settingStateProvider)
-    val outputStateStorage = mutableOutputStateStorage(
-        kernelVariant,
-        kernelVariant.outputs().associate { output ->
-            when (output) {
-                is OutputScalar -> {
-                    output.name to arrayOf(
-                        output.initialization(scalarInitializationContext)
-                    )
-                }
-                is OutputVector -> {
-                    output.name to Array(kernelVariant.size(output)) { index ->
-                        output.initialization(vectorInitializationContext, index)
-                    }
-                }
-                is OutputVectorElement -> {
-                    throw UnsupportedOperationException("Vector elements cannot be initialized directly")
-                }
-            }
-        }
-    )
-    return outputStateStorage
 }

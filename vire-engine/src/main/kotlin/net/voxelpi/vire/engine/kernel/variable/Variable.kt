@@ -31,6 +31,13 @@ public sealed interface Variable<T> {
     /**
      * Returns if the given [value] is valid for the variable.
      */
+    public fun isValidValue(value: T): Boolean {
+        return true
+    }
+
+    /**
+     * Returns if the given [value] is valid for the variable.
+     */
     public fun isValidTypeAndValue(value: Any?): Boolean {
         return isInstanceOfType(value, type)
     }
@@ -95,7 +102,7 @@ public sealed interface ConstrainedVariable<T> : Variable<T> {
     /**
      * Returns if the given [value] is valid for the variable.
      */
-    public fun isValidValue(value: T): Boolean {
+    override fun isValidValue(value: T): Boolean {
         return constraint.isValidValue(value)
     }
 

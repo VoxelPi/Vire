@@ -4,7 +4,6 @@ import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.settingStateStorage
 
 internal data class KernelInstanceConfig(
     val kernelVariant: KernelVariantImpl,
@@ -12,8 +11,8 @@ internal data class KernelInstanceConfig(
 ) : SettingStateStorageWrapper {
 
     constructor(kernelVariant: KernelVariantImpl, settingStateProvider: SettingStateProvider) :
-        this(kernelVariant, settingStateStorage(kernelVariant, settingStateProvider))
+        this(kernelVariant, SettingStateStorage(kernelVariant, settingStateProvider))
 
     constructor(kernelVariant: KernelVariantImpl, settingStateMap: SettingStateMap) :
-        this(kernelVariant, settingStateStorage(kernelVariant, settingStateMap))
+        this(kernelVariant, SettingStateStorage(kernelVariant, settingStateMap))
 }
