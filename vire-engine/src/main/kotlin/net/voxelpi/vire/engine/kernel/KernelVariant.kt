@@ -87,20 +87,20 @@ public interface KernelVariant : VariableProvider, ParameterStateProvider, Vecto
 
 internal class KernelVariantImpl(
     override val kernel: Kernel,
-    val variables: Map<String, Variable<*>>,
-    override val parameterStateStorage: ParameterStateStorage,
-    override val vectorSizeStorage: VectorSizeStorage,
+    parameterStateProvider: ParameterStateProvider,
+    override val variableProvider: VariableProvider,
+    vectorSizeProvider: VectorSizeProvider,
 ) : KernelVariant, VectorSizeStorageWrapper, ParameterStateStorageWrapper {
 
-    override val variableProvider: VariableProvider
-        get() = this
+    override val parameterStateStorage: ParameterStateStorage = ParameterStateStorage(this, parameterStateProvider)
+    override val vectorSizeStorage: VectorSizeStorage = VectorSizeStorage(vectorSizeProvider)
 
     override fun variables(): Collection<Variable<*>> {
-        return variables.values
+        return variableProvider.variables()
     }
 
     override fun variable(name: String): Variable<*>? {
-        return variables[name]
+        return variableProvider.variable(name)
     }
 
     override fun copy(): Result<KernelVariant> {

@@ -8,7 +8,7 @@ import net.voxelpi.vire.engine.kernel.KernelInstanceConfig
 import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
 import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
-import net.voxelpi.vire.engine.kernel.KernelVariantConfig
+import net.voxelpi.vire.engine.kernel.KernelVariantData
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.SpecializedKernel
@@ -52,7 +52,7 @@ internal class ProceduralKernelImpl(
         return generateVariant(config)
     }
 
-    fun generateVariant(config: KernelVariantConfig): Result<KernelVariantImpl> {
+    fun generateVariant(config: KernelVariantData): Result<KernelVariantImpl> {
         // Check that all parameters have been assigned a value.
         for (parameter in parameters()) {
             if (!config.hasValue(parameter)) {

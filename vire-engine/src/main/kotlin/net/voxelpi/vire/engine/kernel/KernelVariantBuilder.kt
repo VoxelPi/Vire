@@ -33,11 +33,11 @@ public interface KernelVariantBuilder : MutablePartialParameterStateProvider {
 }
 
 internal class KernelVariantBuilderImpl(
-    override val kernel: KernelImpl,
+    override val kernel: Kernel,
     override val parameterStatePatch: MutableParameterStatePatch,
 ) : KernelVariantBuilder, MutableParameterStatePatchWrapper {
 
-    constructor(kernel: KernelImpl, partialParameterStateProvider: PartialParameterStateProvider) :
+    constructor(kernel: Kernel, partialParameterStateProvider: PartialParameterStateProvider) :
         this(kernel, MutableParameterStatePatch(kernel, partialParameterStateProvider))
 
     override fun get(parameterName: String): Any? {
