@@ -1,9 +1,7 @@
 package net.voxelpi.vire.engine.kernel.variable.storage
 
-import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
-import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
@@ -91,5 +89,11 @@ internal class MutableVectorSizeStorage(
 
         // Return the size of the vector.
         return resize(variableProvider.vectorVariable(vectorName)!!, size)
+    }
+
+    fun unregister(vector: VectorVariable<*>) {
+        require(variableProvider.hasVectorVariable(vector)) { "Unknown vector variable ${vector.name}" }
+
+        data.remove(vector.name)
     }
 }

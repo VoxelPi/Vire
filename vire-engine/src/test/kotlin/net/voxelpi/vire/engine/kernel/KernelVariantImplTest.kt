@@ -5,6 +5,7 @@ import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.createSetting
 import net.voxelpi.vire.engine.kernel.variable.inSelection
+import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -90,7 +91,7 @@ class KernelVariantImplTest {
             }
         }
 
-        kernel.createVariant(mapOf("parameter_2" to 4)).getOrThrow()
+        kernel.createVariant(ParameterStatePatch(kernel, mapOf("parameter_2" to 4))).getOrThrow()
         kernel.createVariant {
             this[parameter2] = 5
         }.getOrThrow()

@@ -1,7 +1,6 @@
 package net.voxelpi.vire.engine.kernel.procedual
 
 import net.voxelpi.vire.engine.Identifier
-import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
 
 public interface ProceduralKernelBuilder {
@@ -69,9 +68,9 @@ internal open class ProceduralKernelBuilderImpl : ProceduralKernelBuilder {
         return variable
     }
 
-    open fun build(): KernelImpl {
+    open fun build(): ProceduralKernelImpl {
         finished = true
-        return KernelImpl(
+        return ProceduralKernelImpl(
             tags.toSet(),
             properties.toMap(),
             variables.toMap(),

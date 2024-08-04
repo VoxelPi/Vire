@@ -42,7 +42,7 @@ class CircuitKernelTest {
         val portOut = component.createPort(innerKernelOutput)
         val connection = circuit.createNetworkConnection(portIn.networkNode, portOut.networkNode)
 
-        val kernelVariant = circuit.createKernelVariant()
+        val kernelVariant = circuit.createKernel().createVariant().getOrThrow()
         val kernelInstance = kernelVariant.createInstance().getOrThrow()
 
         val simulation = environment.createSimulation(kernelInstance)

@@ -8,8 +8,11 @@ import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvide
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateStorage
@@ -27,10 +30,6 @@ public interface KernelState :
 
     public val kernel: Kernel
 
-    public val kernelVariant: KernelVariant
-
-    public val kernelInstance: KernelInstance
-
     public fun copy(): KernelState
 
     public fun mutableCopy(): MutableKernelState
@@ -39,28 +38,29 @@ public interface KernelState :
 public interface MutableKernelState : KernelState, MutableFieldStateProvider, MutableInputStateProvider, MutableOutputStateProvider
 
 internal class MutableKernelStateImpl(
-    override val kernelInstance: KernelInstanceImpl,
+    override val kernel: Kernel,
+    override val variableProvider: VariableProvider,
+    override val vectorSizeProvider: VectorSizeProvider,
+    override val parameterStateProvider: ParameterStateProvider,
+    override val settingStateProvider: SettingStateProvider,
     override val fieldStateStorage: MutableFieldStateStorage,
     override val inputStateStorage: MutableInputStateStorage,
     override val outputStateStorage: MutableOutputStateStorage,
 ) : MutableKernelState,
+    VectorSizeProviderWrapper,
+    ParameterStateProviderWrapper,
+    SettingStateProviderWrapper,
     MutableFieldStateStorageWrapper,
     MutableInputStateStorageWrapper,
-    MutableOutputStateStorageWrapper,
-    KernelInstanceWrapper {
-
-    override val kernel: Kernel
-        get() = kernelVariant.kernel
-
-    override val kernelVariant: KernelVariant
-        get() = kernelInstance.kernelVariant
-
-    override val variableProvider: VariableProvider
-        get() = kernelVariant
+    MutableOutputStateStorageWrapper {
 
     override fun copy(): KernelState {
         return MutableKernelStateImpl(
-            kernelInstance,
+            kernel,
+            variableProvider,
+            vectorSizeProvider,
+            parameterStateProvider,
+            settingStateProvider,
             fieldStateStorage.mutableCopy(),
             inputStateStorage.mutableCopy(),
             outputStateStorage.mutableCopy()
@@ -69,7 +69,11 @@ internal class MutableKernelStateImpl(
 
     override fun mutableCopy(): MutableKernelStateImpl {
         return MutableKernelStateImpl(
-            kernelInstance,
+            kernel,
+            variableProvider,
+            vectorSizeProvider,
+            parameterStateProvider,
+            settingStateProvider,
             fieldStateStorage.mutableCopy(),
             inputStateStorage.mutableCopy(),
             outputStateStorage.mutableCopy()

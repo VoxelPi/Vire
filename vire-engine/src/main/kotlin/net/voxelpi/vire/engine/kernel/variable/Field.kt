@@ -1,11 +1,11 @@
 package net.voxelpi.vire.engine.kernel.variable
 
-import net.voxelpi.vire.engine.kernel.KernelVariant
-import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProviderWrapper
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -28,16 +28,15 @@ public typealias FieldInitialization<T> = FieldInitializationContext.() -> T
  * The initialization context of a kernel field.
  */
 public class FieldInitializationContext internal constructor(
-    override val kernelVariant: KernelVariant,
+    override val variableProvider: VariableProvider,
+    override val vectorSizeProvider: VectorSizeProvider,
+    override val parameterStateProvider: ParameterStateProvider,
     override val settingStateProvider: SettingStateProvider,
-) : VariableProvider, ParameterStateProvider, VectorSizeProvider, KernelVariantWrapper, SettingStateProviderWrapper {
+) : VariableProvider, VectorSizeProviderWrapper, ParameterStateProviderWrapper, SettingStateProviderWrapper {
 
-    override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
+    override fun variables(): Collection<Variable<*>> = variableProvider.variables()
 
-    override fun variable(name: String): Variable<*>? = kernelVariant.variable(name)
-
-    override val variableProvider: VariableProvider
-        get() = kernelVariant
+    override fun variable(name: String): Variable<*>? = variableProvider.variable(name)
 }
 
 /**

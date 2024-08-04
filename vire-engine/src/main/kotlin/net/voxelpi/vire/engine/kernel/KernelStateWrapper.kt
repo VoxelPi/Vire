@@ -6,25 +6,40 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
+import net.voxelpi.vire.engine.kernel.variable.Parameter
+import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
-internal interface KernelStateWrapper : KernelInstanceWrapper, FieldStateProvider, InputStateProvider, OutputStateProvider {
+internal interface KernelStateWrapper :
+    VectorSizeProvider,
+    ParameterStateProvider,
+    SettingStateProvider,
+    FieldStateProvider,
+    InputStateProvider,
+    OutputStateProvider {
 
     val kernelState: KernelState
 
-    override val kernelInstance: KernelInstance
-
-    override val kernelVariant: KernelVariant
-        get() = kernelInstance.kernelVariant
-
     override val variableProvider: VariableProvider
-        get() = kernelVariant
+        get() = kernelState.variableProvider
+
+    override fun size(vector: VectorVariable<*>): Int = kernelState.size(vector)
+
+    override fun size(vectorName: String): Int = kernelState.size(vectorName)
+
+    override fun <T> get(parameter: Parameter<T>): T = kernelState[parameter]
+
+    override fun <T> get(setting: Setting<T>): T = kernelState[setting]
 
     override fun <T> get(field: Field<T>): T = kernelState[field]
 
@@ -48,9 +63,6 @@ internal interface MutableKernelStateWrapper :
     MutableOutputStateProvider {
 
     override val kernelState: MutableKernelState
-
-    override val kernelInstance: KernelInstance
-        get() = kernelState.kernelInstance
 
     override fun <T> set(field: Field<T>, value: T) = kernelState.set(field, value)
 

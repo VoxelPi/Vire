@@ -1,25 +1,20 @@
 package net.voxelpi.vire.engine.kernel.variable.patch
 
 import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.Output
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
-import net.voxelpi.vire.engine.kernel.variable.OutputScalarInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
-import net.voxelpi.vire.engine.kernel.variable.OutputVectorElement
-import net.voxelpi.vire.engine.kernel.variable.OutputVectorInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialOutputStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateStorage
 
 internal open class OutputStatePatch(
     final override val variableProvider: VariableProvider,
-    initialData: OutputStateMap,
+    initialData: OutputStateMap = emptyMap(),
 ) : PartialOutputStateProvider {
 
     init {
@@ -97,7 +92,7 @@ internal open class OutputStatePatch(
 
 internal class MutableOutputStatePatch(
     variableProvider: VariableProvider,
-    initialData: OutputStateMap,
+    initialData: OutputStateMap = emptyMap(),
 ) : OutputStatePatch(variableProvider, initialData), MutablePartialOutputStateProvider {
 
     override val data: MutableOutputStateMap = initialData.toMutableMap()
@@ -112,7 +107,7 @@ internal class MutableOutputStatePatch(
         require(variableProvider.hasOutput(output)) { "Unknown output ${output.name}" }
 
         // Update the value of the output.
-        data[output.name]!![0] = value
+        data[output.name] = arrayOf(value)
     }
 
     override fun set(outputVector: OutputVector, value: Array<LogicState>) {
@@ -130,33 +125,4 @@ internal class MutableOutputStatePatch(
         // Return the value of the output.
         data[outputVector.name]!![index] = value
     }
-}
-
-internal fun generateInitialOutputStatePatch(
-    kernelVariant: KernelVariantImpl,
-    settingStateProvider: SettingStateProvider,
-): MutableOutputStatePatch {
-    val scalarInitializationContext = OutputScalarInitializationContext(kernelVariant, settingStateProvider)
-    val vectorInitializationContext = OutputVectorInitializationContext(kernelVariant, settingStateProvider)
-    val outputStatePatch = MutableOutputStatePatch(
-        kernelVariant,
-        kernelVariant.outputs().associate { output ->
-            when (output) {
-                is OutputScalar -> {
-                    output.name to arrayOf(
-                        output.initialization(scalarInitializationContext)
-                    )
-                }
-                is OutputVector -> {
-                    output.name to Array(kernelVariant.size(output)) { index ->
-                        output.initialization(vectorInitializationContext, index)
-                    }
-                }
-                is OutputVectorElement -> {
-                    throw UnsupportedOperationException("Vector elements cannot be initialized directly")
-                }
-            }
-        }
-    )
-    return outputStatePatch
 }

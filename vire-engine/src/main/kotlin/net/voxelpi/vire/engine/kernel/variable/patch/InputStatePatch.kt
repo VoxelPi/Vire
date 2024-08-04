@@ -14,7 +14,7 @@ import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateMap
 
 internal open class InputStatePatch(
     final override val variableProvider: VariableProvider,
-    initialData: InputStateMap,
+    initialData: InputStateMap = emptyMap(),
 ) : PartialInputStateProvider {
 
     init {
@@ -92,7 +92,7 @@ internal open class InputStatePatch(
 
 internal class MutableInputStatePatch(
     variableProvider: VariableProvider,
-    initialData: InputStateMap,
+    initialData: InputStateMap = emptyMap(),
 ) : InputStatePatch(variableProvider, initialData), MutablePartialInputStateProvider {
 
     override val data: MutableInputStateMap = initialData.toMutableMap()
@@ -107,7 +107,7 @@ internal class MutableInputStatePatch(
         require(variableProvider.hasInput(input)) { "Unknown input ${input.name}" }
 
         // Update the value of the input.
-        data[input.name]!![0] = value
+        data[input.name] = arrayOf(value)
     }
 
     override fun set(inputVector: InputVector, value: Array<LogicState>) {

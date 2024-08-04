@@ -4,22 +4,23 @@ import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
 import net.voxelpi.vire.engine.kernel.KernelInitializationException
-import net.voxelpi.vire.engine.kernel.KernelInstanceConfig
-import net.voxelpi.vire.engine.kernel.KernelInstanceImpl
-import net.voxelpi.vire.engine.kernel.KernelVariantBuilder
-import net.voxelpi.vire.engine.kernel.KernelVariantBuilderImpl
+import net.voxelpi.vire.engine.kernel.KernelInstanceData
 import net.voxelpi.vire.engine.kernel.KernelVariantData
-import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.MutableKernelState
-import net.voxelpi.vire.engine.kernel.SpecializedKernel
-import net.voxelpi.vire.engine.kernel.SpecializedKernelImpl
+import net.voxelpi.vire.engine.kernel.MutableKernelStateImpl
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.patch.MutableParameterStatePatch
-import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
-import net.voxelpi.vire.engine.kernel.variable.patch.generateInitialFieldStatePatch
-import net.voxelpi.vire.engine.kernel.variable.patch.generateInitialOutputStatePatch
-import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableFieldStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableOutputStatePatch
+import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateStorage
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateStorage
 
 public interface ProceduralKernel : Kernel {
 
@@ -47,21 +48,11 @@ internal class ProceduralKernelImpl(
         return variables[name]
     }
 
-    override fun createVariant(base: PartialParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariantImpl> {
-        val config = KernelVariantBuilderImpl(this, base).apply(lambda).build()
-        return generateVariant(config)
-    }
-
-    fun generateVariant(config: KernelVariantData): Result<KernelVariantImpl> {
-        // Check that all parameters have been assigned a value.
-        for (parameter in parameters()) {
-            if (!config.hasValue(parameter)) {
-                throw IllegalArgumentException("Incomplete kernel configuration, parameter \"${parameter.name}\" has no value set")
-            }
-        }
-
+    override fun createVariantData(
+        parameterStates: ParameterStateProvider,
+    ): Result<KernelVariantData> {
         // Start kernel configuration phase.
-        val context = ConfigurationContextImpl(this, config)
+        val context = ConfigurationContextImpl(this, parameterStates)
         try {
             configurationAction(context)
         } catch (exception: KernelConfigurationException) {
@@ -69,77 +60,85 @@ internal class ProceduralKernelImpl(
         }
 
         // Build variant.
-        val variant = KernelVariantImpl(
+        val variantData = KernelVariantData(
             this,
-            context.variables,
-            config.parameterStateStorage,
-            context.vectorSizeStorage.copy(),
+            context.variableStorage,
+            context.vectorSizeStorage,
+            parameterStates,
+            context.settingStateProvider,
         )
-        return Result.success(variant)
+        return Result.success(variantData)
     }
 
-    fun generateInstance(config: KernelInstanceConfig): Result<KernelInstanceImpl> {
-        val kernelVariant = config.kernelVariant
-
-        // Check that all settings have been assigned a value.
-        for (setting in settings()) {
-            if (!config.hasValue(setting)) {
-                throw IllegalArgumentException("Incomplete kernel configuration, setting \"${setting.name}\" has no value set")
-            }
-        }
-
-        // Generate initial field states.
-        val fieldStatePatch = generateInitialFieldStatePatch(kernelVariant, config)
-
-        // Generate initial output states.
-        val outputStatePatch = generateInitialOutputStatePatch(kernelVariant, config)
+    override fun createInstanceData(
+        variables: VariableProvider,
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+    ): Result<KernelInstanceData> {
+        val fieldStatePatch = MutableFieldStatePatch(
+            variables,
+            variables.defaultFieldStates(vectorSizes, parameterStates, settingStates),
+        )
+        val outputStatePatch = MutableOutputStatePatch(
+            variables,
+            variables.defaultOutputStates(vectorSizes, parameterStates, settingStates),
+        )
 
         // Initialize the kernel instance.
-        val context = InitializationContextImpl(this, config.kernelVariant, config.settingStateStorage, fieldStatePatch, outputStatePatch)
+        val context = InitializationContextImpl(
+            this,
+            variables,
+            vectorSizes,
+            parameterStates,
+            settingStates,
+            fieldStatePatch,
+            outputStatePatch,
+        )
         try {
             initializationAction(context)
         } catch (exception: KernelInitializationException) {
             return Result.failure(exception)
         }
+        val fieldStates = fieldStatePatch.createStorage()
+        val outputStates = outputStatePatch.createStorage()
 
-        // Check that all fields have been assigned a value.
-        for (field in fields()) {
-            if (!fieldStatePatch.hasValue(field)) {
-                throw IllegalArgumentException("Incomplete kernel initialization, field \"${field.name}\" has not been initialized")
-            }
-        }
-
-        // Create the kernel instance.
-        val instance = KernelInstanceImpl(
-            config.kernelVariant,
-            config.settingStateStorage,
-            fieldStatePatch.createStorage(),
-            outputStatePatch.createStorage(),
+        return Result.success(
+            KernelInstanceData(
+                this,
+                variables,
+                vectorSizes,
+                parameterStates,
+                settingStates,
+                fieldStates,
+                outputStates,
+            )
         )
-        return Result.success(instance)
     }
 
-    fun updateKernel(state: MutableKernelState) {
+    override fun initialKernelState(
+        variables: VariableProvider,
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+        fieldStates: FieldStateProvider,
+        inputStates: InputStateProvider,
+        outputStates: OutputStateProvider,
+    ): MutableKernelState {
+        return MutableKernelStateImpl(
+            this,
+            variables,
+            vectorSizes,
+            parameterStates,
+            settingStates,
+            MutableFieldStateStorage(variables, fieldStates),
+            MutableInputStateStorage(variables, inputStates),
+            MutableOutputStateStorage(variables, outputStates),
+        )
+    }
+
+    override fun updateKernelState(state: MutableKernelState) {
         val context = UpdateContextImpl(this, state)
         updateAction(context)
-    }
-
-    override fun createSpecialization(
-        additionalTags: Set<Identifier>,
-        additionalProperties: Map<Identifier, String>,
-        lambda: MutablePartialParameterStateProvider.() -> Unit,
-    ): SpecializedKernel {
-        val patch = MutableParameterStatePatch(this, emptyMap())
-        patch.lambda()
-        return SpecializedKernelImpl(this, patch, additionalTags, additionalProperties)
-    }
-
-    override fun generateDefaultParameterStates(): ParameterStatePatch {
-        val parameterStates = mutableMapOf<String, Any?>()
-        for (parameter in parameters()) {
-            val initialization = parameter.initialization ?: continue
-            parameterStates[parameter.name] = initialization.invoke()
-        }
-        return ParameterStatePatch(this, parameterStates)
     }
 }

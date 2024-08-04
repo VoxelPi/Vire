@@ -84,7 +84,7 @@ internal class SimulationImpl(
 
         // Store state of new steps.
         for (step in 1..steps) {
-            kernelInstance.kernel.updateKernel(state)
+            kernelInstance.kernel.updateKernelState(state)
             states.add(state.copy())
             currentStep++
         }

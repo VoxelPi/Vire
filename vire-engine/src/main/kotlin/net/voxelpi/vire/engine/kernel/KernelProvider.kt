@@ -2,7 +2,13 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
 /**
  * Provides a kernel.
@@ -20,12 +26,33 @@ public interface KernelProvider : Kernel {
     override val properties: Map<Identifier, String>
         get() = kernel.properties
 
-    override fun createVariant(base: PartialParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariant> {
-        return kernel.createVariant(base, lambda)
+    override fun createVariantData(parameterStates: ParameterStateProvider): Result<KernelVariantData> {
+        return kernel.createVariantData(parameterStates)
     }
 
-    override fun generateDefaultParameterStates(): PartialParameterStateProvider {
-        return kernel.generateDefaultParameterStates()
+    override fun createInstanceData(
+        variables: VariableProvider,
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+    ): Result<KernelInstanceData> {
+        return kernel.createInstanceData(variables, vectorSizes, parameterStates, settingStates)
+    }
+
+    override fun initialKernelState(
+        variables: VariableProvider,
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+        fieldStates: FieldStateProvider,
+        inputStates: InputStateProvider,
+        outputStates: OutputStateProvider,
+    ): MutableKernelState {
+        return kernel.initialKernelState(variables, vectorSizes, parameterStates, settingStates, fieldStates, inputStates, outputStates)
+    }
+
+    override fun updateKernelState(state: MutableKernelState) {
+        return kernel.updateKernelState(state)
     }
 
     override fun variables(): Collection<Variable<*>> {

@@ -7,7 +7,6 @@ import net.voxelpi.vire.engine.circuit.CircuitImpl
 import net.voxelpi.vire.engine.circuit.event.component.ComponentPortCreateEvent
 import net.voxelpi.vire.engine.circuit.event.component.ComponentPortDestroyEvent
 import net.voxelpi.vire.engine.kernel.Kernel
-import net.voxelpi.vire.engine.kernel.KernelImpl
 import net.voxelpi.vire.engine.kernel.KernelVariant
 import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.InterfaceVariable
@@ -57,7 +56,7 @@ internal class ComponentImpl(
     override val uniqueId: UUID,
 ) : CircuitElementImpl(), Component {
 
-    override val kernel: KernelImpl
+    override val kernel: Kernel
         get() = kernelVariant.kernel
 
     private val ports: MutableMap<UUID, ComponentPortImpl> = mutableMapOf()

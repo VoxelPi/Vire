@@ -16,6 +16,8 @@ import net.voxelpi.vire.engine.kernel.variable.InputScalar
 import net.voxelpi.vire.engine.kernel.variable.InputVector
 import net.voxelpi.vire.engine.kernel.variable.OutputScalar
 import net.voxelpi.vire.engine.kernel.variable.OutputVector
+import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.SettingStatePatch
 import net.voxelpi.vire.engine.kernel.variable.variableOfKind
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -95,7 +97,7 @@ class GeneratedKernelFactoryTest {
     @Test
     fun `test vector buffer kernel generation`() {
         val kernel = generateKernel<VectorBuffer>()
-        val kernelVariant = kernel.createVariant(mapOf("size" to 2)).getOrThrow()
+        val kernelVariant = kernel.createVariant(ParameterStatePatch(kernel, mapOf("size" to 2))).getOrThrow()
         assertEquals(2, kernelVariant.size("inputs"))
         assertEquals(2, kernelVariant.size("outputs"))
 
@@ -138,7 +140,8 @@ class GeneratedKernelFactoryTest {
     @Test
     fun `test counter kernel generation`() {
         val kernelVariant = generateKernel<Counter>().createVariant().getOrThrow()
-        val kernelInstance = kernelVariant.createInstance(mapOf("counter_step" to 4)).getOrThrow()
+        val kernelInstance = kernelVariant.createInstance(SettingStatePatch(kernelVariant, mapOf("counter_step" to 4)))
+            .getOrThrow()
         val simulation = environment.createSimulation(kernelInstance)
 
         val counter = kernelVariant.variableOfKind<Field<Int>>("counter")!!

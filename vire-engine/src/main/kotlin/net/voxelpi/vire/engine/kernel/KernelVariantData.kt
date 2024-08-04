@@ -9,10 +9,8 @@ import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProviderWrappe
 
 public data class KernelVariantData(
     public val kernel: Kernel,
-    override val parameterStateProvider: ParameterStateProvider,
     override val variableProvider: VariableProvider,
     override val vectorSizeProvider: VectorSizeProvider,
+    override val parameterStateProvider: ParameterStateProvider,
     public val initialSettingStateProvider: PartialSettingStateProvider,
-    public val initialFieldStateProvider: PartialSettingStateProvider,
-    public val initialOutputStateProvider: PartialSettingStateProvider,
 ) : ParameterStateProviderWrapper, VectorSizeProviderWrapper

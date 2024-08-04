@@ -40,8 +40,8 @@ import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.MutableVectorSizeStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.mutableVectorSizeStorage
 import net.voxelpi.vire.engine.util.GraphUtil
 import java.util.UUID
 
@@ -243,7 +243,7 @@ internal class CircuitImpl(
 
     private val variables: MutableMap<String, Variable<*>> = mutableMapOf()
     private val parameterStateStorage = ParameterStateStorage(this, emptyMap())
-    val vectorSizeStorage = mutableVectorSizeStorage(this, emptyMap())
+    val vectorSizeStorage = MutableVectorSizeStorage(this, emptyMap())
 
     override val tags: MutableSet<Identifier> = mutableSetOf()
     override val properties: MutableMap<Identifier, String> = mutableMapOf()

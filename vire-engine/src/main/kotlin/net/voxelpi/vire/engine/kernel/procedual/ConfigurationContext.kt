@@ -1,11 +1,16 @@
 package net.voxelpi.vire.engine.kernel.procedual
 
 import net.voxelpi.vire.engine.kernel.KernelConfigurationException
+import net.voxelpi.vire.engine.kernel.variable.MutableVariableRegistry
+import net.voxelpi.vire.engine.kernel.variable.Setting
+import net.voxelpi.vire.engine.kernel.variable.SettingInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.Variable
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VariantVariable
 import net.voxelpi.vire.engine.kernel.variable.VectorSizeInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableSettingStatePatch
+import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialSettingStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProviderWrapper
@@ -37,19 +42,18 @@ public interface ConfigurationContext : VariableProvider, MutableVectorSizeProvi
 internal class ConfigurationContextImpl(
     override val kernel: ProceduralKernelImpl,
     override val parameterStateProvider: ParameterStateProvider,
-) : ConfigurationContext, MutableVectorSizeStorageWrapper, ParameterStateProviderWrapper {
+) : ConfigurationContext, MutableVectorSizeStorageWrapper, ParameterStateProviderWrapper, MutablePartialSettingStateProviderWrapper {
 
-    val variables: MutableMap<String, Variable<*>> = kernel.variables()
-        .associateBy { it.name }
-        .toMutableMap()
+    val variableStorage: MutableVariableRegistry = MutableVariableRegistry(kernel.variables())
 
-    override fun variables(): Collection<Variable<*>> {
-        return variables.values
-    }
+    override fun variables(): Collection<Variable<*>> = variableStorage.variables()
 
-    override fun variable(name: String): Variable<*>? {
-        return variables[name]
-    }
+    override fun variable(name: String): Variable<*>? = variableStorage.variable(name)
+
+    override val settingStateProvider: MutableSettingStatePatch = MutableSettingStatePatch(
+        this,
+        variableStorage.defaultSettingStates(this, this),
+    )
 
     private val vectorSizeInitializationContext = VectorSizeInitializationContext(parameterStateProvider)
 
@@ -63,12 +67,25 @@ internal class ConfigurationContextImpl(
     override val variableProvider: VariableProvider
         get() = kernel
 
+    @Suppress("UNCHECKED_CAST")
     override fun <V : VariantVariable<*>> declare(variable: V): V {
-        require(variable.name !in variables) { "A variable with the name \"${variable.name}\" already exists" }
-        variables[variable.name] = variable
+        variableStorage.declare(variable)
+
+        // Update vector size storage if variable is a vector.
         if (variable is VectorVariable<*>) {
             vectorSizeStorage.resize(variable, variable.size(vectorSizeInitializationContext))
         }
+
+        // Update setting state patch if variable is a setting with an initialization.
+        if (variable is Setting<*>) {
+            val initialization = variable.initialization
+            if (initialization != null) {
+                val context = SettingInitializationContext(this, this, this)
+                settingStateProvider[variable as Setting<Any?>] = initialization.invoke(context)
+            }
+        }
+
+        // Return the created variable.
         return variable
     }
 }

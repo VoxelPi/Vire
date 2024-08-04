@@ -2,7 +2,13 @@ package net.voxelpi.vire.engine.kernel
 
 import net.voxelpi.vire.engine.Identifier
 import net.voxelpi.vire.engine.kernel.variable.Variable
-import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.VariableProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
 public interface WrappedKernel : Kernel {
 
@@ -14,12 +20,79 @@ public interface WrappedKernel : Kernel {
     override val properties: Map<Identifier, String>
         get() = kernel.properties
 
-    override fun createVariant(base: PartialParameterStateProvider, lambda: KernelVariantBuilder.() -> Unit): Result<KernelVariant> {
-        return kernel.createVariant(base, lambda)
+    override fun createVariantData(parameterStates: ParameterStateProvider): Result<KernelVariantData> {
+        val data = kernel.createVariantData(parameterStates).getOrElse { return Result.failure(it) }
+
+        return Result.success(
+            KernelVariantData(
+                this,
+                data.variableProvider,
+                data.vectorSizeProvider,
+                data.parameterStateProvider,
+                data.initialSettingStateProvider,
+            )
+        )
     }
 
-    override fun generateDefaultParameterStates(): PartialParameterStateProvider {
-        return kernel.generateDefaultParameterStates()
+    override fun createInstanceData(
+        variables: VariableProvider,
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+    ): Result<KernelInstanceData> {
+        val data = kernel.createInstanceData(
+            variables,
+            vectorSizes,
+            parameterStates,
+            settingStates,
+        ).getOrElse { return Result.failure(it) }
+
+        return Result.success(
+            KernelInstanceData(
+                this,
+                data.variableProvider,
+                data.vectorSizeProvider,
+                data.parameterStateProvider,
+                data.settingStateProvider,
+                data.fieldStateProvider,
+                data.outputStateProvider,
+            )
+        )
+    }
+
+    override fun initialKernelState(
+        variables: VariableProvider,
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+        fieldStates: FieldStateProvider,
+        inputStates: InputStateProvider,
+        outputStates: OutputStateProvider,
+    ): MutableKernelState {
+        val state = kernel.initialKernelState(
+            variables,
+            vectorSizes,
+            parameterStates,
+            settingStates,
+            fieldStates,
+            inputStates,
+            outputStates,
+        ) as MutableKernelStateImpl
+
+        return MutableKernelStateImpl(
+            this,
+            state.variableProvider,
+            state,
+            state,
+            state,
+            state.fieldStateStorage,
+            state.inputStateStorage,
+            state.outputStateStorage,
+        )
+    }
+
+    override fun updateKernelState(state: MutableKernelState) {
+        kernel.updateKernelState(state)
     }
 
     override fun variables(): Collection<Variable<*>> {

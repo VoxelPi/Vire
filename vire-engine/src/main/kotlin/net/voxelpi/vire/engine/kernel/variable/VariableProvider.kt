@@ -1,5 +1,20 @@
 package net.voxelpi.vire.engine.kernel.variable
 
+import net.voxelpi.vire.engine.LogicState
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableFieldStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableOutputStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableParameterStatePatch
+import net.voxelpi.vire.engine.kernel.variable.patch.MutableSettingStatePatch
+import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialFieldStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialOutputStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.PartialSettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.storage.InputStateStorage
+
 /**
  * A type that provides kernel variables of any type.
  */
@@ -174,6 +189,118 @@ public interface VariableProvider : Iterable<Variable<*>> {
      * Checks if the kernel has an output with the given [name].
      */
     public fun hasOutput(name: String): Boolean = hasVariableOfKind<Output>(name)
+
+    /**
+     * Check whether this variable provider is a subset of the given [variableProvider].
+     */
+    public fun isSubsetOf(variableProvider: VariableProvider): Boolean {
+        return this.variables().all(variableProvider::contains)
+    }
+
+    /**
+     * Check whether this variable provider is a superset of the given [variableProvider].
+     */
+    public fun isSupersetOf(variableProvider: VariableProvider): Boolean {
+        return variableProvider.all(this::contains)
+    }
+
+    /**
+     * Generates a new [PartialParameterStateProvider] with the default value of each parameter.
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun defaultParameterStates(): PartialParameterStateProvider {
+        val parameterStates = MutableParameterStatePatch(this)
+        for (parameter in parameters()) {
+            val initialization = parameter.initialization ?: continue
+            parameterStates[parameter as Parameter<Any?>] = initialization.invoke()
+        }
+        return parameterStates
+    }
+
+    /**
+     * Generates a new [PartialParameterStateProvider] with the default value of each parameter.
+     */
+    @Suppress("UNCHECKED_CAST")
+    public fun defaultSettingStates(
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+    ): PartialSettingStateProvider {
+        val settingInitializationContext = SettingInitializationContext(this, vectorSizes, parameterStates)
+
+        val settingStates = MutableSettingStatePatch(this)
+        for (setting in settings()) {
+            val initialization = setting.initialization ?: continue
+            settingStates[setting as Setting<Any?>] = initialization.invoke(settingInitializationContext)
+        }
+        return settingStates
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    public fun defaultFieldStates(
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+    ): PartialFieldStateProvider {
+        val fieldInitializationContext = FieldInitializationContext(this, vectorSizes, parameterStates, settingStates)
+
+        val fieldStates = MutableFieldStatePatch(this)
+        for (field in fields()) {
+            val initialization = field.initialization ?: continue
+            fieldStates[field as Field<Any?>] = initialization.invoke(fieldInitializationContext)
+        }
+        return fieldStates
+    }
+
+    public fun defaultOutputStates(
+        vectorSizes: VectorSizeProvider,
+        parameterStates: ParameterStateProvider,
+        settingStates: SettingStateProvider,
+    ): PartialOutputStateProvider {
+        val scalarInitializationContext = OutputScalarInitializationContext(this, vectorSizes, parameterStates, settingStates)
+        val vectorInitializationContext = OutputVectorInitializationContext(this, vectorSizes, parameterStates, settingStates)
+
+        val outputStates = MutableOutputStatePatch(this)
+        for (output in outputs()) {
+            when (output) {
+                is OutputScalar -> {
+                    outputStates[output] = output.initialization(scalarInitializationContext)
+                }
+                is OutputVector -> {
+                    outputStates[output] = Array(vectorSizes.size(output)) { index ->
+                        output.initialization(vectorInitializationContext, index)
+                    }
+                }
+                is OutputVectorElement -> {
+                    throw UnsupportedOperationException("Vector elements cannot be initialized directly")
+                }
+            }
+        }
+        return outputStates
+    }
+
+    public fun defaultInputStates(
+        vectorSizes: VectorSizeProvider,
+    ): InputStateProvider {
+        return InputStateStorage(
+            this,
+            this.inputs().associate { input ->
+                val size = when (input) {
+                    is InputScalar -> 1
+                    is InputVector -> vectorSizes.size(input)
+                    is InputVectorElement -> throw IllegalStateException("Vector elements are not allowed")
+                }
+                input.name to Array(size) { LogicState.EMPTY }
+            },
+        )
+    }
+}
+
+public interface MutableVariableProvider : VariableProvider {
+
+    /**
+     * Declares the given [variable].
+     */
+    public fun <V : Variable<*>> declare(variable: V): V
 }
 
 /**

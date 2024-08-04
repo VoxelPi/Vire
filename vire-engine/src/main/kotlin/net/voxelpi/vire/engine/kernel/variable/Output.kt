@@ -1,12 +1,12 @@
 package net.voxelpi.vire.engine.kernel.variable
 
 import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.KernelVariant
-import net.voxelpi.vire.engine.kernel.KernelVariantWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProviderWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
+import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProviderWrapper
 
 public sealed interface Output : IOVariable
 
@@ -56,32 +56,30 @@ public data class OutputVectorElement internal constructor(
  * The initialization context of an output scalar.
  */
 public class OutputScalarInitializationContext internal constructor(
-    override val kernelVariant: KernelVariant,
+    override val variableProvider: VariableProvider,
+    override val vectorSizeProvider: VectorSizeProvider,
+    override val parameterStateProvider: ParameterStateProvider,
     override val settingStateProvider: SettingStateProvider,
-) : VariableProvider, ParameterStateProvider, SettingStateProviderWrapper, VectorSizeProvider, KernelVariantWrapper {
+) : VariableProvider, VectorSizeProviderWrapper, ParameterStateProviderWrapper, SettingStateProviderWrapper {
 
-    override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
+    override fun variables(): Collection<Variable<*>> = variableProvider.variables()
 
-    override fun variable(name: String): Variable<*>? = kernelVariant.variable(name)
-
-    override val variableProvider: VariableProvider
-        get() = kernelVariant
+    override fun variable(name: String): Variable<*>? = variableProvider.variable(name)
 }
 
 /**
  * The initialization context of an output vector.
  */
 public class OutputVectorInitializationContext internal constructor(
-    override val kernelVariant: KernelVariant,
+    override val variableProvider: VariableProvider,
+    override val vectorSizeProvider: VectorSizeProvider,
+    override val parameterStateProvider: ParameterStateProvider,
     override val settingStateProvider: SettingStateProvider,
-) : VariableProvider, ParameterStateProvider, SettingStateProviderWrapper, VectorSizeProvider, KernelVariantWrapper {
+) : VariableProvider, VectorSizeProviderWrapper, ParameterStateProviderWrapper, SettingStateProviderWrapper {
 
-    override fun variables(): Collection<Variable<*>> = kernelVariant.variables()
+    override fun variables(): Collection<Variable<*>> = variableProvider.variables()
 
-    override fun variable(name: String): Variable<*>? = kernelVariant.variable(name)
-
-    override val variableProvider: VariableProvider
-        get() = kernelVariant
+    override fun variable(name: String): Variable<*>? = variableProvider.variable(name)
 }
 
 /**

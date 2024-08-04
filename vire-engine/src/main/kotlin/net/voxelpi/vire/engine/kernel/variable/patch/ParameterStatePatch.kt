@@ -13,7 +13,7 @@ import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorageWrap
 
 internal open class ParameterStatePatch(
     final override val variableProvider: VariableProvider,
-    initialData: ParameterStateMap,
+    initialData: ParameterStateMap = emptyMap(),
 ) : PartialParameterStateProvider {
 
     init {
@@ -73,7 +73,7 @@ internal open class ParameterStatePatch(
 
 internal class MutableParameterStatePatch(
     variableProvider: VariableProvider,
-    initialData: ParameterStateMap,
+    initialData: ParameterStateMap = emptyMap(),
 ) : ParameterStatePatch(variableProvider, initialData), MutablePartialParameterStateProvider {
 
     override val data: MutableParameterStateMap = initialData.toMutableMap()

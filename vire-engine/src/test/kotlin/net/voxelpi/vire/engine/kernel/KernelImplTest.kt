@@ -7,6 +7,7 @@ import net.voxelpi.vire.engine.kernel.variable.createParameter
 import net.voxelpi.vire.engine.kernel.variable.createSetting
 import net.voxelpi.vire.engine.kernel.variable.inRange
 import net.voxelpi.vire.engine.kernel.variable.inSelection
+import net.voxelpi.vire.engine.kernel.variable.patch.ParameterStatePatch
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertFalse
@@ -57,11 +58,16 @@ class KernelImplTest {
         }
 
         assertThrows<IllegalArgumentException> {
-            kernel.createVariant(mapOf<String, Any?>("parameter_1" to "mode_null"))
+            kernel.createVariant(ParameterStatePatch(kernel, mapOf<String, Any?>("parameter_1" to "mode_null")))
         }
 
         assertTrue {
-            kernel.createVariant(mapOf<String, Any?>("parameter_1" to "mode_c", "parameter_2" to 2.75)).isSuccess
+            kernel.createVariant(
+                ParameterStatePatch(
+                    kernel,
+                    mapOf<String, Any?>("parameter_1" to "mode_c", "parameter_2" to 2.75),
+                )
+            ).isSuccess
         }
     }
 

@@ -11,7 +11,7 @@ import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeStorage
 
 internal open class VectorSizePatch(
     final override val variableProvider: VariableProvider,
-    initialData: VectorSizeMap,
+    initialData: VectorSizeMap = emptyMap(),
 ) : PartialVectorSizeProvider {
 
     init {
@@ -89,7 +89,7 @@ internal open class VectorSizePatch(
 
 internal class MutableVectorSizePatch(
     variableProvider: VariableProvider,
-    initialData: VectorSizeMap,
+    initialData: VectorSizeMap = emptyMap(),
 ) : VectorSizePatch(variableProvider, initialData), MutablePartialVectorSizeProvider {
 
     override val data: MutableVectorSizeMap = initialData.toMutableMap()

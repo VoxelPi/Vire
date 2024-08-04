@@ -1,9 +1,5 @@
 package net.voxelpi.vire.engine.kernel
 
-import net.voxelpi.vire.engine.LogicState
-import net.voxelpi.vire.engine.kernel.variable.InputScalar
-import net.voxelpi.vire.engine.kernel.variable.InputVector
-import net.voxelpi.vire.engine.kernel.variable.InputVectorElement
 import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.VectorVariable
@@ -14,7 +10,6 @@ import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorageWrapper
-import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateStorageWrapper
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
@@ -46,35 +41,30 @@ public interface KernelInstance :
 
 internal class KernelInstanceImpl(
     override val kernelVariant: KernelVariantImpl,
-    override val settingStateStorage: SettingStateStorage,
-    override val fieldStateStorage: FieldStateStorage,
-    override val outputStateStorage: OutputStateStorage,
+    settingStateProvider: SettingStateProvider,
+    fieldStateProvider: FieldStateProvider,
+    outputStateProvider: OutputStateProvider,
 ) : KernelInstance, SettingStateStorageWrapper, FieldStateStorageWrapper, OutputStateStorageWrapper {
 
-    override val kernel: KernelImpl
+    override val kernel: Kernel
         get() = kernelVariant.kernel
 
     override val variableProvider: VariableProvider
         get() = kernelVariant
 
-    override fun initialKernelState(): MutableKernelStateImpl {
-        val inputStateStorage = MutableInputStateStorage(
-            kernelVariant,
-            kernelVariant.inputs().associate { input ->
-                val size = when (input) {
-                    is InputScalar -> 1
-                    is InputVector -> kernelVariant.size(input)
-                    is InputVectorElement -> throw IllegalStateException("Vector elements are not allowed")
-                }
-                input.name to Array(size) { LogicState.EMPTY }
-            },
-        )
+    override val settingStateStorage: SettingStateStorage = SettingStateStorage(kernelVariant, settingStateProvider)
+    override val fieldStateStorage: FieldStateStorage = FieldStateStorage(kernelVariant, fieldStateProvider)
+    override val outputStateStorage: OutputStateStorage = OutputStateStorage(kernelVariant, outputStateProvider)
 
-        return MutableKernelStateImpl(
+    override fun initialKernelState(): MutableKernelState {
+        return kernel.initialKernelState(
+            variableProvider,
+            kernelVariant,
+            kernelVariant,
             this,
-            fieldStateStorage.mutableCopy(),
-            inputStateStorage,
-            outputStateStorage.mutableCopy(),
+            fieldStateStorage,
+            variableProvider.defaultInputStates(kernelVariant),
+            outputStateStorage,
         )
     }
 }

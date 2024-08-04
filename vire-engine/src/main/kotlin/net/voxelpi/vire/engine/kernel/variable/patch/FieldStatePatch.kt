@@ -1,20 +1,17 @@
 package net.voxelpi.vire.engine.kernel.variable.patch
 
-import net.voxelpi.vire.engine.kernel.KernelVariantImpl
 import net.voxelpi.vire.engine.kernel.variable.Field
-import net.voxelpi.vire.engine.kernel.variable.FieldInitializationContext
 import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialFieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialFieldStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.FieldStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableFieldStateMap
 
 internal open class FieldStatePatch(
     final override val variableProvider: VariableProvider,
-    initialData: FieldStateMap,
+    initialData: FieldStateMap = emptyMap(),
 ) : PartialFieldStateProvider {
 
     init {
@@ -74,7 +71,7 @@ internal open class FieldStatePatch(
 
 internal class MutableFieldStatePatch(
     variableProvider: VariableProvider,
-    initialData: FieldStateMap,
+    initialData: FieldStateMap = emptyMap(),
 ) : FieldStatePatch(variableProvider, initialData), MutablePartialFieldStateProvider {
 
     override val data: MutableFieldStateMap = initialData.toMutableMap()
@@ -94,17 +91,4 @@ internal class MutableFieldStatePatch(
         // Update the value of the field.
         data[field.name] = value
     }
-}
-
-internal fun generateInitialFieldStatePatch(
-    kernelVariant: KernelVariantImpl,
-    settingStateProvider: SettingStateProvider,
-): MutableFieldStatePatch {
-    val fieldInitializationContext = FieldInitializationContext(kernelVariant, settingStateProvider)
-    val fieldStates: MutableFieldStateMap = mutableMapOf()
-    for (field in kernelVariant.fields()) {
-        val initialization = field.initialization ?: continue
-        fieldStates[field.name] = initialization.invoke(fieldInitializationContext)
-    }
-    return MutableFieldStatePatch(kernelVariant, fieldStates)
 }

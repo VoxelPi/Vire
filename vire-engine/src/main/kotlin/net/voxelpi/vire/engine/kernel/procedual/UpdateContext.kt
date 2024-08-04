@@ -1,6 +1,5 @@
 package net.voxelpi.vire.engine.kernel.procedual
 
-import net.voxelpi.vire.engine.kernel.Kernel
 import net.voxelpi.vire.engine.kernel.MutableKernelState
 import net.voxelpi.vire.engine.kernel.MutableKernelStateWrapper
 import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider

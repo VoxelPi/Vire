@@ -132,7 +132,7 @@ internal class MutableCircuitStateImpl(
         // Update the kernels of all components.
         for (component in circuit.components()) {
             val componentState = this[component]
-            component.kernel.updateKernel(componentState)
+            component.kernel.updateKernelState(componentState)
         }
     }
 

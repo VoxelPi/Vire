@@ -43,7 +43,7 @@ class MemoryTest {
         }
         simulation.simulateStep()
         assertEquals(BooleanState.integer(0, 8), memory[Memory.memory][3])
-        assertEquals(LogicState.EMPTY, memory[Memory.readValue])
+        assertEquals(LogicState.EMPTY, simulation.state[Memory.readValue])
 
         // Check that memory can be written.
         simulation.reset()
@@ -55,7 +55,7 @@ class MemoryTest {
         }
         simulation.simulateStep()
         assertEquals(BooleanState.integer(0x22, 8), memory[Memory.memory][3])
-        assertEquals(LogicState.EMPTY, memory[Memory.readValue])
+        assertEquals(LogicState.EMPTY, simulation.state[Memory.readValue])
 
         // Try reading the value back.
         simulation.reset()
@@ -66,6 +66,6 @@ class MemoryTest {
             this[Memory.readAddress] = BooleanState.integer(3)
         }
         simulation.simulateStep()
-        assertEquals(0x22, memory[Memory.readValue].booleanState().toInt())
+        assertEquals(0x22, simulation.state[Memory.readValue].booleanState().toInt())
     }
 }

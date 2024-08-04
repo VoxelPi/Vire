@@ -11,7 +11,7 @@ import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
 
 internal open class SettingStatePatch(
     final override val variableProvider: VariableProvider,
-    initialData: SettingStateMap,
+    initialData: SettingStateMap = emptyMap(),
 ) : PartialSettingStateProvider {
 
     init {
@@ -71,7 +71,7 @@ internal open class SettingStatePatch(
 
 internal class MutableSettingStatePatch(
     variableProvider: VariableProvider,
-    initialData: SettingStateMap,
+    initialData: SettingStateMap = emptyMap(),
 ) : SettingStatePatch(variableProvider, initialData), MutablePartialSettingStateProvider {
 
     override val data: MutableSettingStateMap = initialData.toMutableMap()

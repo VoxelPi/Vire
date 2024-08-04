@@ -4,6 +4,7 @@ import net.voxelpi.vire.engine.kernel.variable.Field
 import net.voxelpi.vire.engine.kernel.variable.Setting
 import net.voxelpi.vire.engine.kernel.variable.createField
 import net.voxelpi.vire.engine.kernel.variable.createSetting
+import net.voxelpi.vire.engine.kernel.variable.patch.SettingStatePatch
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -26,7 +27,7 @@ class KernelInstanceTest {
         }
         val kernelVariant = kernel.createVariant().getOrThrow()
 
-        kernelVariant.createInstance(mapOf("setting_2" to 4)).getOrThrow()
+        kernelVariant.createInstance(SettingStatePatch(kernelVariant, mapOf("setting_2" to 4))).getOrThrow()
         kernelVariant.createInstance {
             this[setting2] = 5
         }.getOrThrow()

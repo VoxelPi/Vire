@@ -24,7 +24,7 @@ internal class ComponentConfigurationImpl(
     val settingEntries: MutableMap<String, ComponentConfiguration.Entry<*>> = mutableMapOf()
 
     init {
-        val initialSettingStateProvider = kernelVariant.generateDefaultSettingStates()
+        val initialSettingStateProvider = kernelVariant.defaultSettingStates(kernelVariant, kernelVariant)
         for (setting in kernelVariant.settings()) {
             settingEntries[setting.name] = ComponentConfiguration.Entry.Value(initialSettingStateProvider[setting])
         }

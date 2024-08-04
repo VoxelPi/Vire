@@ -44,14 +44,14 @@ class PackagerTest {
             }
         }
         packagerSimulation.simulateStep()
-        val packaged = packager[Packager.output]
+        val packaged = packagerSimulation.state[Packager.output]
         assertEquals(state, packaged)
 
         unpackagerSimulation.modifyInputs {
             this[Unpackager.input] = packaged
         }
         unpackagerSimulation.simulateStep()
-        val unpackaged = unpackager[Unpackager.output]
+        val unpackaged = unpackagerSimulation.state[Unpackager.output]
         for (index in 0..<blockCount) {
             assertEquals(LogicState.value(state[0], 1), unpackaged[0])
         }
