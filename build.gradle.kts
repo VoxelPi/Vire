@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "net.voxelpi.vire"
-    version = "0.5.0-SNAPSHOT"
+    version = "0.5.0"
 
     repositories {
         mavenCentral()
