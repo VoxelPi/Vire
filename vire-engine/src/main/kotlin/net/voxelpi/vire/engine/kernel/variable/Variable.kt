@@ -61,6 +61,13 @@ public sealed interface VectorVariable<T> : Variable<T> {
     public val size: VectorSizeInitializationContext.() -> Int
 
     /**
+     * Returns if the give [size] is valid for this vector variable.
+     */
+    public fun isValidSize(size: Int): Boolean {
+        return size >= 0
+    }
+
+    /**
      * Getter for the element at index [index] in the vector.
      */
     public operator fun get(index: Int): VectorVariableElement<T>
@@ -115,6 +122,22 @@ public sealed interface ConstrainedVariable<T> : Variable<T> {
             return false
         }
         return isValidValue(value as T)
+    }
+}
+
+/**
+ * A vector variable that has a [VariableConstraint] for its size.
+ * The vector size must fulfil the constraint.
+ */
+public sealed interface ConstrainedSizeVectorVariable<T> : VectorVariable<T> {
+
+    /**
+     * The constrained for the size of the vector variable.
+     */
+    public val sizeConstraint: VariableConstraint<Int>
+
+    override fun isValidSize(size: Int): Boolean {
+        return size >= 0 && sizeConstraint.isValidValue(size)
     }
 }
 

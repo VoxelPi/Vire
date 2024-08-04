@@ -46,9 +46,19 @@ public interface VariableProvider : Iterable<Variable<*>> {
     public fun vectorVariables(): Collection<VectorVariable<*>> = variablesOfKind<VectorVariable<*>>()
 
     /**
+     * Returns the vector variable with the given [name].
+     */
+    public fun vectorVariable(name: String): VectorVariable<*>? = variableOfKind(name)
+
+    /**
      * Checks if there is a registered variable with the given [name].
      */
     public fun hasScalarVariable(name: String): Boolean = hasVariableOfKind<ScalarVariable<*>>(name)
+
+    /**
+     * Checks if the given [parameter] is registered.
+     */
+    public fun hasVectorVariable(vector: VectorVariable<*>): Boolean = vectorVariable(vector.name) == vector
 
     /**
      * Checks if there is a registered variable with the given [name].
