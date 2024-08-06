@@ -12,7 +12,10 @@ import net.voxelpi.vire.engine.kernel.variable.storage.InputStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.InputStateStorage
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableInputStateMap
 
-internal open class InputStatePatch(
+/**
+ * A collection that stores the state of some inputs of the given [variableProvider].
+ */
+public open class InputStatePatch(
     final override val variableProvider: VariableProvider,
     initialData: InputStateMap = emptyMap(),
 ) : PartialInputStateProvider {
@@ -30,16 +33,22 @@ internal open class InputStatePatch(
 
     protected open val data: InputStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
         variableProvider,
         variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
     )
 
-    fun copy(): InputStatePatch {
+    /**
+     * Creates a copy of this patch.
+     */
+    public fun copy(): InputStatePatch {
         return InputStatePatch(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableInputStatePatch {
+    /**
+     * Creates a mutable copy of this patch.
+     */
+    public fun mutableCopy(): MutableInputStatePatch {
         return MutableInputStatePatch(variableProvider, data)
     }
 
@@ -85,21 +94,24 @@ internal open class InputStatePatch(
      * Creates an input state storage using the set data.
      * All inputs must have a set value otherwise this operation fails.
      */
-    fun createStorage(): InputStateStorage {
+    public fun createStorage(): InputStateStorage {
         return InputStateStorage(variableProvider, data)
     }
 }
 
-internal class MutableInputStatePatch(
+/**
+ * A mutable collection that stores the state of some inputs of the given [variableProvider].
+ */
+public class MutableInputStatePatch(
     variableProvider: VariableProvider,
     initialData: InputStateMap = emptyMap(),
 ) : InputStatePatch(variableProvider, initialData), MutablePartialInputStateProvider {
 
     override val data: MutableInputStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
         variableProvider,
-        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
+        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
 
     override fun set(input: InputScalar, value: LogicState) {

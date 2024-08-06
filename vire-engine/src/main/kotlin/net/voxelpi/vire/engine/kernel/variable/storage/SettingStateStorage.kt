@@ -5,11 +5,14 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableSettingStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.SettingStateProvider
 
-internal typealias SettingStateMap = Map<String, Any?>
+public typealias SettingStateMap = Map<String, Any?>
 
-internal typealias MutableSettingStateMap = MutableMap<String, Any?>
+public typealias MutableSettingStateMap = MutableMap<String, Any?>
 
-internal open class SettingStateStorage(
+/**
+ * A collection that stores the state of all settings of the given [variableProvider].
+ */
+public open class SettingStateStorage(
     final override val variableProvider: VariableProvider,
     initialData: SettingStateMap,
 ) : SettingStateProvider {
@@ -30,16 +33,22 @@ internal open class SettingStateStorage(
 
     protected open val data: SettingStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: SettingStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: SettingStateProvider) : this(
         variableProvider,
         variableProvider.settings().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
 
-    fun copy(): SettingStateStorage {
+    /**
+     * Creates a copy of this storage.
+     */
+    public fun copy(): SettingStateStorage {
         return SettingStateStorage(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableSettingStateStorage {
+    /**
+     * Creates a mutable copy of this storage.
+     */
+    public fun mutableCopy(): MutableSettingStateStorage {
         return MutableSettingStateStorage(variableProvider, data)
     }
 
@@ -53,14 +62,17 @@ internal open class SettingStateStorage(
     }
 }
 
-internal class MutableSettingStateStorage(
+/**
+ * A mutable collection that stores the state of all settings of the given [variableProvider].
+ */
+public class MutableSettingStateStorage(
     variableProvider: VariableProvider,
     initialData: SettingStateMap,
 ) : SettingStateStorage(variableProvider, initialData), MutableSettingStateProvider {
 
     override val data: MutableSettingStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: SettingStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: SettingStateProvider) : this(
         variableProvider,
         variableProvider.settings().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )

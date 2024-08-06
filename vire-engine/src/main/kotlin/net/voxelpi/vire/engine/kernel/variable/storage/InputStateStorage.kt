@@ -7,11 +7,14 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.InputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableInputStateProvider
 
-internal typealias InputStateMap = Map<String, Array<LogicState>>
+public typealias InputStateMap = Map<String, Array<LogicState>>
 
-internal typealias MutableInputStateMap = MutableMap<String, Array<LogicState>>
+public typealias MutableInputStateMap = MutableMap<String, Array<LogicState>>
 
-internal open class InputStateStorage(
+/**
+ * A collection that stores the state of all inputs of the given [variableProvider].
+ */
+public open class InputStateStorage(
     final override val variableProvider: VariableProvider,
     initialData: InputStateMap,
 ) : InputStateProvider {
@@ -34,16 +37,22 @@ internal open class InputStateStorage(
 
     protected open val data: InputStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: InputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: InputStateProvider) : this(
         variableProvider,
         variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
 
-    fun copy(): InputStateStorage {
+    /**
+     * Creates a copy of this storage.
+     */
+    public fun copy(): InputStateStorage {
         return InputStateStorage(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableInputStateStorage {
+    /**
+     * Creates a mutable copy of this storage.
+     */
+    public fun mutableCopy(): MutableInputStateStorage {
         return MutableInputStateStorage(variableProvider, data)
     }
 
@@ -68,14 +77,17 @@ internal open class InputStateStorage(
     }
 }
 
-internal class MutableInputStateStorage(
+/**
+ * A mutable collection that stores the state of all inputs of the given [variableProvider].
+ */
+public class MutableInputStateStorage(
     variableProvider: VariableProvider,
     initialData: InputStateMap,
 ) : InputStateStorage(variableProvider, initialData), MutableInputStateProvider {
 
     override val data: MutableInputStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: InputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: InputStateProvider) : this(
         variableProvider,
         variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
