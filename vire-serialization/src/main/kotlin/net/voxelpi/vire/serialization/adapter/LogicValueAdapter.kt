@@ -21,6 +21,14 @@ internal object LogicValueAdapter : JsonSerializer<LogicValue>, JsonDeserializer
     }
 
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): LogicValue {
-        TODO("Not yet implemented")
+        val primitive = json.asJsonPrimitive
+        if (primitive.isBoolean) {
+            return if (primitive.asBoolean) LogicValue.TRUE else LogicValue.FALSE
+        }
+        return when (primitive.asString) {
+            "none" -> LogicValue.NONE
+            "invalid" -> LogicValue.INVALID
+            else -> throw IllegalArgumentException("Unknown logic value \"$primitive\"")
+        }
     }
 }
