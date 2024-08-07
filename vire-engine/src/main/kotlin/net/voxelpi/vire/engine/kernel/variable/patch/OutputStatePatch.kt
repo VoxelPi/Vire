@@ -12,7 +12,10 @@ import net.voxelpi.vire.engine.kernel.variable.storage.MutableOutputStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.OutputStateStorage
 
-internal open class OutputStatePatch(
+/**
+ * A collection that stores the state of all outputs of the given [variableProvider].
+ */
+public open class OutputStatePatch(
     final override val variableProvider: VariableProvider,
     initialData: OutputStateMap = emptyMap(),
 ) : PartialOutputStateProvider {
@@ -30,16 +33,22 @@ internal open class OutputStatePatch(
 
     protected open val data: OutputStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialOutputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialOutputStateProvider) : this(
         variableProvider,
         variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
     )
 
-    fun copy(): OutputStatePatch {
+    /**
+     * Creates a copy of this patch.
+     */
+    public fun copy(): OutputStatePatch {
         return OutputStatePatch(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableOutputStatePatch {
+    /**
+     * Creates a mutable copy of this patch.
+     */
+    public fun mutableCopy(): MutableOutputStatePatch {
         return MutableOutputStatePatch(variableProvider, data)
     }
 
@@ -85,21 +94,24 @@ internal open class OutputStatePatch(
      * Creates an output state storage using the set data.
      * All outputs must have a set value otherwise this operation fails.
      */
-    fun createStorage(): OutputStateStorage {
+    public fun createStorage(): OutputStateStorage {
         return OutputStateStorage(variableProvider, data)
     }
 }
 
-internal class MutableOutputStatePatch(
+/**
+ * A mutable collection that stores the state of some outputs of the given [variableProvider].
+ */
+public class MutableOutputStatePatch(
     variableProvider: VariableProvider,
     initialData: OutputStateMap = emptyMap(),
 ) : OutputStatePatch(variableProvider, initialData), MutablePartialOutputStateProvider {
 
     override val data: MutableOutputStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialOutputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialOutputStateProvider) : this(
         variableProvider,
-        variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
+        variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
 
     override fun set(output: OutputScalar, value: LogicState) {

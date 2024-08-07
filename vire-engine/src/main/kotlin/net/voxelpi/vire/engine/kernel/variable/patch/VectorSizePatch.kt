@@ -9,7 +9,10 @@ import net.voxelpi.vire.engine.kernel.variable.storage.MutableVectorSizeMap
 import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeMap
 import net.voxelpi.vire.engine.kernel.variable.storage.VectorSizeStorage
 
-internal open class VectorSizePatch(
+/**
+ * A collection that stores the sizes of some of the vector variables of the given [variableProvider].
+ */
+public open class VectorSizePatch(
     final override val variableProvider: VariableProvider,
     initialData: VectorSizeMap = emptyMap(),
 ) : PartialVectorSizeProvider {
@@ -25,16 +28,22 @@ internal open class VectorSizePatch(
 
     protected open val data: VectorSizeMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialVectorSizeProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialVectorSizeProvider) : this(
         variableProvider,
         variableProvider.vectorVariables().filter { initialData.hasSize(it) }.associate { it.name to initialData.size(it) }
     )
 
-    fun copy(): VectorSizePatch {
+    /**
+     * Creates a copy of this patch.
+     */
+    public fun copy(): VectorSizePatch {
         return VectorSizePatch(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableVectorSizePatch {
+    /**
+     * Creates a mutable copy of this patch.
+     */
+    public fun mutableCopy(): MutableVectorSizePatch {
         return MutableVectorSizePatch(variableProvider, data)
     }
 
@@ -79,22 +88,25 @@ internal open class VectorSizePatch(
     }
 
     /**
-     * Creates a vector size state storage using the set data.
-     * All vector variable must have a set size otherwise this operation fails.
+     * Creates a vector size storage using the set data.
+     * All vector variables must have a set size otherwise this operation fails.
      */
-    fun createStorage(): VectorSizeStorage {
+    public fun createStorage(): VectorSizeStorage {
         return VectorSizeStorage(variableProvider, data)
     }
 }
 
-internal class MutableVectorSizePatch(
+/**
+ * A mutable collection that stores the sizes of some of the vector variables of the given [variableProvider].
+ */
+public class MutableVectorSizePatch(
     variableProvider: VariableProvider,
     initialData: VectorSizeMap = emptyMap(),
 ) : VectorSizePatch(variableProvider, initialData), MutablePartialVectorSizeProvider {
 
     override val data: MutableVectorSizeMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialVectorSizeProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialVectorSizeProvider) : this(
         variableProvider,
         variableProvider.vectorVariables().filter { initialData.hasSize(it) }.associate { it.name to initialData.size(it) }
     )

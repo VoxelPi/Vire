@@ -4,14 +4,15 @@ import net.voxelpi.vire.engine.kernel.variable.Parameter
 import net.voxelpi.vire.engine.kernel.variable.UninitializedVariableException
 import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutablePartialParameterStateProvider
-import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.PartialParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.storage.MutableParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorage
-import net.voxelpi.vire.engine.kernel.variable.storage.ParameterStateStorageWrapper
 
-internal open class ParameterStatePatch(
+/**
+ * A collection that stores the state of some parameters of the given [variableProvider].
+ */
+public open class ParameterStatePatch(
     final override val variableProvider: VariableProvider,
     initialData: ParameterStateMap = emptyMap(),
 ) : PartialParameterStateProvider {
@@ -27,16 +28,22 @@ internal open class ParameterStatePatch(
 
     protected open val data: ParameterStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialParameterStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialParameterStateProvider) : this(
         variableProvider,
         variableProvider.parameters().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
 
-    fun copy(): ParameterStatePatch {
+    /**
+     * Creates a copy of this patch.
+     */
+    public fun copy(): ParameterStatePatch {
         return ParameterStatePatch(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableParameterStatePatch {
+    /**
+     * Creates a mutable copy of this patch.
+     */
+    public fun mutableCopy(): MutableParameterStatePatch {
         return MutableParameterStatePatch(variableProvider, data)
     }
 
@@ -66,19 +73,22 @@ internal open class ParameterStatePatch(
      * Creates a parameter state storage using the set data.
      * All parameters must have a set value otherwise this operation fails.
      */
-    fun createStorage(): ParameterStateStorage {
+    public fun createStorage(): ParameterStateStorage {
         return ParameterStateStorage(variableProvider, data)
     }
 }
 
-internal class MutableParameterStatePatch(
+/**
+ * A mutable collection that stores the state of some parameters of the given [variableProvider].
+ */
+public class MutableParameterStatePatch(
     variableProvider: VariableProvider,
     initialData: ParameterStateMap = emptyMap(),
 ) : ParameterStatePatch(variableProvider, initialData), MutablePartialParameterStateProvider {
 
     override val data: MutableParameterStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialParameterStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialParameterStateProvider) : this(
         variableProvider,
         variableProvider.parameters().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
@@ -93,61 +103,4 @@ internal class MutableParameterStatePatch(
         // Update the value of the parameter.
         data[parameter.name] = value
     }
-}
-
-internal fun parameterStatePatch(variableProvider: VariableProvider, data: ParameterStateMap): ParameterStatePatch {
-    return mutableParameterStatePatch(variableProvider, data)
-}
-
-internal fun parameterStatePatch(variableProvider: VariableProvider, dataProvider: ParameterStateProvider): ParameterStatePatch {
-    return mutableParameterStatePatch(variableProvider, dataProvider)
-}
-
-internal fun mutableParameterStatePatch(variableProvider: VariableProvider, data: ParameterStateMap): MutableParameterStatePatch {
-    val processedData: MutableParameterStateMap = mutableMapOf()
-    for (parameter in variableProvider.parameters()) {
-        // Check if the parameter has an assigned value.
-        if (parameter.name !in data) {
-            continue
-        }
-
-        // Get the value from the map.
-        val value = data[parameter.name]
-
-        // Check that the assigned value is valid for the given parameter.
-        require(parameter.isValidTypeAndValue(value)) { "Invalid value for the parameter ${parameter.name}" }
-
-        // Put value into map.
-        processedData[parameter.name] = value
-    }
-    return MutableParameterStatePatch(variableProvider, processedData)
-}
-
-internal fun mutableParameterStatePatch(
-    variableProvider: VariableProvider,
-    dataProvider: ParameterStateProvider,
-): MutableParameterStatePatch {
-    val processedData: MutableParameterStateMap = mutableMapOf()
-    for (parameter in variableProvider.parameters()) {
-        // Check if the parameter has an assigned value.
-        if (!dataProvider.variableProvider.hasVariable(parameter)) {
-            continue
-        }
-        if (dataProvider is ParameterStatePatch && !dataProvider.hasValue(parameter)) {
-            continue
-        }
-        if (dataProvider is ParameterStateStorageWrapper && !dataProvider.hasValue(parameter)) {
-            continue
-        }
-
-        // Get the value from the provider.
-        val value = dataProvider[parameter]
-
-        // Check that the assigned value is valid for the given parameter.
-        require(parameter.isValidTypeAndValue(value)) { "Invalid value for the parameter ${parameter.name}" }
-
-        // Put value into map.
-        processedData[parameter.name] = value
-    }
-    return MutableParameterStatePatch(variableProvider, processedData)
 }

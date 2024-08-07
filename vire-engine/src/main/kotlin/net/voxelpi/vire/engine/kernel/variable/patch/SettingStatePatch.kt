@@ -9,7 +9,10 @@ import net.voxelpi.vire.engine.kernel.variable.storage.MutableSettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateMap
 import net.voxelpi.vire.engine.kernel.variable.storage.SettingStateStorage
 
-internal open class SettingStatePatch(
+/**
+ * A mutable collection that stores the state of some settings of the given [variableProvider].
+ */
+public open class SettingStatePatch(
     final override val variableProvider: VariableProvider,
     initialData: SettingStateMap = emptyMap(),
 ) : PartialSettingStateProvider {
@@ -25,16 +28,22 @@ internal open class SettingStatePatch(
 
     protected open val data: SettingStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialSettingStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialSettingStateProvider) : this(
         variableProvider,
         variableProvider.settings().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
 
-    fun copy(): SettingStatePatch {
+    /**
+     * Creates a copy of this patch.
+     */
+    public fun copy(): SettingStatePatch {
         return SettingStatePatch(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableSettingStatePatch {
+    /**
+     * Creates a mutable copy of this patch.
+     */
+    public fun mutableCopy(): MutableSettingStatePatch {
         return MutableSettingStatePatch(variableProvider, data)
     }
 
@@ -64,19 +73,22 @@ internal open class SettingStatePatch(
      * Creates a setting state storage using the set data.
      * All settings must have a set value otherwise this operation fails.
      */
-    fun createStorage(): SettingStateStorage {
+    public fun createStorage(): SettingStateStorage {
         return SettingStateStorage(variableProvider, data)
     }
 }
 
-internal class MutableSettingStatePatch(
+/**
+ * A mutable collection that stores the state of some settings of the given [variableProvider].
+ */
+public class MutableSettingStatePatch(
     variableProvider: VariableProvider,
     initialData: SettingStateMap = emptyMap(),
 ) : SettingStatePatch(variableProvider, initialData), MutablePartialSettingStateProvider {
 
     override val data: MutableSettingStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: PartialSettingStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: PartialSettingStateProvider) : this(
         variableProvider,
         variableProvider.settings().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
