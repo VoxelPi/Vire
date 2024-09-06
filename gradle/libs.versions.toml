@@ -10,7 +10,7 @@ slf4j = "1.7.36"
 blossom = "2.1.0"
 dokka = "1.9.20"
 indra = "3.1.3"
-kotlin = "2.0.10"
+kotlin = "2.0.20"
 ktlint = "12.1.1"
 kover = "0.8.3"
 
@@ -39,7 +39,7 @@ ktlint-plugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref =
 
 [bundles]
 kotlinx-coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-jdk8", "kotlinx-coroutines-reactive"]
-buildsrc-plugins = [
+build-plugins = [
     "blossom",
     "dokka-plugin",
     "indra-common",
