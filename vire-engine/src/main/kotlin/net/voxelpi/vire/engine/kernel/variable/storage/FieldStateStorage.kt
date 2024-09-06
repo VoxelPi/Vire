@@ -5,11 +5,14 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.FieldStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableFieldStateProvider
 
-internal typealias FieldStateMap = Map<String, Any?>
+public typealias FieldStateMap = Map<String, Any?>
 
-internal typealias MutableFieldStateMap = MutableMap<String, Any?>
+public typealias MutableFieldStateMap = MutableMap<String, Any?>
 
-internal open class FieldStateStorage(
+/**
+ * A collection that stores the state of all fields of the given [variableProvider].
+ */
+public open class FieldStateStorage(
     final override val variableProvider: VariableProvider,
     initialData: FieldStateMap,
 ) : FieldStateProvider {
@@ -28,18 +31,27 @@ internal open class FieldStateStorage(
         }
     }
 
+    /**
+     * The stored data of this storage.
+     */
     protected open val data: FieldStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: FieldStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: FieldStateProvider) : this(
         variableProvider,
         variableProvider.fields().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
 
-    fun copy(): FieldStateStorage {
+    /**
+     * Creates a copy of this storage.
+     */
+    public fun copy(): FieldStateStorage {
         return FieldStateStorage(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableFieldStateStorage {
+    /**
+     * Creates a mutable copy of this storage.
+     */
+    public fun mutableCopy(): MutableFieldStateStorage {
         return MutableFieldStateStorage(variableProvider, data)
     }
 
@@ -53,14 +65,17 @@ internal open class FieldStateStorage(
     }
 }
 
-internal class MutableFieldStateStorage(
+/**
+ * A mutable collection that stores the state of all fields of the given [variableProvider].
+ */
+public class MutableFieldStateStorage(
     variableProvider: VariableProvider,
     initialData: FieldStateMap,
 ) : FieldStateStorage(variableProvider, initialData), MutableFieldStateProvider {
 
     override val data: MutableFieldStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: FieldStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: FieldStateProvider) : this(
         variableProvider,
         variableProvider.fields().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )

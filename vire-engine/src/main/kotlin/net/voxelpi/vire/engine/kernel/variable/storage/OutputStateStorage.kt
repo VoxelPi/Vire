@@ -7,11 +7,14 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableOutputStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.OutputStateProvider
 
-internal typealias OutputStateMap = Map<String, Array<LogicState>>
+public typealias OutputStateMap = Map<String, Array<LogicState>>
 
-internal typealias MutableOutputStateMap = MutableMap<String, Array<LogicState>>
+public typealias MutableOutputStateMap = MutableMap<String, Array<LogicState>>
 
-internal open class OutputStateStorage(
+/**
+ * A collection that stores the state of all outputs of the given [variableProvider].
+ */
+public open class OutputStateStorage(
     final override val variableProvider: VariableProvider,
     initialData: OutputStateMap,
 ) : OutputStateProvider {
@@ -34,16 +37,22 @@ internal open class OutputStateStorage(
 
     protected open val data: OutputStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: OutputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: OutputStateProvider) : this(
         variableProvider,
         variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
 
-    fun copy(): OutputStateStorage {
+    /**
+     * Creates a copy of this storage.
+     */
+    public fun copy(): OutputStateStorage {
         return OutputStateStorage(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableOutputStateStorage {
+    /**
+     * Creates a mutable copy of this storage.
+     */
+    public fun mutableCopy(): MutableOutputStateStorage {
         return MutableOutputStateStorage(variableProvider, data)
     }
 
@@ -68,14 +77,17 @@ internal open class OutputStateStorage(
     }
 }
 
-internal class MutableOutputStateStorage(
+/**
+ * A mutable collection that stores the state of all outputs of the given [variableProvider].
+ */
+public class MutableOutputStateStorage(
     variableProvider: VariableProvider,
     initialData: OutputStateMap,
 ) : OutputStateStorage(variableProvider, initialData), MutableOutputStateProvider {
 
     override val data: MutableOutputStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: OutputStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: OutputStateProvider) : this(
         variableProvider,
         variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )

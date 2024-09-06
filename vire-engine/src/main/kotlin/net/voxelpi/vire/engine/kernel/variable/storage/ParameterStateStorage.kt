@@ -5,11 +5,14 @@ import net.voxelpi.vire.engine.kernel.variable.VariableProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableParameterStateProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.ParameterStateProvider
 
-internal typealias ParameterStateMap = Map<String, Any?>
+public typealias ParameterStateMap = Map<String, Any?>
 
-internal typealias MutableParameterStateMap = MutableMap<String, Any?>
+public typealias MutableParameterStateMap = MutableMap<String, Any?>
 
-internal open class ParameterStateStorage(
+/**
+ * A collection that stores the state of all parameters of the given [variableProvider].
+ */
+public open class ParameterStateStorage(
     final override val variableProvider: VariableProvider,
     initialData: ParameterStateMap,
 ) : ParameterStateProvider {
@@ -30,16 +33,22 @@ internal open class ParameterStateStorage(
 
     protected open val data: ParameterStateMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: ParameterStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: ParameterStateProvider) : this(
         variableProvider,
         variableProvider.parameters().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )
 
-    fun copy(): ParameterStateStorage {
+    /**
+     * Creates a copy of this storage.
+     */
+    public fun copy(): ParameterStateStorage {
         return ParameterStateStorage(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableParameterStateStorage {
+    /**
+     * Creates a mutable copy of this storage.
+     */
+    public fun mutableCopy(): MutableParameterStateStorage {
         return MutableParameterStateStorage(variableProvider, data)
     }
 
@@ -67,14 +76,17 @@ internal open class ParameterStateStorage(
     }
 }
 
-internal class MutableParameterStateStorage(
+/**
+ * A mutable collection that stores the state of all parameters of the given [variableProvider].
+ */
+public class MutableParameterStateStorage(
     variableProvider: VariableProvider,
     initialData: ParameterStateMap,
 ) : ParameterStateStorage(variableProvider, initialData), MutableParameterStateProvider {
 
     override val data: MutableParameterStateMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: ParameterStateProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: ParameterStateProvider) : this(
         variableProvider,
         variableProvider.parameters().filter { initialData.hasValue(it) }.associate { it.name to initialData[it] }
     )

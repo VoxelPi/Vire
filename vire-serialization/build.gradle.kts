@@ -1,5 +1,5 @@
 plugins {
-    id("vire.build")
+    id("vire.module")
     id("vire.publishing")
 }
 
@@ -9,6 +9,10 @@ dependencies {
     // Project
     compileOnly(projects.vireEngine)
 
+    // Annotation processors
+    api(libs.gson)
+
     // Tests
     testImplementation(projects.vireEngine)
+    testImplementation(projects.vireStdlib)
 }

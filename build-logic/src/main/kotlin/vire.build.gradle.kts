@@ -1,5 +1,4 @@
 import org.gradle.accessors.dm.LibrariesForLibs
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 val libs = the<LibrariesForLibs>()
 
@@ -49,6 +48,11 @@ tasks {
         coloredOutput.set(true)
         reporters {
             reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+        }
+
+        // Exclude generated files.
+        filter {
+            exclude { projectDir.toURI().relativize(it.file.toURI()).path.contains("/generated/") }
         }
     }
 }

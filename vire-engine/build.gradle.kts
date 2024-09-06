@@ -1,5 +1,5 @@
 plugins {
-    id("vire.module")
+    id("vire.build")
     id("vire.publishing")
     alias(libs.plugins.kover)
 }

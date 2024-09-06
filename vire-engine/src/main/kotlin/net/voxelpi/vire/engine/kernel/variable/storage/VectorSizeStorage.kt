@@ -5,11 +5,14 @@ import net.voxelpi.vire.engine.kernel.variable.VectorVariable
 import net.voxelpi.vire.engine.kernel.variable.provider.MutableVectorSizeProvider
 import net.voxelpi.vire.engine.kernel.variable.provider.VectorSizeProvider
 
-internal typealias VectorSizeMap = Map<String, Int>
+public typealias VectorSizeMap = Map<String, Int>
 
-internal typealias MutableVectorSizeMap = MutableMap<String, Int>
+public typealias MutableVectorSizeMap = MutableMap<String, Int>
 
-internal open class VectorSizeStorage(
+/**
+ * A collection that stores the sizes of all vector variables of the given [variableProvider].
+ */
+public open class VectorSizeStorage(
     final override val variableProvider: VariableProvider,
     initialData: VectorSizeMap,
 ) : VectorSizeProvider {
@@ -30,16 +33,22 @@ internal open class VectorSizeStorage(
 
     protected open val data: VectorSizeMap = initialData.toMap()
 
-    constructor(variableProvider: VariableProvider, initialData: VectorSizeProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: VectorSizeProvider) : this(
         variableProvider,
         variableProvider.vectorVariables().filter { initialData.hasSize(it) }.associate { it.name to initialData.size(it) }
     )
 
-    fun copy(): VectorSizeStorage {
+    /**
+     * Creates a copy of this storage.
+     */
+    public fun copy(): VectorSizeStorage {
         return VectorSizeStorage(variableProvider, data)
     }
 
-    fun mutableCopy(): MutableVectorSizeStorage {
+    /**
+     * Creates a mutable copy of this storage.
+     */
+    public fun mutableCopy(): MutableVectorSizeStorage {
         return MutableVectorSizeStorage(variableProvider, data)
     }
 
@@ -60,14 +69,17 @@ internal open class VectorSizeStorage(
     }
 }
 
-internal class MutableVectorSizeStorage(
+/**
+ * A mutable collection that stores the sizes of all vector variables of the given [variableProvider].
+ */
+public class MutableVectorSizeStorage(
     variableProvider: VariableProvider,
     initialData: VectorSizeMap,
 ) : VectorSizeStorage(variableProvider, initialData), MutableVectorSizeProvider {
 
     override val data: MutableVectorSizeMap = initialData.toMutableMap()
 
-    constructor(variableProvider: VariableProvider, initialData: VectorSizeProvider) : this(
+    public constructor(variableProvider: VariableProvider, initialData: VectorSizeProvider) : this(
         variableProvider,
         variableProvider.vectorVariables().filter { initialData.hasSize(it) }.associate { it.name to initialData.size(it) }
     )
@@ -91,7 +103,7 @@ internal class MutableVectorSizeStorage(
         return resize(variableProvider.vectorVariable(vectorName)!!, size)
     }
 
-    fun unregister(vector: VectorVariable<*>) {
+    public fun unregister(vector: VectorVariable<*>) {
         require(variableProvider.hasVectorVariable(vector)) { "Unknown vector variable ${vector.name}" }
 
         data.remove(vector.name)
