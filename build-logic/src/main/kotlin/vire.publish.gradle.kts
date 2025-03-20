@@ -1,13 +1,14 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
+    id("org.jetbrains.dokka-javadoc")
     `maven-publish`
     signing
 }
 
 val javadocJar by tasks.register<Jar>("dokkaJavadocJar") {
-    dependsOn(tasks.dokkaJavadoc)
-    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+    dependsOn(tasks.dokkaGeneratePublicationJavadoc)
+    from(tasks.dokkaGeneratePublicationJavadoc.flatMap { it.outputDirectory })
     archiveClassifier.set("javadoc")
 }
 

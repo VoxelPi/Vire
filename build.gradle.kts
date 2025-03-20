@@ -15,6 +15,6 @@ allprojects {
     }
 }
 
-tasks.dokkaHtmlMultiModule.configure {
-    outputDirectory.set(layout.buildDirectory.dir("docs"))
+dokka {
+    basePublicationsDirectory.set(layout.buildDirectory.dir("docs"))
 }
