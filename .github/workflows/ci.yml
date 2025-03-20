@@ -45,4 +45,3 @@ jobs:
           SIGNING_PASSWORD: "${{ secrets.GPG_SIGNING_PASSWORD }}"
           VOXELPI_REPO_USER: "${{ secrets.VOXELPI_REPO_USER }}"
           VOXELPI_REPO_KEY: "${{ secrets.VOXELPI_REPO_KEY }}"
-          GITHUB_TOKEN: "${{secrets.GITHUB_TOKEN}}"

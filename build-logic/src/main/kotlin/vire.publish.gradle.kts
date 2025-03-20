@@ -29,14 +29,6 @@ publishing {
                 password = findProperty("vpr.key") as String? ?: System.getenv("VOXELPI_REPO_KEY")
             }
         }
-//        maven {
-//            name = "GitHubPackages"
-//            url = uri("https://maven.pkg.github.com/voxelpi/vire")
-//            credentials {
-//                username = System.getenv("GITHUB_ACTOR")
-//                password = System.getenv("GITHUB_TOKEN")
-//            }
-//        }
     }
 
     publications {
