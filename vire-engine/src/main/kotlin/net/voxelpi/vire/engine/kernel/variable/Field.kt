@@ -17,6 +17,7 @@ public data class Field<T> internal constructor(
     override val name: String,
     override val type: KType,
     public val initialization: FieldInitialization<T>?,
+    override val description: String,
 ) : ScalarVariable<T>, VariantVariable<T>
 
 /**
@@ -55,6 +56,11 @@ public class FieldBuilder<T> internal constructor(
      */
     public var initialization: FieldInitialization<T>? = null
 
+    /**
+     * The description of the field.
+     */
+    public var description: String = ""
+
     @Suppress("UNCHECKED_CAST")
     internal fun buildInitialization(): FieldInitialization<T>? {
         // Return null initialization if the type allows it.
@@ -81,5 +87,5 @@ public inline fun <reified T> createField(name: String, noinline lambda: FieldBu
 public fun <T> createField(name: String, type: KType, lambda: FieldBuilder<T>.() -> Unit = {}): Field<T> {
     val builder = FieldBuilder<T>(name, type)
     builder.lambda()
-    return Field(name, type, builder.buildInitialization())
+    return Field(name, type, builder.buildInitialization(), builder.description)
 }

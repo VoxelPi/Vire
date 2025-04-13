@@ -8,6 +8,7 @@ public sealed interface Input : IOVariable
  */
 public data class InputScalar internal constructor(
     override val name: String,
+    override val description: String,
 ) : IOScalarVariable, Input
 
 /**
@@ -17,6 +18,7 @@ public data class InputScalar internal constructor(
 public data class InputVector internal constructor(
     override val name: String,
     override val size: VectorSizeInitializationContext.() -> Int,
+    override val description: String,
 ) : IOVectorVariable, Input {
 
     override fun get(index: Int): InputVectorElement {
@@ -39,7 +41,13 @@ public data class InputVectorElement internal constructor(
  */
 public class InputScalarBuilder internal constructor(
     public val name: String,
-)
+) {
+
+    /**
+     * The description of the input scalar.
+     */
+    public var description: String = ""
+}
 
 /**
  * A build for an input vector.
@@ -55,6 +63,11 @@ public class InputVectorBuilder internal constructor(
      * Note that the size of a vector variable can be set to a different value during the configuration of a kernel.
      */
     public var size: VectorSizeInitializationContext.() -> Int = { 0 }
+
+    /**
+     * The description of the input vector.
+     */
+    public var description: String = ""
 }
 
 /**
@@ -63,7 +76,7 @@ public class InputVectorBuilder internal constructor(
 public fun createInput(name: String, lambda: InputScalarBuilder.() -> Unit = {}): InputScalar {
     val builder = InputScalarBuilder(name)
     builder.lambda()
-    return InputScalar(name)
+    return InputScalar(name, builder.description)
 }
 
 /**
@@ -72,5 +85,5 @@ public fun createInput(name: String, lambda: InputScalarBuilder.() -> Unit = {})
 public fun createInputVector(name: String, lambda: InputVectorBuilder.() -> Unit = {}): InputVector {
     val builder = InputVectorBuilder(name)
     builder.lambda()
-    return InputVector(name, builder.size)
+    return InputVector(name, builder.size, builder.description)
 }

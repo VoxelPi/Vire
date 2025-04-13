@@ -17,6 +17,7 @@ public sealed interface Output : IOVariable
 public data class OutputScalar internal constructor(
     override val name: String,
     public val initialization: OutputScalarInitialization,
+    override val description: String,
 ) : IOScalarVariable, Output
 
 /**
@@ -32,6 +33,7 @@ public data class OutputVector internal constructor(
     override val name: String,
     override val size: VectorSizeInitializationContext.() -> Int,
     public val initialization: OutputVectorInitialization,
+    override val description: String,
 ) : IOVectorVariable, Output {
 
     override fun get(index: Int): OutputVectorElement {
@@ -95,6 +97,11 @@ public class OutputScalarBuilder internal constructor(
      * The initialization for the value of the output scalar.
      */
     public var initialization: OutputScalarInitialization = { LogicState.EMPTY }
+
+    /**
+     * The description of the output scalar.
+     */
+    public var description: String = ""
 }
 
 public class OutputVectorBuilder internal constructor(
@@ -111,6 +118,11 @@ public class OutputVectorBuilder internal constructor(
      * Note that the size of a vector variable can be set to a different value during the configuration of a kernel.
      */
     public var size: VectorSizeInitializationContext.() -> Int = { 0 }
+
+    /**
+     * The description of the output vector.
+     */
+    public var description: String = ""
 }
 
 /**
@@ -119,7 +131,7 @@ public class OutputVectorBuilder internal constructor(
 public fun createOutput(name: String, lambda: OutputScalarBuilder.() -> Unit = {}): OutputScalar {
     val builder = OutputScalarBuilder(name)
     builder.lambda()
-    return OutputScalar(name, builder.initialization)
+    return OutputScalar(name, builder.initialization, builder.description)
 }
 
 /**
@@ -128,5 +140,5 @@ public fun createOutput(name: String, lambda: OutputScalarBuilder.() -> Unit = {
 public fun createOutputVector(name: String, lambda: OutputVectorBuilder.() -> Unit = {}): OutputVector {
     val builder = OutputVectorBuilder(name)
     builder.lambda()
-    return OutputVector(name, builder.size, builder.initialization)
+    return OutputVector(name, builder.size, builder.initialization, builder.description)
 }

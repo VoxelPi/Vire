@@ -12,6 +12,7 @@ public data class Parameter<T> internal constructor(
     override val type: KType,
     public val initialization: ParameterInitialization<T>?,
     override val constraint: VariableConstraint<T>,
+    override val description: String,
 ) : ScalarVariable<T>, ConstrainedVariable<T>
 
 /**
@@ -41,6 +42,11 @@ public class ParameterBuilder<T> internal constructor(
      */
     public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
+    /**
+     * The description of the parameter.
+     */
+    public var description: String = ""
+
     @Suppress("UNCHECKED_CAST")
     internal fun buildInitialization(): ParameterInitialization<T>? {
         // Return null initialization if the type allows it.
@@ -67,5 +73,5 @@ public inline fun <reified T> createParameter(name: String, noinline lambda: Par
 public fun <T> createParameter(name: String, type: KType, lambda: ParameterBuilder<T>.() -> Unit = {}): Parameter<T> {
     val builder = ParameterBuilder<T>(name, type)
     builder.lambda()
-    return Parameter(name, type, builder.buildInitialization(), builder.constraint)
+    return Parameter(name, type, builder.buildInitialization(), builder.constraint, builder.description)
 }

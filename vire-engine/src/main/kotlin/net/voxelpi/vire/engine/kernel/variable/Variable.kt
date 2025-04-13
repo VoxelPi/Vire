@@ -22,6 +22,11 @@ public sealed interface Variable<T> {
     public val type: KType
 
     /**
+     * The description of the kernel variable.
+     */
+    public val description: String
+
+    /**
      * Returns if the given [type] is valid for the variable.
      */
     public fun isValidType(type: KType): Boolean {
@@ -93,6 +98,9 @@ public sealed interface VectorVariableElement<T> : Variable<T> {
 
     override val type: KType
         get() = vector.type
+
+    override val description: String
+        get() = vector.description
 }
 
 /**
