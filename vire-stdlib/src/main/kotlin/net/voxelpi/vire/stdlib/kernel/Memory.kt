@@ -22,23 +22,38 @@ public object Memory : KernelProvider {
 
     public val readOnly: Parameter<Boolean> = createParameter("read_only") {
         initialization = { true }
+        description = "If the memory should be read only. This disables all variables related to writing to the memory element."
     }
 
     public val addressBits: Setting<Int> = createSetting("address_bits") {
         initialization = { 8 }
         constraint = inRange(1..31)
+        description = "The number of address bits."
     }
     public val wordSize: Setting<Int> = createSetting("word_size") {
         initialization = { 8 }
         constraint = atLeast(1)
+        description = "The size of the words stored in the memory."
     }
 
-    public val readActive: InputScalar = createInput("read_active")
-    public val readAddress: InputScalar = createInput("read_address")
-    public val readValue: OutputScalar = createOutput("read_value")
-    public val writeActive: InputScalar = createInput("write_active")
-    public val writeAddress: InputScalar = createInput("write_address")
-    public val writeValue: InputScalar = createInput("write_value")
+    public val readActive: InputScalar = createInput("read_active") {
+        description = "If the state of the stored word at the current `read_address` should be written to the `read_value` output."
+    }
+    public val readAddress: InputScalar = createInput("read_address") {
+        description = "The address from which should be read."
+    }
+    public val readValue: OutputScalar = createOutput("read_value") {
+        description = "The value that is being read. If `read_active` is false, this is `NONE`"
+    }
+    public val writeActive: InputScalar = createInput("write_active") {
+        description = "If the state of the `write_value` input should be written to the current `write_address`."
+    }
+    public val writeAddress: InputScalar = createInput("write_address") {
+        description = "The address to which should be written."
+    }
+    public val writeValue: InputScalar = createInput("write_value") {
+        description = "The value that should be stored."
+    }
 
 //    public val memory: Field<Array<BooleanState>> = createField("memory", initialization = { emptyArray() })
 

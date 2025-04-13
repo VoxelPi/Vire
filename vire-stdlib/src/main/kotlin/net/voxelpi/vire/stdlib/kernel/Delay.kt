@@ -16,29 +16,43 @@ import net.voxelpi.vire.engine.kernel.variable.createSetting
 
 public object Delay : KernelProvider {
 
-    public val input: InputScalar = createInput("input")
-
-    public val output: OutputScalar = createOutput("output")
+    /**
+     * The input of the delay.
+     */
+    public val input: InputScalar = createInput("input") {
+        description = "The input of the delay."
+    }
 
     /**
-     * The delay in ticks until the input is written to the output.
+     * The output of the delay.
+     */
+    public val output: OutputScalar = createOutput("output") {
+        description = "The output of the delay."
+    }
+
+    /**
+     * The number of ticks the input is delayed until it is written to the output
      */
     public val delay: Setting<Int> = createSetting("delay") {
         initialization = { 1 }
         constraint = atLeast(1)
+        description = "The number of ticks the input is delayed until it is written to the output."
     }
 
     /**
-     * The initial state of delays output for the first (delay - 1) ticks.
+     * The initial state of the delays output for the first (delay - 1) ticks.
      */
     public val initialization: Setting<LogicState> = createSetting("initialization") {
         initialization = { LogicState.EMPTY }
+        description = "The initial state of the delays output for the first (delay - 1) ticks."
     }
 
     /**
-     * The internal buffer used by the delay to store the state.
+     * Buffer used to store the delayed states.
      */
-    public val buffer: Field<Array<LogicState>> = createField("buffer")
+    public val buffer: Field<Array<LogicState>> = createField("buffer") {
+        description = "Buffer used to store the delayed states."
+    }
 
     override val kernel: Kernel = kernel {
         declare(input)
