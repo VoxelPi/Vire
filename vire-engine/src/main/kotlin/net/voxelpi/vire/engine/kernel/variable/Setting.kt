@@ -16,6 +16,7 @@ public data class Setting<T> internal constructor(
     override val type: KType,
     public val initialization: SettingInitialization<T>?,
     override val constraint: VariableConstraint<T>,
+    override val description: String,
 ) : ScalarVariable<T>, VariantVariable<T>, ConstrainedVariable<T>
 
 /**
@@ -59,6 +60,11 @@ public class SettingBuilder<T> internal constructor(
      */
     public var constraint: VariableConstraint<T> = VariableConstraint.Always
 
+    /**
+     * The description of the parameter.
+     */
+    public var description: String = ""
+
     @Suppress("UNCHECKED_CAST")
     internal fun buildInitialization(): SettingInitialization<T>? {
         // Return null initialization if the type allows it.
@@ -85,5 +91,5 @@ public inline fun <reified T> createSetting(name: String, noinline lambda: Setti
 public fun <T> createSetting(name: String, type: KType, lambda: SettingBuilder<T>.() -> Unit = {}): Setting<T> {
     val builder = SettingBuilder<T>(name, type)
     builder.lambda()
-    return Setting(name, type, builder.buildInitialization(), builder.constraint)
+    return Setting(name, type, builder.buildInitialization(), builder.constraint, builder.description)
 }

@@ -16,15 +16,20 @@ public object Clock : KernelProvider {
     public val ticksHigh: Setting<Long> = createSetting("ticks_high") {
         initialization = { 1L }
         constraint = atLeast(1L)
+        description = "The number of ticks the output is in the HIGH state."
     }
     public val ticksLow: Setting<Long> = createSetting("ticks_low") {
         initialization = { 1L }
         constraint = atLeast(1L)
+        description = "The number of ticks the output is in the LOW state."
     }
     public val ticks: Field<Long> = createField("ticks") {
         initialization = { 0L }
+        description = "The number of ticks that have passed since the clocks last reset"
     }
-    public val output: OutputScalar = createOutput("output")
+    public val output: OutputScalar = createOutput("output") {
+        description = "The output of the clock."
+    }
 
     override val kernel: Kernel = kernel {
         declare(ticksHigh)
