@@ -35,7 +35,7 @@ public open class InputStatePatch(
 
     public constructor(variableProvider: VariableProvider, initialData: PartialInputStateProvider) : this(
         variableProvider,
-        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
+        variableProvider.inputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
 
     /**

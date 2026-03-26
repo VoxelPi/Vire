@@ -6,6 +6,7 @@ public sealed interface Input : IOVariable
  * A kernel input scalar, they are used to transfer a single [net.voxelpi.vire.engine.LogicState] from a circuit network into a kernel.
  * Their value can only be read in kernel updates and cannot be modified by the kernel itself.
  */
+@ConsistentCopyVisibility
 public data class InputScalar internal constructor(
     override val name: String,
     override val description: String,
@@ -15,6 +16,7 @@ public data class InputScalar internal constructor(
  * A kernel input vector, they are used to transfer multiple [net.voxelpi.vire.engine.LogicState] from a circuit network into a kernel.
  * Their value can only be read in kernel updates and cannot be modified by the kernel itself.
  */
+@ConsistentCopyVisibility
 public data class InputVector internal constructor(
     override val name: String,
     override val size: VectorSizeInitializationContext.() -> Int,
@@ -29,6 +31,7 @@ public data class InputVector internal constructor(
 /**
  * An element of an input vector.
  */
+@ConsistentCopyVisibility
 public data class InputVectorElement internal constructor(
     override val vector: InputVector,
     override val index: Int,

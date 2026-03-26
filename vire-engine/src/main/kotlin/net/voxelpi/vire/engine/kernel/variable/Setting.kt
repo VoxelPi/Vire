@@ -11,6 +11,7 @@ import kotlin.reflect.typeOf
  * A kernel setting, they allow the configuration of non-fundamental properties of a kernel, like implementation behavior.
  * The value of a setting can only be set during the creation of a kernel instance and remains immutable after that.
  */
+@ConsistentCopyVisibility
 public data class Setting<T> internal constructor(
     override val name: String,
     override val type: KType,

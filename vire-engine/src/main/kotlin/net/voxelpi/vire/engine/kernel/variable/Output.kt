@@ -14,6 +14,7 @@ public sealed interface Output : IOVariable
  * A kernel output scalar, they are used to transfer a single [net.voxelpi.vire.engine.LogicState] from the kernel to a circuit network.
  * Their value can be read and modified in kernel updates as well as in the kernel initialization.
  */
+@ConsistentCopyVisibility
 public data class OutputScalar internal constructor(
     override val name: String,
     public val initialization: OutputScalarInitialization,
@@ -29,6 +30,7 @@ public typealias OutputScalarInitialization = OutputScalarInitializationContext.
  * A kernel output vector, they are used to transfer multiple [net.voxelpi.vire.engine.LogicState] from the kernel to a circuit network.
  * Their value can be read and modified in kernel updates as well as in the kernel initialization.
  */
+@ConsistentCopyVisibility
 public data class OutputVector internal constructor(
     override val name: String,
     override val size: VectorSizeInitializationContext.() -> Int,
@@ -49,6 +51,7 @@ public typealias OutputVectorInitialization = OutputVectorInitializationContext.
 /**
  * An element of an output vector.
  */
+@ConsistentCopyVisibility
 public data class OutputVectorElement internal constructor(
     override val vector: OutputVector,
     override val index: Int,

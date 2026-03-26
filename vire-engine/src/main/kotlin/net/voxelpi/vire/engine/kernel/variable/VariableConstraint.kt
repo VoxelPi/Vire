@@ -69,7 +69,6 @@ public interface VariableConstraint<in T> {
      * A constraint that requires that the value is greater or equal to the min value.
      *
      * @property min the minimum value.
-     * @property max the maximum value.
      */
     public data class Min<T : Comparable<T>>(
         val min: T,
@@ -95,7 +94,7 @@ public interface VariableConstraint<in T> {
      *
      * @property constraints the list of constraints.
      */
-    public data class Any<T> internal constructor(
+    public data class Any<T>(
         val constraints: List<VariableConstraint<T>>,
     ) : VariableConstraint<T> {
 
@@ -107,7 +106,7 @@ public interface VariableConstraint<in T> {
      *
      * @property constraints the list of constraints.
      */
-    public data class All<T> internal constructor(
+    public data class All<T>(
         val constraints: List<VariableConstraint<T>>,
     ) : VariableConstraint<T> {
 

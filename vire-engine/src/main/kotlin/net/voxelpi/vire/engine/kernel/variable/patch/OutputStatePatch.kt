@@ -35,7 +35,7 @@ public open class OutputStatePatch(
 
     public constructor(variableProvider: VariableProvider, initialData: PartialOutputStateProvider) : this(
         variableProvider,
-        variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it)!! }
+        variableProvider.outputs().filter { initialData.hasValue(it) }.associate { it.name to initialData.vector(it) }
     )
 
     /**

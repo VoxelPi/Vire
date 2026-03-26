@@ -11,4 +11,9 @@ internal object VireBuildParameters {
      * The current git commit.
      */
     const val GIT_COMMIT: String = "{{ git_commit }}"
+
+    /**
+     * The current git branch.
+     */
+    const val GIT_BRANCH: String = "{{ git_branch }}"
 }

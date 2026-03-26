@@ -7,6 +7,7 @@ import kotlin.reflect.typeOf
  * A kernel parameter, they allow the configuration of fundamental kernel features, like the presence and size of non parameter variables.
  * The value of a parameter can only be set during the creation of a kernel variant and remains immutable after that.
  */
+@ConsistentCopyVisibility
 public data class Parameter<T> internal constructor(
     override val name: String,
     override val type: KType,

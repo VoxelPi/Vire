@@ -13,6 +13,7 @@ import kotlin.reflect.typeOf
  * A kernel field, they allow the kernel implementation to storage internal persistent data.
  * Their values are initialized during the initialization of a kernel instance and can be read & modified in kernel updates.
  */
+@ConsistentCopyVisibility
 public data class Field<T> internal constructor(
     override val name: String,
     override val type: KType,
